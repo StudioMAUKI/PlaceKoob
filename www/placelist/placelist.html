@@ -1,0 +1,102 @@
+<!-- <ion-side-menus>
+	<ion-side-menu side="left">
+		<ion-header-bar class="pk-accent">
+    	<h1 class="title">Filter Menu</h1>
+    </ion-header-bar>
+    <ion-content>
+			<ion-list>
+				<ion-checkbox>다시 가고 싶은 곳</ion-checkbox>
+				<ion-checkbox>괜찮은 곳</ion-checkbox>
+				<ion-checkbox>별로인 곳</ion-checkbox>
+				<ion-checkbox>가보고 싶은 곳</ion-checkbox>
+				<ion-checkbox>전체</ion-checkbox>
+				<p>
+					원하는 장소를 선택하여 볼 수 있습니다. 중복 선택도 가능합니다.
+				</p>
+			</ion-list>
+		</ion-content>
+	</ion-side-menu>
+	<ion-side-menu-content edge-drag-threshold="true"> -->
+		<!-- start : real contents area -->
+		<ion-view title="목록으로 보기">
+			<ion-header-bar class="pk-primary">
+				<!-- <button class="button button-icon ion-navicon pk-primary
+				" ng-click="placeList.toggleLeft()"></button> -->
+				<button class="button button-icon icon ion-ios-minus-outline pk-primary" ng-click="placeList.showDelete = !placeList.showDelete"></button>
+				<h1 class="title">장소 목록 보기</h1>
+				<button class="button button-icon button-clear ion-connection-bars pk-primary
+				" ng-click="placeList.popOverOrdering($event)"></button>
+			</ion-header-bar>
+			<ion-header-bar class="bar-subheader item-input-inset">
+				<label class="item-input-wrapper">
+					<i class="icon ion-ios-search placeholder-icon"></i>
+					<input type="search" placeholder="저장된 장소를 검색합니다." ng-model="keyWord">
+					<a ng-click="placeList.clearSearchText()" href="#"><i class="icon ion-close-circled placeholder-icon"></i></a>
+				</label>
+				<button class="button button-clear">
+					검색
+				</button>
+			</ion-header-bar>
+			<ion-content>
+				<ion-list show-delete="placeList.showDelete">
+					<ion-item class="item-divider">오늘</ion-item>
+					<ion-item ng-repeat="place in placeList.places.today" href="#/place">
+						<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
+						{{place.address}}<br>
+						<strong>{{placeList.getTagString(place.tag)}}</strong><br>
+						{{placeList.getFeeling(place.feeling)}}
+						<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('today', place)">
+          	</ion-delete-button>
+          	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
+            	Edit
+          	</ion-option-button>
+          	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
+            	Share
+          	</ion-option-button>
+					</ion-item>
+					<ion-item class="item-divider">이번 주</ion-item>
+					<ion-item ng-repeat="place in placeList.places.thisWeek">
+						<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
+						{{place.address}}<br>
+						<strong>{{placeList.getTagString(place.tag)}}</strong><br>
+						{{placeList.getFeeling(place.feeling)}}
+						<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('thisWeek', place)">
+          	</ion-delete-button>
+          	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
+            	Edit
+          	</ion-option-button>
+          	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
+            	Share
+          	</ion-option-button>
+					</ion-item>
+					<ion-item class="item-divider">지난 기록</ion-item>
+					<ion-item ng-repeat="place in placeList.places.other">
+						<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
+						{{place.address}}<br>
+						<strong>{{placeList.getTagString(place.tag)}}</strong><br>
+						{{placeList.getFeeling(place.feeling)}}
+						<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('other', place)">
+          	</ion-delete-button>
+          	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
+            	Edit
+          	</ion-option-button>
+          	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
+            	Share
+          	</ion-option-button>
+					</ion-item>
+				</ion-list>
+			</ion-content>
+		</ion-view>
+		<!-- end : real contents area -->
+	<!-- </ion-side-menu-content>
+</ion-side-menus> -->
+<script id="popover-ordering.html" type="text/ng-template">
+	<ion-popover-view>
+		<ion-content>
+			<ion-list>
+				<button class="button button-clear button-full" ng-click="placeList.orderByDate()">최신순</button>
+				<button class="button button-clear button-full" ng-click="placeList.orderByDistance()">거리순</button>
+			</ion-list>
+		</ion-content>
+	</ion-popover-view>
+</script>

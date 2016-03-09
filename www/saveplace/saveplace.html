@@ -1,0 +1,28 @@
+<ion-modal-view>
+	<ion-header-bar class="pk-dark-primary">
+		<h1 class="title">선택한 장소를 저장합니다</h1>
+	</ion-header-bar>
+	<ion-content>
+		<ion-scroll direction="x">
+			<div class="media-input">
+				<!-- <div class="images">
+				</div>
+				<div class="add-image">
+				</div> -->
+				<p>사진영역</p>
+			</div>
+		</ion-scroll>
+		<div class="address">
+			<p>경기도 성남시 삼평동 판교역로 25번길 3</p>			
+		</div>
+		<label class="item item-input item-stacked-label">
+  			<span class="input-label">MEMO</span>
+			<textarea rows="7"></textarea>
+		</label>
+		<div class="button-container">
+			<button class="button button-energized" ng-click="main.confirmSave()">저장</button>
+			<button class="button button-outline button-assertive" ng-click="main.closeSaveDlg()">취소</button>
+		</div>
+	</ion-content>
+</ion-modal-view>
+

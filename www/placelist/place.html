@@ -1,0 +1,24 @@
+<ion-view>
+	<ion-header-bar class="pk-primary">
+    <button class="button-clear pk-primary" ng-click="place.goBack()">
+      <i class="ion-arrow-left-c"></i> 뒤로
+    </button>
+		<h1 class="title">능라</h1>
+    <button class="button-clear pk-primary" ng-click="place.goBack()">
+      <i class="ion-compose"></i> 수정
+    </button>
+	</ion-header-bar>
+	<ion-content>
+		<ion-scroll direction="x" class="image-container">
+      <img ng-repeat="image in place.images track by $index" class="image-list-thumb" ng-show="image !== undefined" ng-src="{{ image }}">
+    </ion-scroll>
+		<div class="address">
+			<span style="position:relative;top:5px;">경기도 성남시 삼평동 판교역로 25번길 3</span>
+      <button class="button button-icon pk-accent ion-map button-small">지도보기</button>
+		</div>
+		<blockquote>
+      {{place.comment}}
+    </blockquote>
+		<p><strong>{{place.getTagString()}}</strong></p>
+	</ion-content>
+</ion-view>

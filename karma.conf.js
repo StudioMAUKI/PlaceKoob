@@ -15,6 +15,16 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'www/lib/md5.js',
+      'www/lib/ionic/js/ionic.bundle.js',
+      'www/common/**/*.js',
+      'www/album/**/*.js',
+      'www/config/**/*.js',
+      'www/placelist/**/*.js',
+      'www/register/**/*.js',
+      'www/saveplace/**/*.js',
+      'node_modules/angular-mocks/angular-mocks.js',
+      'www/spec/**/*.js'
     ],
 
 
@@ -32,11 +42,11 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'junit'],
 
 
     // web server port
-    port: 9876,
+    port: 9877,
 
 
     // enable / disable colors in the output (reporters and logs)
@@ -56,6 +66,18 @@ module.exports = function(config) {
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['Chrome'],
 
+    plugins: [
+      'karma-chrome-launcher',
+      'karma-jasmine',
+      'karma-junit-reporter'
+    ],
+
+    junitReporter: {
+      outputDir: 'test_result',
+      outputFile: 'unit_test.xml',
+      suite: 'unit',
+      useBrowserName: true
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
