@@ -21,6 +21,17 @@ angular.module('placekoob.services', [])
 
   return { getUUID: getUUID };
 }])
+.factory('PKQueries', [function() {
+  return {
+    USERS_CREATE: 'CREATE TABLE IF NOT EXISTS Users(' +
+      'user_id INTEGER PRIMARY KEY ASC AUTOINCREMENT,' +
+      'confirmed INTEGER,' +
+      'token TEXT,' +
+      'email TEXT' +
+      ')',
+    USERS_DROP: 'DROP TABLE IF EXISTS Users'
+  };
+}])
 .factory('PKDBManager', ['$cordovaSQLite', function($cordovaSQLite) {
   var PKDB = null;
 
@@ -33,7 +44,7 @@ angular.module('placekoob.services', [])
     } else {
       PKDB = window.openDatabase('placekoob.db', '1.0', 'Placekoob DB', 1024 * 1024 * 5);
     }
-
+    //console.log('PKDBManager init is called.');
     return PKDB;
   }
 
@@ -48,14 +59,15 @@ angular.module('placekoob.services', [])
     return PKDB;
   }
 
-  function excute(sqlStatement, sqlParam) {
+  function execute(sqlStatement, sqlParam) {
     if (!PKDB) {
-      init();
+      this.init();
     }
     return $cordovaSQLite.execute(PKDB, sqlStatement, sqlParam);
   }
 
   return {
+    getDB: function() { return PKDB },
     init: init,
     execute: execute,
     close: close

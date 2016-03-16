@@ -17,13 +17,15 @@ module.exports = function(config) {
     files: [
       'www/lib/md5.js',
       'www/lib/ionic/js/ionic.bundle.js',
+      'node_modules/angular-mocks/angular-mocks.js',
+      'www/lib/ngCordova/dist/ng-cordova.js',
+      // 'www/lib/ngCordova/dist/ng-cordova-mocks.js',
       'www/common/**/*.js',
       'www/album/**/*.js',
       'www/config/**/*.js',
       'www/placelist/**/*.js',
       'www/register/**/*.js',
-      'www/saveplace/**/*.js',
-      'node_modules/angular-mocks/angular-mocks.js',
+      'www/saveplace/**/*.js',      
       'www/spec/**/*.js'
     ],
 

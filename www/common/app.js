@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 'use strict';
 
-angular.module('placekoob', ['ionic', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
+angular.module('placekoob', ['ionic', 'ngCordova', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     if(window.cordova && window.cordova.plugins.Keyboard) {
@@ -22,4 +22,4 @@ angular.module('placekoob', ['ionic', 'placekoob.config', 'placekoob.controllers
       StatusBar.styleDefault();
     }
   });
-})
+});

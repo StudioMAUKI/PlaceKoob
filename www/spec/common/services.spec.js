@@ -30,20 +30,37 @@ describe('placekoob.services', function() {
   describe('PKDBManager', function() {
     var PKDBManager;
 
-    beforeEach(inject(function($injector) {
-      PKDBManager = $injector.get('PKDBManager');
+    beforeEach(inject(function(_PKDBManager_) {
+      PKDBManager = _PKDBManager_;
     }));
 
-    it('initialize DB connection', function() {
+    describe('tests basic function', function() {
+      it('initialize DB connection', function() {
+        expect(PKDBManager.init()).toBeDefined();
+        expect(PKDBManager.getDB()).not.toBeNull();
+      });
 
+      it('close DB connection', function() {
+        expect(PKDBManager.close()).toBeNull();
+      });
+
+      it('excute SQL statements.', function() {
+        spyOn(PKDBManager, 'init').and.callThrough();
+        PKDBManager.execute();
+        expect(PKDBManager.init).toHaveBeenCalled();
+      });
     });
 
-    it('close DB connection', function() {
+    xdescribe('> Each query', function() {
+      var PKQueries;
 
-    });
+      beforeEach(inject(function(_PKQueries_){
+        PKQueries = _PKQueries_;
+      }));
 
-    it('excute SQL statements.', function() {
-
+      it('tests to create table users', function() {
+        expect(PKDBManager.execute).toThrow();
+      })
     });
   });
 });
