@@ -1,27 +1,18 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPlatform', '$ionicModal', '$timeout', '$ionicPopup', function($scope, $ionicSideMenuDelegate, $ionicPlatform, $ionicModal, $timeout, $ionicPopup) {
+.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService) {
 	var main = this;
 	main.clearSearchText = function() {
-		console.log("Search key world : " + $scope.keyWord);
-		$scope.keyWord = "";
+		console.log("Search key world : " + main.keyWord);
+		main.keyWord = "";
 	};
 
 	main.toggleLeft = function() {
 		$ionicSideMenuDelegate.toggleLeft();
 	};
 
- 	main.createMap = function() {
-	 	var container = document.getElementById('myMap');
-	 	var options = {
-	 		center: new daum.maps.LatLng(33.450701, 126.570667),
-	 		level: 3
-	 	};
-	 	var map = new daum.maps.Map(container, options);
-	 };
-
-	main.savePosition = function() {
+ 	main.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 			scope: $scope,
 			animation: 'slide-in-up'
@@ -55,20 +46,50 @@ angular.module('placekoob.controllers')
 		}, 1000);
 	};
 
-	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!) 
+	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
  	main.divToFit = function() {
  		var divMap = $(document);
- 		$('#myMap').css({
- 			height: divMap.height() - 37
+ 		$('.angular-google-map-container').css({
+ 			height: divMap.height() - 137	// 137 : height = document - bar - sub_bar - tab_bar
  		});
- 		// main.height = divMap.height();
  	};
+	main.divToFit();
 
- 	$(document).ready(function() {
- 		main.divToFit();
- 		main.createMap();
- 		$(window).resize(function() {
- 			main.divToFit();
- 		});
- 	});
+	uiGmapGoogleMapApi.then(function(maps) {
+    MapService.getCurrentPosition().
+    then(function(pos){
+        main.map = { center: { latitude: pos.latitude, longitude: pos.longitude }, zoom: 16 };
+        main.marker = {
+          id: 0,
+          coords: {
+            latitude: pos.latitude,
+            longitude: pos.longitude
+          },
+          options: { draggable: true },
+          events: {
+            dragend: function (marker, eventName, args) {
+              var lat = marker.getPosition().lat();
+              var lon = marker.getPosition().lng();
+
+              main.marker.options = {
+                draggable: true,
+                labelContent: "lat: " + main.marker.coords.latitude + ' ' + 'lon: ' + main.marker.coords.longitude,
+                labelAnchor: "100 0",
+                labelClass: "marker-labels"
+              };
+            }
+          }
+        }
+      },
+      function(reason){
+        console.log(reason);
+       var alertPopup = $ionicPopup.alert({
+         title: 'Warning!',
+         template: reason
+       });
+
+       alertPopup.then();
+      }
+    );
+  });
 }]);

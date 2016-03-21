@@ -5,11 +5,11 @@
         </ion-header-bar>
         <ion-content>
 			<ion-list>
-				<ion-checkbox >다시 가고 싶은 곳</ion-checkbox>			
-				<ion-checkbox>괜찮은 곳</ion-checkbox>			
-				<ion-checkbox>별로인 곳</ion-checkbox>			
-				<ion-checkbox>가보고 싶은 곳</ion-checkbox>			
-				<ion-checkbox>전체</ion-checkbox>			
+				<ion-checkbox >다시 가고 싶은 곳</ion-checkbox>
+				<ion-checkbox>괜찮은 곳</ion-checkbox>
+				<ion-checkbox>별로인 곳</ion-checkbox>
+				<ion-checkbox>가보고 싶은 곳</ion-checkbox>
+				<ion-checkbox>전체</ion-checkbox>
 				<p>
 					원하는 장소를 선택하여 볼 수 있습니다. 중복 선택도 가능합니다.
 				</p>
@@ -26,19 +26,23 @@
 			<ion-header-bar class="bar-subheader item-input-inset">
 				<label class="item-input-wrapper">
 					<i class="icon ion-ios-search placeholder-icon"></i>
-					<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="keyWord">
-					<a ng-click="home.clearSearchText()" href="#"><i class="icon ion-close-circled placeholder-icon"></i></a>
+					<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="main.keyWord">
+					<a ng-click="main.clearSearchText()"><i class="icon ion-close-circled placeholder-icon"></i></a>
 				</label>
 				<button class="button button-clear">
 					검색
 				</button>
 			</ion-header-bar>
 			<ion-content>
-				<div id="myMap" data-tap-disabled="true">
+				<!-- <div id="myMap" data-tap-disabled="true">
 					<button class="button button-energized button-float" ng-click="main.savePosition()">
 						<i class="icon ion-plus"></i>
 					</button>
-				</div>
+				</div> -->
+				<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom">
+          <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
+          </ui-gmap-marker>
+        </ui-gmap-google-map>
 			</ion-content>
 		</ion-view>
 		<!-- end : real contents area -->
