@@ -1,18 +1,14 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', '$ionicSideMenuDelegate', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, $ionicSideMenuDelegate, uiGmapGoogleMapApi, MapService) {
+.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService) {
 	var main = this;
 	main.clearSearchText = function() {
 		console.log("Search key world : " + main.keyWord);
 		main.keyWord = "";
 	};
 
-	main.toggleLeft = function() {
-		$ionicSideMenuDelegate.toggleLeft();
-	};
-
- 	main.savePosition = function() {
+	main.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 			scope: $scope,
 			animation: 'slide-in-up'

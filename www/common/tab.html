@@ -1,16 +1,26 @@
 <ion-tabs class="tabs-icon-top tabs-stable">
   <!-- Home Tab -->
-  <ion-tab title="장소 저장" icon-off="ion-ios-location-outline" icon-on="ion-ios-location" href="#/home">
+  <ion-tab title="지도 보기" icon-off="ion-map" icon-on="ion-map" href="#/home">
     <ion-nav-view name="home"></ion-nav-view>
   </ion-tab>
 
   <!-- List Tab -->
-  <ion-tab title="장소 목록" icon-off="ion-ios-list-outline" icon-on="ion-ios-list" href="#/placelist">
+  <ion-tab title="목록 보기" icon-off="ion-ios-list-outline" icon-on="ion-ios-list" href="#/placelist">
     <ion-nav-view name="place-list"></ion-nav-view>
   </ion-tab>
 
+  <!-- Explore Tab -->
+  <ion-tab title="탐색" icon-off="ion-compass" icon-on="ion-compass" href="#/explore">
+    <ion-nav-view name="explore"></ion-nav-view>
+  </ion-tab>
+
   <!-- Config Tab -->
-  <ion-tab title="설정" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/config">
+  <ion-tab title="알림" icon-off="ion-speakerphone" icon-on="ion-speakerphone" href="#/notice">
+    <ion-nav-view name="notice"></ion-nav-view>
+  </ion-tab>
+
+  <!-- Config Tab -->
+  <ion-tab title="설정" icon-off="ion-gear-a" icon-on="ion-gear-a" href="#/config">
     <ion-nav-view name="config"></ion-nav-view>
   </ion-tab>
 </ion-tabs>

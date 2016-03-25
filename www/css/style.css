@@ -81,11 +81,11 @@ div.pk-dark-primary{
   text-align: center;
 }
 
-.pk-dark-primary .title {
+.pk-dark-primary .title, .pk-dark-primary .button {
   color: #FFFFFF;
 }
 
-.pk-primary .title {
+.pk-primary .title, .pk-primary .button {
   color: #FFFFFF;
 }
 

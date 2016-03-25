@@ -1,56 +1,35 @@
-<ion-side-menus>
-	<ion-side-menu side="left">
-		<ion-header-bar class="pk-accent">
-        	<h1 class="title">Filter Menu</h1>
-        </ion-header-bar>
-        <ion-content>
-			<ion-list>
-				<ion-checkbox >다시 가고 싶은 곳</ion-checkbox>
-				<ion-checkbox>괜찮은 곳</ion-checkbox>
-				<ion-checkbox>별로인 곳</ion-checkbox>
-				<ion-checkbox>가보고 싶은 곳</ion-checkbox>
-				<ion-checkbox>전체</ion-checkbox>
-				<p>
-					원하는 장소를 선택하여 볼 수 있습니다. 중복 선택도 가능합니다.
-				</p>
-			</ion-list>
-			</ion-content>
-	</ion-side-menu>
-	<ion-side-menu-content edge-drag-threshold="true">
-		<!-- start : real contents area -->
-		<ion-view title="장소를 찾으시나요?">
-			<ion-header-bar class="pk-primary">
-				<button class="button button-icon button-clear ion-navicon" ng-click="main.toggleLeft()"></button>
-				<h1 class="title">장소를 찾으시나요?</h1>
-			</ion-header-bar>
-			<ion-header-bar class="bar-subheader item-input-inset">
-				<label class="item-input-wrapper">
-					<i class="icon ion-ios-search placeholder-icon"></i>
-					<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="main.keyWord">
-					<a ng-click="main.clearSearchText()"><i class="icon ion-close-circled placeholder-icon"></i></a>
-				</label>
-				<button class="button button-clear">
-					검색
+<!-- start : real contents area -->
+<ion-view title="Placekoob">
+	<ion-header-bar class="pk-primary">
+		<h1 class="title">Placekoob</h1>
+		<a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a>
+	</ion-header-bar>
+	<ion-header-bar class="bar-subheader item-input-inset">
+		<label class="item-input-wrapper">
+			<i class="icon ion-ios-search placeholder-icon"></i>
+			<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="main.keyWord">
+			<a ng-click="main.clearSearchText()"><i class="icon ion-close-circled placeholder-icon"></i></a>
+		</label>
+		<button class="button button-clear">
+			검색
+		</button>
+	</ion-header-bar>
+	<ion-content>
+		<!-- <div id="myMap" data-tap-disabled="true">
+			<button class="button button-energized button-float" ng-click="main.savePosition()">
+				<i class="icon ion-plus"></i>
+			</button>
+		</div> -->
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events">
+			<script type="text/ng-template" id="control.tpl.html">
+        <button class="button button-energized button-round" ng-click="main.savePosition()">
+					<i class="icon ion-plus"></i>
 				</button>
-			</ion-header-bar>
-			<ion-content>
-				<!-- <div id="myMap" data-tap-disabled="true">
-					<button class="button button-energized button-float" ng-click="main.savePosition()">
-						<i class="icon ion-plus"></i>
-					</button>
-				</div> -->
-				<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events">
-					<script type="text/ng-template" id="control.tpl.html">
-            <button class="button button-energized button-round" ng-click="main.savePosition()">
-  						<i class="icon ion-plus"></i>
-  					</button>
-          </script>
-					<ui-gmap-map-control template="control.tpl.html" position="bottom-center" controller="mainCtrl as main" index="-1"></ui-gmap-map-control>
-          <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
-          </ui-gmap-marker>
-        </ui-gmap-google-map>
-			</ion-content>
-		</ion-view>
-		<!-- end : real contents area -->
-	</ion-side-menu-content>
-</ion-side-menus>
+      </script>
+			<ui-gmap-map-control template="control.tpl.html" position="bottom-center" controller="mainCtrl as main" index="-1"></ui-gmap-map-control>
+      <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
+      </ui-gmap-marker>
+    </ui-gmap-google-map>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->
