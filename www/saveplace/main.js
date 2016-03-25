@@ -1,8 +1,10 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService) {
+.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;
+	main.places = placeListService.getPlaces();
+	
 	main.clearSearchText = function() {
 		console.log("Search key world : " + main.keyWord);
 		main.keyWord = "";
@@ -46,7 +48,7 @@ angular.module('placekoob.controllers')
  	main.divToFit = function() {
  		var divMap = $(document);
  		$('.angular-google-map-container').css({
- 			height: divMap.height() - 137	// 137 : height = document - bar - sub_bar - tab_bar
+ 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
  		});
  	};
 	main.divToFit();
