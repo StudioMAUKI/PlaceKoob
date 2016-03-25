@@ -21,6 +21,23 @@ angular.module('placekoob.services', [])
 
   return { getUUID: getUUID };
 }])
+.factory('SocialService', [function() {
+  var token_foursquare = '';
+  token_foursquare = 'DT4A1FOHQ325BGFRTR3SWSWEMJBVRFF2YFVAYY1EGO3FPAQV';
+  return {
+    foursquare: {
+      url_prefix: 'https://api.foursquare.com/v2/users/self',
+      token : token_foursquare,
+      client_id : 'QEA4FRXVQNHKUQYFZ3IZEU0EI0FDR0MCZL0HEZKW11HUNCTW',
+      secret_key : '4VU0FLFOORV13ETKHN5UNYKGBNPZBAJ3OGGKC5E2NILYA2VD',
+      version: '20160324',
+      mode: 'foursquare',
+      getUserInfoUrl: function(aspect) {
+        return this.url_prefix + (aspect? '/' + aspect : '') + '?oauth_token=' + this.token + '&v=' + this.version + '&m=' + this.mode;
+      }
+    }
+  };
+}])
 .factory('PKQueries', [function() {
   return {
     USERS_CREATE: 'CREATE TABLE IF NOT EXISTS Users(' +

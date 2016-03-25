@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService) {
+.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', '$ionicSideMenuDelegate', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, $ionicSideMenuDelegate, uiGmapGoogleMapApi, MapService) {
 	var main = this;
 	main.clearSearchText = function() {
 		console.log("Search key world : " + main.keyWord);
@@ -58,7 +58,18 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
     MapService.getCurrentPosition().
     then(function(pos){
-        main.map = { center: { latitude: pos.latitude, longitude: pos.longitude }, zoom: 16 };
+        main.map = {
+					center: {
+						latitude: pos.latitude,
+						longitude: pos.longitude
+					},
+					events: {
+						dragend: function(map, event, args) {
+							main.marker.coords = main.map.center;
+						}
+					},
+					zoom: 16
+				};
         main.marker = {
           id: 0,
           coords: {
@@ -68,27 +79,13 @@ angular.module('placekoob.controllers')
           options: { draggable: true },
           events: {
             dragend: function (marker, eventName, args) {
-              var lat = marker.getPosition().lat();
-              var lon = marker.getPosition().lng();
-
-              main.marker.options = {
-                draggable: true,
-                labelContent: "lat: " + main.marker.coords.latitude + ' ' + 'lon: ' + main.marker.coords.longitude,
-                labelAnchor: "100 0",
-                labelClass: "marker-labels"
-              };
+              main.map.center = main.marker.coords;
             }
           }
         }
       },
       function(reason){
-        console.log(reason);
-       var alertPopup = $ionicPopup.alert({
-         title: 'Warning!',
-         template: reason
-       });
-
-       alertPopup.then();
+        $ionicPopup.alert({ title: 'Warning!', template: reason });
       }
     );
   });

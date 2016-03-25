@@ -101,6 +101,14 @@ div.pk-dark-primary{
   z-index: 255;
 }
 
+.button-round {
+  border-radius: 50%;
+  margin: 0;
+  padding: 0;
+  min-width: 47px;
+  min-height: 47px;
+}
+
 div.media-input {
   border: 1px solid red;
   width: 100%;
