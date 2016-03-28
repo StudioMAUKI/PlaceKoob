@@ -5,19 +5,39 @@
 		<a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a>
 	</ion-header-bar>
 	<ion-content>
-		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options">
-			<script type="text/ng-template" id="control.tpl.html">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl">
+			<script type="text/ng-template" id="save-dlg.tpl.html">
 				<div class="button-bar">
 					<a class="button pk-accent" ng-click="saveModal.savePosition()">현재 위치 저장</a>
 					<a class="button pk-accent">URL 저장</a>
 				</div>
       </script>
-			<ui-gmap-map-control template="control.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
+			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
 			<ui-gmap-marker ng-repeat="place in main.places track by $index" coords="place.coords" options="place.options" idkey="place.id">
       </ui-gmap-marker>
     </ui-gmap-google-map>
+		<ion-slide-box class="place-preview" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+			<ion-slide>
+				<ion-list>
+					<ion-item >
+						<img class="list-thumbnail" ng-src="img/icon/main_pin_small.png" alt="{{'현재 위치'}}">
+						{{'현재 위치 근처의 장소를 둘러보세요. (좌우로 스크롤)'}}<br>
+					</ion-item>
+				</ion-list>
+			</ion-slide>
+			<ion-slide ng-repeat="place in main.places">
+				<ion-list>
+					<ion-item href="#/place">
+						<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
+						{{place.address}}<br>
+						<strong>{{main.placelist.getTagString(place.tag)}}</strong><br>
+						{{main.placelist.getFeeling(place.feeling)}}
+					</ion-item>
+				</ion-list>
+			</ion-slide>
+		</ion-slide-box>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
 		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>

@@ -40,7 +40,26 @@ angular.module('placekoob.controllers')
 }])
 .controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;
+	main.placelist = placeListService;
 	main.places = placeListService.getPlaces();
+	main.mapCtrl = {};
+	main.activeIndex = -1;
+
+
+	main.slidehasChanged = function(index) {
+		if (main.activeIndex != -1) {
+			main.places[main.activeIndex].options.icon = 'img/icon/pin_base_small.png';
+		}
+
+		main.activeIndex = index - 1;
+		if (index == -1) {
+			main.map.center = main.currentPosMarker.coords;
+		} else {
+			main.map.center.latitude = main.places[main.activeIndex].coords.latitude;
+			main.map.center.longitude = main.places[main.activeIndex].coords.longitude;
+			main.places[main.activeIndex].options.icon = 'img/icon/pin_active_small.png';
+		}
+	}
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
  	main.divToFit = function() {
@@ -61,10 +80,10 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							main.currentPosMarker.coords = main.map.center;
+							//main.currentPosMarker.coords = main.map.center;
 						}
 					},
-					zoom: 16,
+					zoom: 14,
 					options: {
 						zoomControl: false,
 						streetViewControl: false
@@ -87,6 +106,7 @@ angular.module('placekoob.controllers')
             }
           }
         };
+
 				// markers for saved positions
 				for(var i = 0; i < main.places.length; i++) {
 					main.places[i].id = i;

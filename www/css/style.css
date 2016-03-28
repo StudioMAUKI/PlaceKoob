@@ -173,3 +173,10 @@ img.list-thumbnail {
   /* height: 250px;
   min-height: 250px; */
 }
+
+div.place-preview {
+  position: relative;
+  top: -135px;
+  width: 95%;
+  margin: auto;
+}

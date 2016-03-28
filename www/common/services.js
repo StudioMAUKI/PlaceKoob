@@ -116,7 +116,12 @@ angular.module('placekoob.services', [])
     });
   };
 
+  function getCurrentAddress(){
+    return '경기도 성남시 분당구 삼평동';
+  }
+
   return {
-    getCurrentPosition: getCurrentPosition
+    getCurrentPosition: getCurrentPosition,
+    getCurrentAddress: getCurrentAddress
   };
 }]);
