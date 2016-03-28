@@ -15,9 +15,11 @@
 			<ui-gmap-map-control template="control.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
-			<!-- <ui-gmap-marker ng-repeat="marker in main.savedMarkers track by $index" coords="marker.coords" options="marker.options" idkey="marker.id">
-      </ui-gmap-marker> -->
+			<ui-gmap-marker ng-repeat="place in main.places track by $index" coords="place.coords" options="place.options" idkey="place.id">
+      </ui-gmap-marker>
     </ui-gmap-google-map>
+		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
+		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>
 </ion-view>
 <!-- end : real contents area -->

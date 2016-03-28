@@ -52,8 +52,7 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
-		console.log('uiGmapGoogleMapApi.then()');
-    MapService.getCurrentPosition().
+		MapService.getCurrentPosition().
     then(function(pos){
         main.map = {
 					center: {
@@ -78,27 +77,24 @@ angular.module('placekoob.controllers')
             latitude: pos.latitude,
             longitude: pos.longitude
           },
-          options: { draggable: true },
+          options: {
+						draggable: true,
+						icon: 'img/icon/main_pin_small.png'
+					},
           events: {
             dragend: function (currentPosMarker, eventName, args) {
               main.map.center = main.currentPosMarker.coords;
             }
           }
         };
-				// // markers for saved positions
-				// main.savedMarkers = [];
-				// console.log("length of places : " + main.places.length);
-				// for(var i = 0; i < main.places.length; i++) {
-				// 	main.savedMarkers += {
-				// 		id: i,
-	      //     coords: {
-	      //       latitude: main.places[i].coords.latitude,
-	      //       longitude: main.places[i].coords.longitude
-	      //     },
-	      //     options: { draggable: false }
-				// 	}
-				// 	console.log(main.places[i].coords.latitude + ',' + main.places[i].coords.longitude);
-				// }
+				// markers for saved positions
+				for(var i = 0; i < main.places.length; i++) {
+					main.places[i].id = i;
+					main.places[i].options = {
+						draggable: false,
+						icon: 'img/icon/pin_base_small.png'
+					};
+				}
       },
       function(reason){
         $ionicPopup.alert({ title: 'Warning!', template: reason });
