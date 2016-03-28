@@ -1,32 +1,26 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
-	var main = this;
-	main.places = placeListService.getPlaces();
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$timeout', function($scope, $ionicModal, $ionicPopup, $timeout) {
+	var saveModal = this;
 
-	main.clearSearchText = function() {
-		console.log("Search key world : " + main.keyWord);
-		main.keyWord = "";
-	};
-
-	main.savePosition = function() {
+	saveModal.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 			scope: $scope,
 			animation: 'slide-in-up'
 		})
 		.then(function(modal) {
-			main.saveDlg = modal;
-			main.saveDlg.show();
+			saveModal.saveDlg = modal;
+			saveModal.saveDlg.show();
 		})
 	};
 
-	main.closeSaveDlg = function() {
-		main.saveDlg.hide();
-		main.saveDlg.remove();
+	saveModal.closeSaveDlg = function() {
+		saveModal.saveDlg.hide();
+		saveModal.saveDlg.remove();
 	};
 
-	main.confirmSave = function() {
+	saveModal.confirmSave = function() {
 		$timeout(function() {
 			var completePopup = $ionicPopup.show({
 	    		templateUrl: 'saveplace/complete.html',
@@ -37,12 +31,16 @@ angular.module('placekoob.controllers')
 	        		type: 'button-energized',
 	        		onTap: function(e) {
 			          completePopup.close();
-			          main.closeSaveDlg();
+			          saveModal.closeSaveDlg();
 	        		}
 	      		}]
 			});
 		}, 1000);
 	};
+}])
+.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
+	var main = this;
+	main.places = placeListService.getPlaces();
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
  	main.divToFit = function() {

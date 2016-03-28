@@ -8,11 +8,11 @@
 		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options">
 			<script type="text/ng-template" id="control.tpl.html">
 				<div class="button-bar">
-					<a class="button pk-accent" ng-click="main.savePosition()">현재 위치 저장</a>
+					<a class="button pk-accent" ng-click="saveModal.savePosition()">현재 위치 저장</a>
 					<a class="button pk-accent">URL 저장</a>
 				</div>
       </script>
-			<ui-gmap-map-control template="control.tpl.html" position="top-center" controller="mainCtrl as main" index="-1"></ui-gmap-map-control>
+			<ui-gmap-map-control template="control.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
 			<!-- <ui-gmap-marker ng-repeat="marker in main.savedMarkers track by $index" coords="marker.coords" options="marker.options" idkey="marker.id">
