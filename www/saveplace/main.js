@@ -4,7 +4,7 @@ angular.module('placekoob.controllers')
 .controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($scope, $ionicModal, $timeout, $ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;
 	main.places = placeListService.getPlaces();
-	
+
 	main.clearSearchText = function() {
 		console.log("Search key world : " + main.keyWord);
 		main.keyWord = "";
@@ -54,6 +54,7 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
+		console.log('uiGmapGoogleMapApi.then()');
     MapService.getCurrentPosition().
     then(function(pos){
         main.map = {
@@ -63,24 +64,43 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							main.marker.coords = main.map.center;
+							main.currentPosMarker.coords = main.map.center;
 						}
 					},
-					zoom: 16
+					zoom: 16,
+					options: {
+						zoomControl: false,
+						streetViewControl: false
+					}
 				};
-        main.marker = {
-          id: 0,
+				// marker for current position
+        main.currentPosMarker = {
+          id: 'currentPosMarker',
           coords: {
             latitude: pos.latitude,
             longitude: pos.longitude
           },
           options: { draggable: true },
           events: {
-            dragend: function (marker, eventName, args) {
-              main.map.center = main.marker.coords;
+            dragend: function (currentPosMarker, eventName, args) {
+              main.map.center = main.currentPosMarker.coords;
             }
           }
-        }
+        };
+				// // markers for saved positions
+				// main.savedMarkers = [];
+				// console.log("length of places : " + main.places.length);
+				// for(var i = 0; i < main.places.length; i++) {
+				// 	main.savedMarkers += {
+				// 		id: i,
+	      //     coords: {
+	      //       latitude: main.places[i].coords.latitude,
+	      //       longitude: main.places[i].coords.longitude
+	      //     },
+	      //     options: { draggable: false }
+				// 	}
+				// 	console.log(main.places[i].coords.latitude + ',' + main.places[i].coords.longitude);
+				// }
       },
       function(reason){
         $ionicPopup.alert({ title: 'Warning!', template: reason });

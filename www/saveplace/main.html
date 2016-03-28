@@ -4,22 +4,8 @@
 		<h1 class="title">Placekoob</h1>
 		<a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a>
 	</ion-header-bar>
-	<!-- <ion-header-bar class="bar-subheader item-input-inset">
-		<label class="item-input-wrapper">
-			<i class="icon ion-ios-search placeholder-icon"></i>
-			<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="main.keyWord">
-			<a ng-click="main.clearSearchText()"><i class="icon ion-close-circled placeholder-icon"></i></a>
-		</label>
-		<button class="button button-clear">
-			검색
-		</button>
-	</ion-header-bar> -->
 	<ion-content>
-		<!-- <div class="button-bar">
-			<a class="button pk-accent">현재 위치 저장</a>
-			<a class="button pk-accent">URL 저장</a>
-		</div> -->
-		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options">
 			<script type="text/ng-template" id="control.tpl.html">
 				<div class="button-bar">
 					<a class="button pk-accent" ng-click="main.savePosition()">현재 위치 저장</a>
@@ -27,10 +13,10 @@
 				</div>
       </script>
 			<ui-gmap-map-control template="control.tpl.html" position="top-center" controller="mainCtrl as main" index="-1"></ui-gmap-map-control>
-      <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
+      <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
-			<ui-gmap-marker ng-repeat="place in main.places" coords="place.coords" options="main.marker.options" events="main.marker.events" idkey="$index">
-      </ui-gmap-marker>
+			<!-- <ui-gmap-marker ng-repeat="marker in main.savedMarkers track by $index" coords="marker.coords" options="marker.options" idkey="marker.id">
+      </ui-gmap-marker> -->
     </ui-gmap-google-map>
 	</ion-content>
 </ion-view>
