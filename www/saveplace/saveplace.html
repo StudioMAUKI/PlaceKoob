@@ -1,27 +1,22 @@
 <ion-modal-view>
 	<ion-header-bar class="pk-dark-primary">
-		<h1 class="title">선택한 장소를 저장합니다</h1>
+		<button class="button button-icon button-clear ion-close" ng-click="saveModal.closeSaveDlg()"></button>
+	  <h1 class="title">현재 위치를 저장합니다</h1>
+	  <button class="button button-icon button-clear ion-checkmark" ng-click="saveModal.confirmSave()"></button>
 	</ion-header-bar>
-	<ion-content>
-		<ion-scroll direction="x">
+	<ion-content scroll="false">
+		<ion-scroll direction="x" scrollbar-x="false">
 			<div class="media-input">
 				<!-- <div class="images">
 				</div>
 				<div class="add-image">
 				</div> -->
-				<p>사진영역</p>
+				<button class="button button-outline button-energized button-icon ion-plus button-square-large"></button>
 			</div>
 		</ion-scroll>
-		<div class="address">
-			<p>경기도 성남시 삼평동 판교역로 25번길 3</p>
-		</div>
 		<label class="item item-input item-stacked-label">
-  			<span class="input-label">MEMO</span>
-			<textarea rows="7"></textarea>
+  		<span class="input-label">Note</span>
+			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!"></textarea>
 		</label>
-		<div class="button-container">
-			<button class="button button-energized" ng-click="saveModal.confirmSave()">저장</button>
-			<button class="button button-outline button-assertive" ng-click="saveModal.closeSaveDlg()">취소</button>
-		</div>
 	</ion-content>
 </ion-modal-view>

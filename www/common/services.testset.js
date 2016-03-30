@@ -8,6 +8,7 @@ angular.module('placekoob.services')
       distance: 100,
       name: '능라',
       placeId: '0',
+      type: 1,
       address: '경기도 성남시 분당구 운중동 883-1',
       coords: {
         latitude: 37.3919496,
@@ -22,6 +23,7 @@ angular.module('placekoob.services')
       distance: 1000,
       name: '능이향기',
       placeId: '1',
+      type: 1,
       address: '경기도 성남시 분당구 운중동 349-2',
       coords: {
         latitude: 37.3917223,
@@ -36,6 +38,7 @@ angular.module('placekoob.services')
       distance: 30000,
       name: '윌리엄스버거',
       placeId: '2',
+      type: 1,
       address: '경기도 성남시 분당구 백현동 579-4',
       coords: {
         latitude: 37.3849686,
@@ -50,6 +53,7 @@ angular.module('placekoob.services')
       distance: 260000,
       name: '진흥반점',
       placeId: '3',
+      type: 2,
       address: '대구시 남구 이천동 311-28',
       coords: {
         latitude: 35.8548306,
@@ -64,6 +68,7 @@ angular.module('placekoob.services')
       distance: 220000,
       name: '속초생대구',
       placeId: '4',
+      type: 2,
       address: '강원도 속초시 영랑동 131-19',
       coords: {
         latitude: 38.2146963,
@@ -78,6 +83,7 @@ angular.module('placekoob.services')
       distance: 150000,
       name: '통나무닭갈비',
       placeId: '5',
+      type: 2,
       address: '강원도 춘천시 신북읍 천전리 38-26',
       coords: {
         latitude: 37.9331144,
@@ -92,6 +98,7 @@ angular.module('placekoob.services')
       distance: 3000,
       name: '유타로',
       placeId: '6',
+      type: 3,
       address: '경기도 성남시 분당구 서현동 260-4',
       coords: {
         latitude: 37.3865848,
@@ -106,6 +113,7 @@ angular.module('placekoob.services')
       distance: 1000,
       name: '방아깐',
       placeId: '7',
+      type: 3,
       address: '경기도 성남시 분당구 판교동 603-2',
       coords: {
         latitude: 37.3902692,
@@ -120,6 +128,7 @@ angular.module('placekoob.services')
       distance: 3000,
       name: '채선당',
       placeId: '8',
+      type: 3,
       address: '경기도 성남시 분당구 판교동 625',
       coords: {
         latitude: 37.3891906,
@@ -134,6 +143,7 @@ angular.module('placekoob.services')
       distance: 15000,
       name: '코지마',
       placeId: '9',
+      type: 3,
       address: '서울특별시 강남구 청담동 89-17',
       coords: {
         latitude: 37.5257581,

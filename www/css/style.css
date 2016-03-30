@@ -110,9 +110,8 @@ div.pk-dark-primary{
 }
 
 div.media-input {
-  border: 1px solid red;
   width: 100%;
-  height: 200px;
+  height: 70px;
   padding-top: 4px;
   padding-left: 4px;
 }
@@ -179,4 +178,9 @@ div.place-preview {
   top: -135px;
   width: 95%;
   margin: auto;
+}
+
+button.button-square-large {
+  width: 60px;
+  height: 60px;
 }

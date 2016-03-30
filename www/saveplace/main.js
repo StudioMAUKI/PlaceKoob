@@ -86,6 +86,7 @@ angular.module('placekoob.controllers')
 					zoom: 14,
 					options: {
 						zoomControl: false,
+						mapTypeControl: false,
 						streetViewControl: false
 					}
 				};
