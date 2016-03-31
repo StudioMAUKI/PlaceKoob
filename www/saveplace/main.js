@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$timeout', function($scope, $ionicModal, $ionicPopup, $timeout) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup) {
 	var saveModal = this;
+	saveModal.images = [];
 
 	saveModal.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
@@ -20,23 +21,69 @@ angular.module('placekoob.controllers')
 		saveModal.saveDlg.remove();
 	};
 
-	saveModal.confirmSave = function() {
-		$timeout(function() {
-			var completePopup = $ionicPopup.show({
-	    		templateUrl: 'saveplace/complete.html',
-	    		title: '저장 완료!',
-	    		scope: $scope,
-	    		buttons: [{
-	        		text: '<b>확인</b>',
-	        		type: 'button-energized',
-	        		onTap: function(e) {
-			          completePopup.close();
-			          saveModal.closeSaveDlg();
-	        		}
-	      		}]
-			});
-		}, 1000);
+	saveModal.addImageWithCamera = function() {
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			var options = {
+	      quality: 70,
+	      destinationType: Camera.DestinationType.FILE_URI,
+	      sourceType: Camera.PictureSourceType.CAMERA,
+	      allowEdit: false,
+	      encodingType: Camera.EncodingType.JPEG,
+	      targetWidth: 1024,
+	      targetHeight: 768,
+	      popoverOptions: CameraPopoverOptions,
+	      correctOrientation: true,
+	      saveToPhotoAlbum: false
+	    };
+
+	    $cordovaCamera.getPicture(options)
+	    .then(function (imageURI) {
+	      saveModal.images.push(imageURI);
+	      console.log('imageUrl: ' + imageURI);
+	    }, function (error) {
+	      console.error('Camera capture failed : ' + error);
+				alert(error);
+	    });
+		} else {	// test in web-browser
+			saveModal.images.push('http://cfile4.uf.tistory.com/image/2773F53C565C0DA82E6FDB');
+		}
 	};
+
+	saveModal.addImageWithPhotoLibrary = function() {
+		var restCount = 5 - saveModal.images.length;
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			$cordovaImagePicker.getPictures({
+	      maximumImagesCount: restCount,
+	      width: 1024
+	    }).
+	    then(function(imageURIs) {
+	      for (var i = 0; i < imageURIs.length; i++) {
+	        console.log('Image URI: ' + imageURIs[i]);
+	        //alert(results[i]);
+	        saveModal.images.push(imageURIs[i]);
+	      }
+	    }, function (error) {
+	      console.error(error);
+	    });
+		} else {	// test in web-browser
+			for (var i = 0; i < restCount; i++){
+				saveModal.images.push('http://cfile8.uf.tistory.com/image/231BB0435212BE3E0D4A3C');
+			}
+		}
+	};
+
+	saveModal.popUpForRemove = function(index) {
+		var confirmPopup = $ionicPopup.confirm({
+			title: '사진 첨부',
+			template: '선택하신 사진을 제외하시겠습니까?'
+		});
+
+		confirmPopup.then(function(result) {
+			if(result) {
+				saveModal.images.splice(index, 1);
+			}
+		});
+	}
 }])
 .controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;

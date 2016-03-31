@@ -29,7 +29,9 @@
     "ionic-plugin-keyboard",
     "cordova-sqlite-storage",
     "cordova-plugin-geolocation",
-    "cordova-plugin-inappbrowser"
+    "cordova-plugin-inappbrowser",
+    "cordova-plugin-camera",
+    "cordova-plugin-image-picker"
   ],
   "cordovaPlatforms": [
     "ios",

@@ -6,12 +6,16 @@
 	</ion-header-bar>
 	<ion-content scroll="false">
 		<ion-scroll direction="x" scrollbar-x="false">
-			<div class="media-input">
+			<div class="image-container">
 				<!-- <div class="images">
 				</div>
 				<div class="add-image">
 				</div> -->
-				<button class="button button-outline button-energized button-icon ion-plus button-square-large"></button>
+				<div style="{{saveModal.images.length != 0 ? 'position:relative;top:-24px;' : ''}}width:70px;height:130px;display:inline-block;">
+					<button ng-disabled="saveModal.images.length == 5" class="button button-outline button-energized button-icon ion-camera button-square-large" ng-click="saveModal.addImageWithCamera()" style="display:block;"></button>
+					<button ng-disabled="saveModal.images.length == 5" class="button button-outline button-energized button-icon ion-images button-square-large" ng-click="saveModal.addImageWithPhotoLibrary()" style="display:block;"></button>
+				</div>
+				<img ng-repeat="image in saveModal.images track by $index" class="image-list-thumb" ng-show="image !== undefined" ng-src="{{ image }}" ng-click="saveModal.popUpForRemove($index)">
 			</div>
 		</ion-scroll>
 		<label class="item item-input item-stacked-label">
