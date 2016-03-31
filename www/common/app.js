@@ -6,8 +6,15 @@
 'use strict';
 
 angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoogle-maps', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
-.run(function($ionicPlatform) {
+.run(['$ionicPlatform', 'PKDBManager', 'PKQueries', function($ionicPlatform, PKDBManager, PKQueries) {
   $ionicPlatform.ready(function() {
+    PKDBManager.execute(PKQueries.createPlaces)
+    .then(function(result) {
+      console.log(result);
+    }, function(error) {
+      console.error(error);
+    });
+
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
@@ -22,4 +29,4 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
       StatusBar.styleDefault();
     }
   });
-});
+}]);

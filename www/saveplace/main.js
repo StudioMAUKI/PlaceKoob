@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', 'PlaceManager', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, PlaceManager) {
 	var saveModal = this;
 	saveModal.images = [];
 
@@ -19,6 +19,16 @@ angular.module('placekoob.controllers')
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();
+		saveModal.images = [];
+	};
+
+	saveModal.confirmSave = function(curPos) {
+		console.log('Current Corrds : ' + JSON.stringify(curPos));
+		// PlaceManager.saveCurrentPlace({
+		// 	images: saveModal.images,
+		// 	note: saveModal.note,
+		// 	coords: $scope.parent.map.center
+		// })
 	};
 
 	saveModal.addImageWithCamera = function() {
