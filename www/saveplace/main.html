@@ -41,11 +41,11 @@
 				</div> -->
 				<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events">
 					<script type="text/ng-template" id="control.tpl.html">
-            <button class="button button-energized button-round" ng-click="main.savePosition()">
+            <button class="button button-energized button-round" ng-click="saveModal.savePosition()">
   						<i class="icon ion-plus"></i>
   					</button>
           </script>
-					<ui-gmap-map-control template="control.tpl.html" position="bottom-center" controller="mainCtrl as main" index="-1"></ui-gmap-map-control>
+					<ui-gmap-map-control template="control.tpl.html" position="bottom-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
           <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
           </ui-gmap-marker>
         </ui-gmap-google-map>
