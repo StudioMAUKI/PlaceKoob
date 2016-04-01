@@ -9,7 +9,7 @@
 			<script type="text/ng-template" id="save-dlg.tpl.html">
 				<div class="button-bar">
 					<a class="button pk-accent" ng-click="saveModal.savePosition()">현재 위치 저장</a>
-					<a class="button pk-accent">URL 저장</a>
+					<a class="button pk-accent" ng-click="saveModal.saveURL()">URL 저장</a>
 				</div>
       </script>
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>

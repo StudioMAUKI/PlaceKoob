@@ -16,10 +16,22 @@ angular.module('placekoob.controllers')
 		})
 	};
 
+	saveModal.saveURL = function() {
+		$ionicModal.fromTemplateUrl('saveplace/saveurl.html', {
+			scope: $scope,
+			animation: 'slide-in-up'
+		})
+		.then(function(modal) {
+			saveModal.saveDlg = modal;
+			saveModal.saveDlg.show();
+		})
+	};
+
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();
 		saveModal.images = [];
+		saveModal.note = '';
 	};
 
 	saveModal.confirmSave = function() {
@@ -29,7 +41,7 @@ angular.module('placekoob.controllers')
 			images: saveModal.images,
 			note: saveModal.note,
 			coords: curPos
-		})
+		});
 		saveModal.closeSaveDlg();
 	};
 
