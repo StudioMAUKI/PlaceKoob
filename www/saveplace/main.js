@@ -130,6 +130,7 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
+				CacheService.add('curPos', pos);
         main.map = {
 					center: {
 						latitude: pos.latitude,

@@ -49,9 +49,9 @@ angular.module('placekoob.services', [])
     },
     createPlaces:
       'CREATE TABLE IF NOT EXISTS Places (' +
-        'placeKey TEXT PRIMARY KEY, ' +
-        'address TEXT, ' +
-        'tel TEXT, ' +
+        'placeKey TEXT PRIMARY KEY,' +
+        'address TEXT,' +
+        'tel TEXT,' +
         'coords TEXT)',
     resetPlaces:
       'DELETE FROM Places'

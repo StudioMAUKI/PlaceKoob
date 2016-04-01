@@ -39,7 +39,7 @@ angular.module('placekoob.services')
         imageCount: imageCount,
         tagCount: tags.length,
         hasCoords: hasCoords,
-        promise: PKDBManager.execute(PKQueries.place.create, [placeKey, 'test address', '010-0000-0000', JSON.stringify(place.coords)])
+        promise: PKDBManager.execute(PKQueries.place.create, [placeKey, place.note, JSON.stringify(place.images), JSON.stringify(place.coords)])
       }
     }
   };
