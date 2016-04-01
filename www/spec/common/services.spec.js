@@ -64,11 +64,48 @@ describe('placekoob.services', function() {
     });
   });
 
+  describe('CacheService', function() {
+    var CacheService;
+    beforeEach(inject(function(_CacheService_) {
+      CacheService = _CacheService_;
+      var obj = {
+        count: 5,
+        words: 'Hello, World',
+        subObj: {
+          a: 'foo',
+          b: 'bar'
+        }
+      };
+      CacheService.add('obj', obj);
+    }));
+
+    it('can get data', function() {
+      var ret = CacheService.get('obj');
+      expect(CacheService.get('obj2')).not.toBeDefined();
+      expect(ret.count).toEqual(5);
+      expect(ret.words).toEqual('Hello, World');
+      expect(ret.subObj).toBeDefined();
+      expect(ret.subObj.a).toEqual('foo');
+      expect(ret.subObj.b).toEqual('bar');
+    });
+
+    it('can find data', function() {
+      expect(CacheService.has('obj')).toBeTruthy();
+      expect(CacheService.has('hoonja')).toBeFalsy();
+    });
+
+    it('can remove data', function() {
+      CacheService.remove('hoonja');
+      expect(CacheService.has('obj')).toBeTruthy();
+      CacheService.remove('obj');
+      expect(CacheService.has('obj')).toBeFalsy();
+    });
+  });
+
   describe('PlaceManager', function() {
     var PlaceManager;
-
-    beforeEach(inject(function($injector) {
-      PlaceManager = $injector.get('PlaceManager');
+    beforeEach(inject(function(_PlaceManager_) {
+      PlaceManager = _PlaceManager_;
     }));
 
     describe('test saveCurrentPlace()', function() {

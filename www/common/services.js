@@ -135,4 +135,19 @@ angular.module('placekoob.services', [])
 }])
 .factory('CacheService', [function() {
   var data = {};
+
+  return {
+    add: function(key, value) {
+      data[key] = value;
+    },
+    get: function(key) {
+      return data[key];
+    },
+    has: function(key) {
+      return !(data[key] === undefined);
+    },
+    remove: function(key) {
+      data[key] = undefined;
+    }
+  }
 }]);
