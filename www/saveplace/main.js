@@ -1,8 +1,10 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', function($scope, $ionicModal) {
+
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', 'PlaceManager', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, PlaceManager) {
 	var saveModal = this;
+	saveModal.images = [];
 
 	saveModal.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
@@ -10,91 +12,122 @@ angular.module('placekoob.controllers')
 			animation: 'slide-in-up'
 		})
 		.then(function(modal) {
-			main.saveDlg = modal;
-			main.saveDlg.show();
+			saveModal.saveDlg = modal;
+			saveModal.saveDlg.show();
 		})
 	};
 
 	saveModal.closeSaveDlg = function() {
-		main.saveDlg.hide();
-		main.saveDlg.remove();
+		saveModal.saveDlg.hide();
+		saveModal.saveDlg.remove();
+		saveModal.images = [];
 	};
 
-	saveModal.confirmSave = function() {
-		$timeout(function() {
-			var completePopup = $ionicPopup.show({
-	    		templateUrl: 'saveplace/complete.html',
-	    		title: '저장 완료!',
-	    		scope: $scope,
-	    		buttons: [{
-	        		text: '<b>확인</b>',
-	        		type: 'button-energized',
-	        		onTap: function(e) {
-			          completePopup.close();
-			          main.closeSaveDlg();
-	        		}
-	      		}]
-			});
-		}, 1000);
+	saveModal.confirmSave = function(curPos) {
+		console.log('Current Corrds : ' + JSON.stringify(curPos));
+		// PlaceManager.saveCurrentPlace({
+		// 	images: saveModal.images,
+		// 	note: saveModal.note,
+		// 	coords: $scope.parent.map.center
+		// })
 	};
 
+	saveModal.addImageWithCamera = function() {
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			var options = {
+	      quality: 70,
+	      destinationType: Camera.DestinationType.FILE_URI,
+	      sourceType: Camera.PictureSourceType.CAMERA,
+	      allowEdit: false,
+	      encodingType: Camera.EncodingType.JPEG,
+	      targetWidth: 1024,
+	      targetHeight: 768,
+	      popoverOptions: CameraPopoverOptions,
+	      correctOrientation: true,
+	      saveToPhotoAlbum: false
+	    };
+
+	    $cordovaCamera.getPicture(options)
+	    .then(function (imageURI) {
+	      saveModal.images.push(imageURI);
+	      console.log('imageUrl: ' + imageURI);
+	    }, function (error) {
+	      console.error('Camera capture failed : ' + error);
+				alert(error);
+	    });
+		} else {	// test in web-browser
+			saveModal.images.push('http://cfile4.uf.tistory.com/image/2773F53C565C0DA82E6FDB');
+		}
+	};
+
+	saveModal.addImageWithPhotoLibrary = function() {
+		var restCount = 5 - saveModal.images.length;
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			$cordovaImagePicker.getPictures({
+	      maximumImagesCount: restCount,
+	      width: 1024
+	    }).
+	    then(function(imageURIs) {
+	      for (var i = 0; i < imageURIs.length; i++) {
+	        console.log('Image URI: ' + imageURIs[i]);
+	        //alert(results[i]);
+	        saveModal.images.push(imageURIs[i]);
+	      }
+	    }, function (error) {
+	      console.error(error);
+	    });
+		} else {	// test in web-browser
+			for (var i = 0; i < restCount; i++){
+				saveModal.images.push('http://cfile8.uf.tistory.com/image/231BB0435212BE3E0D4A3C');
+			}
+		}
+	};
+
+	saveModal.popUpForRemove = function(index) {
+		var confirmPopup = $ionicPopup.confirm({
+			title: '사진 첨부',
+			template: '선택하신 사진을 제외하시겠습니까?'
+		});
+
+		confirmPopup.then(function(result) {
+			if(result) {
+				saveModal.images.splice(index, 1);
+			}
+		});
+	}
 }])
-.controller('mainCtrl', ['$scope', '$ionicModal', '$timeout', '$ionicPopup', '$ionicSideMenuDelegate', 'uiGmapGoogleMapApi', 'MapService', function($scope, $ionicModal, $timeout, $ionicPopup, $ionicSideMenuDelegate, uiGmapGoogleMapApi, MapService) {
+.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;
-	main.clearSearchText = function() {
-		console.log("Search key world : " + main.keyWord);
-		main.keyWord = "";
-	};
+	main.places = placeListService.getPlaces();
+	main.activeIndex = -1;
 
-	main.toggleLeft = function() {
-		$ionicSideMenuDelegate.toggleLeft();
-	};
 
- // 	main.savePosition = function() {
-	// 	$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
-	// 		scope: $scope,
-	// 		animation: 'slide-in-up'
-	// 	})
-	// 	.then(function(modal) {
-	// 		main.saveDlg = modal;
-	// 		main.saveDlg.show();
-	// 	})
-	// };
-	//
-	// main.closeSaveDlg = function() {
-	// 	main.saveDlg.hide();
-	// 	main.saveDlg.remove();
-	// };
-	//
-	// main.confirmSave = function() {
-	// 	$timeout(function() {
-	// 		var completePopup = $ionicPopup.show({
-	//     		templateUrl: 'saveplace/complete.html',
-	//     		title: '저장 완료!',
-	//     		scope: $scope,
-	//     		buttons: [{
-	//         		text: '<b>확인</b>',
-	//         		type: 'button-energized',
-	//         		onTap: function(e) {
-	// 		          completePopup.close();
-	// 		          main.closeSaveDlg();
-	//         		}
-	//       		}]
-	// 		});
-	// 	}, 1000);
-	// };
+	main.slidehasChanged = function(index) {
+		if (main.activeIndex != -1) {
+			main.places[main.activeIndex].options.icon = 'img/icon/pin_base_small.png';
+		}
+
+		main.activeIndex = index - 1;
+		if (index == -1) {
+			main.map.center = main.currentPosMarker.coords;
+		} else {
+			main.map.center.latitude = main.places[main.activeIndex].coords.latitude;
+			main.map.center.longitude = main.places[main.activeIndex].coords.longitude;
+			main.places[main.activeIndex].options.icon = 'img/icon/pin_active_small.png';
+		}
+	}
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
  	main.divToFit = function() {
  		var divMap = $(document);
  		$('.angular-google-map-container').css({
- 			height: divMap.height() - 137	// 137 : height = document - bar - sub_bar - tab_bar
+ 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
  		});
  	};
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
-    MapService.getCurrentPosition().
+		MapService.getCurrentPosition().
     then(function(pos){
         main.map = {
 					center: {
@@ -103,24 +136,45 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							main.marker.coords = main.map.center;
+							main.currentPosMarker.coords = main.map.center;
+						},
+						center_changed: function(map, event, args) {
+							console.log('Map center changed : ' + JSON.stringify(main.map.center));
 						}
 					},
-					zoom: 16
+					zoom: 14,
+					options: {
+						zoomControl: false,
+						mapTypeControl: false,
+						streetViewControl: false
+					}
 				};
-        main.marker = {
-          id: 0,
+				// marker for current position
+        main.currentPosMarker = {
+          id: 'currentPosMarker',
           coords: {
             latitude: pos.latitude,
             longitude: pos.longitude
           },
-          options: { draggable: true },
+          options: {
+						draggable: true,
+						icon: 'img/icon/main_pin_small.png'
+					},
           events: {
-            dragend: function (marker, eventName, args) {
-              main.map.center = main.marker.coords;
+            dragend: function (currentPosMarker, eventName, args) {
+              main.map.center = main.currentPosMarker.coords;
             }
           }
-        }
+        };
+
+				// markers for saved positions
+				for(var i = 0; i < main.places.length; i++) {
+					main.places[i].id = i;
+					main.places[i].options = {
+						draggable: false,
+						icon: 'img/icon/pin_base_small.png'
+					};
+				}
       },
       function(reason){
         $ionicPopup.alert({ title: 'Warning!', template: reason });

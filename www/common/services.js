@@ -40,13 +40,21 @@ angular.module('placekoob.services', [])
 }])
 .factory('PKQueries', [function() {
   return {
-    USERS_CREATE: 'CREATE TABLE IF NOT EXISTS Users(' +
-      'user_id INTEGER PRIMARY KEY ASC AUTOINCREMENT,' +
-      'confirmed INTEGER,' +
-      'token TEXT,' +
-      'email TEXT' +
-      ')',
-    USERS_DROP: 'DROP TABLE IF EXISTS Users'
+    place: {
+      create: 'INSERT INTO Places (placeKey, address, tel, coords) VALUES (?, ?, ?, ?)',
+      read: '',
+      update: '',
+      delete: '',
+      list: ''
+    },
+    createPlaces:
+      'CREATE TABLE IF NOT EXISTS Places (' +
+        'placeKey TEXT PRIMARY KEY, ' +
+        'address TEXT, ' +
+        'tel TEXT, ' +
+        'coords TEXT)',
+    resetPlaces:
+      'DELETE FROM Places'
   };
 }])
 .factory('PKDBManager', ['$cordovaSQLite', function($cordovaSQLite) {
@@ -116,7 +124,15 @@ angular.module('placekoob.services', [])
     });
   };
 
+  function getCurrentAddress(){
+    return '경기도 성남시 분당구 삼평동';
+  }
+
   return {
-    getCurrentPosition: getCurrentPosition
+    getCurrentPosition: getCurrentPosition,
+    getCurrentAddress: getCurrentAddress
   };
+}])
+.factory('CacheService', [function() {
+  var data = {};
 }]);

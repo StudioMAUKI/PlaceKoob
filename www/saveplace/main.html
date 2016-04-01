@@ -1,56 +1,45 @@
-<ion-side-menus>
-	<ion-side-menu side="left">
-		<ion-header-bar class="pk-accent">
-        	<h1 class="title">Filter Menu</h1>
-        </ion-header-bar>
-        <ion-content>
-			<ion-list>
-				<ion-checkbox >다시 가고 싶은 곳</ion-checkbox>
-				<ion-checkbox>괜찮은 곳</ion-checkbox>
-				<ion-checkbox>별로인 곳</ion-checkbox>
-				<ion-checkbox>가보고 싶은 곳</ion-checkbox>
-				<ion-checkbox>전체</ion-checkbox>
-				<p>
-					원하는 장소를 선택하여 볼 수 있습니다. 중복 선택도 가능합니다.
-				</p>
-			</ion-list>
-			</ion-content>
-	</ion-side-menu>
-	<ion-side-menu-content edge-drag-threshold="true">
-		<!-- start : real contents area -->
-		<ion-view title="장소를 찾으시나요?">
-			<ion-header-bar class="pk-primary">
-				<button class="button button-icon button-clear ion-navicon" ng-click="main.toggleLeft()"></button>
-				<h1 class="title">장소를 찾으시나요?</h1>
-			</ion-header-bar>
-			<ion-header-bar class="bar-subheader item-input-inset">
-				<label class="item-input-wrapper">
-					<i class="icon ion-ios-search placeholder-icon"></i>
-					<input type="search" placeholder="이름, 주소, URL, 검색어 등을 입력하세요." ng-model="main.keyWord">
-					<a ng-click="main.clearSearchText()"><i class="icon ion-close-circled placeholder-icon"></i></a>
-				</label>
-				<button class="button button-clear">
-					검색
-				</button>
-			</ion-header-bar>
-			<ion-content>
-				<!-- <div id="myMap" data-tap-disabled="true">
-					<button class="button button-energized button-float" ng-click="main.savePosition()">
-						<i class="icon ion-plus"></i>
-					</button>
-				</div> -->
-				<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events">
-					<script type="text/ng-template" id="control.tpl.html">
-            <button class="button button-energized button-round" ng-click="saveModal.savePosition()">
-  						<i class="icon ion-plus"></i>
-  					</button>
-          </script>
-					<ui-gmap-map-control template="control.tpl.html" position="bottom-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
-          <ui-gmap-marker coords="main.marker.coords" options="main.marker.options" events="main.marker.events" idkey="main.marker.id">
-          </ui-gmap-marker>
-        </ui-gmap-google-map>
-			</ion-content>
-		</ion-view>
-		<!-- end : real contents area -->
-	</ion-side-menu-content>
-</ion-side-menus>
+<!-- start : real contents area -->
+<ion-view title="Placekoob">
+	<ion-header-bar class="pk-primary">
+		<h1 class="title">Placekoob</h1>
+		<a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a>
+	</ion-header-bar>
+	<ion-content scroll="false">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl">
+			<script type="text/ng-template" id="save-dlg.tpl.html">
+				<div class="button-bar">
+					<a class="button pk-accent" ng-click="saveModal.savePosition({{main.map.center}})">현재 위치 저장</a>
+					<a class="button pk-accent">URL 저장</a>
+				</div>
+      </script>
+			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
+      <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
+      </ui-gmap-marker>
+			<ui-gmap-marker ng-repeat="place in main.places track by $index" coords="place.coords" options="place.options" idkey="place.id">
+      </ui-gmap-marker>
+    </ui-gmap-google-map>
+		<ion-slide-box class="place-preview" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+			<ion-slide>
+				<ion-list>
+					<ion-item >
+						<img class="list-thumbnail" ng-src="img/icon/main_pin_small.png" alt="{{'현재 위치'}}">
+						{{'현재 위치 근처의 장소를 둘러보세요. (좌우로 스크롤)'}}<br>
+					</ion-item>
+				</ion-list>
+			</ion-slide>
+			<ion-slide ng-repeat="place in main.places">
+				<ion-list>
+					<ion-item href="#/place">
+						<img class="list-thumbnail" ng-src="{{place.images[0]}}" alt="{{place.name}}">
+						{{place.address}}<br>
+						<strong>{{main.placelist.getTagString(place.tag)}}</strong><br>
+						{{main.placelist.getFeeling(place.feeling)}}
+					</ion-item>
+				</ion-list>
+			</ion-slide>
+		</ion-slide-box>
+		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
+		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->

@@ -41,6 +41,16 @@ angular.module('placekoob.config', [])
         }
       }
     })
+		.state('tab.explore', {
+      url: '/explore',
+      views: {
+        'explore': {
+          templateUrl: 'explore/list.html',
+          controller: 'listCtrl',
+          controllerAs: 'list'
+        }
+      }
+    })
     .state('tab.config', {
       url: '/config',
       views: {
