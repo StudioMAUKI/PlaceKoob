@@ -30,7 +30,7 @@
 			<ion-slide ng-repeat="place in main.places">
 				<ion-list>
 					<ion-item href="#/place">
-						<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
+						<img class="list-thumbnail" ng-src="{{place.images[0]}}" alt="{{place.name}}">
 						{{place.address}}<br>
 						<strong>{{main.placelist.getTagString(place.tag)}}</strong><br>
 						{{main.placelist.getFeeling(place.feeling)}}

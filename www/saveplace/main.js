@@ -97,9 +97,7 @@ angular.module('placekoob.controllers')
 }])
 .controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
 	var main = this;
-	main.placelist = placeListService;
 	main.places = placeListService.getPlaces();
-	main.mapCtrl = {};
 	main.activeIndex = -1;
 
 
@@ -137,7 +135,10 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							//main.currentPosMarker.coords = main.map.center;
+							main.currentPosMarker.coords = main.map.center;
+						},
+						center_changed: function(map, event, args) {
+							console.log('Map center changed : ' + JSON.stringify(main.map.center));
 						}
 					},
 					zoom: 14,
