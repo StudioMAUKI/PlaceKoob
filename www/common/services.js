@@ -132,4 +132,7 @@ angular.module('placekoob.services', [])
     getCurrentPosition: getCurrentPosition,
     getCurrentAddress: getCurrentAddress
   };
+}])
+.factory('CacheService', [function() {
+  var data = {};
 }]);
