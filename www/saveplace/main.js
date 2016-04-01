@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', 'PlaceManager', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, PlaceManager) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', 'PlaceManager', 'CacheService', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, PlaceManager, CacheService) {
 	var saveModal = this;
 	saveModal.images = [];
 
@@ -22,13 +22,15 @@ angular.module('placekoob.controllers')
 		saveModal.images = [];
 	};
 
-	saveModal.confirmSave = function(curPos) {
+	saveModal.confirmSave = function() {
+		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		// PlaceManager.saveCurrentPlace({
-		// 	images: saveModal.images,
-		// 	note: saveModal.note,
-		// 	coords: $scope.parent.map.center
-		// })
+		PlaceManager.saveCurrentPlace({
+			images: saveModal.images,
+			note: saveModal.note,
+			coords: curPos
+		})
+		saveModal.closeSaveDlg();
 	};
 
 	saveModal.addImageWithCamera = function() {
@@ -95,7 +97,7 @@ angular.module('placekoob.controllers')
 		});
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
+.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
 	var main = this;
 	main.places = placeListService.getPlaces();
 	main.activeIndex = -1;
@@ -139,6 +141,7 @@ angular.module('placekoob.controllers')
 						},
 						center_changed: function(map, event, args) {
 							console.log('Map center changed : ' + JSON.stringify(main.map.center));
+							CacheService.add('curPos', main.map.center);
 						}
 					},
 					zoom: 14,
