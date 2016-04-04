@@ -15,6 +15,20 @@ angular.module('placekoob.services')
 .factory('RemoteAPIService', ['$http', 'RESTServer', function($http, RESTServer){
   var ServerUrl = RESTServer.getURL();
 
+  function initCall(success, error) {
+    $http({
+      method: 'GET',
+      url: ServerUrl + '/users/register/'
+    })
+    .then(function(result) {
+      console.log(result);
+      success(result.data);
+    }, function(err) {
+      console.error(err);
+      error(err);
+    });
+  }
+
   function registerUser(success, error) {
     $http({
       method: 'POST',
@@ -26,8 +40,24 @@ angular.module('placekoob.services')
       error(err);
     });
   }
+
+  function loginUser(token, success, error) {
+    $http({
+      method: 'POST',
+      url: ServerUrl + '/users/login/',
+      data: JSON.stringify({ auth_user_token: token })
+    })
+    .then(function(result) {
+      success(result.data.result);
+    }, function(err) {
+      error(err);
+    });
+  }
+
   return {
-    registerUser: registerUser
+    initCall: initCall,
+    registerUser: registerUser,
+    loginUser: loginUser
   }
 }])
 .factory('PlaceManager', ['UUIDGenerator', 'PKDBManager', 'PKQueries', function(UUIDGenerator, PKDBManager, PKQueries) {

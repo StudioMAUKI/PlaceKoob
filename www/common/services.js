@@ -183,4 +183,18 @@ angular.module('placekoob.services', [])
       data[key] = undefined;
     }
   }
-}]);
+}])
+.factory('StorageService', [function() {
+    function getData(key) {
+      return window.localStorage.getItem(key);
+    }
+
+    function addData(key, value) {
+      window.localStorage.setItem(key, value);
+    }
+
+    return {
+      getData: getData,
+      addData: addData
+    };
+  }]);
