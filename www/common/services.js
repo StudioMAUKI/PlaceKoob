@@ -1,6 +1,39 @@
 'use strict';
 
 angular.module('placekoob.services', [])
+.factory('AppStatus', function() {
+  var isUserRegistered = false;
+  var isUserLogined = false;
+  var isVDRegistered = false;
+  var isVDLogined = false;
+
+  return {
+    isUserRegistered: function() {
+      return isUserRegistered;
+    },
+    setUserRegisterd: function(val) {
+      isUserRegistered = val;
+    },
+    isUserLogined: function() {
+      return isUserLogined;
+    },
+    setUserLogined: function(val) {
+      isUserLogined = val;
+    },
+    isVDRegistered: function() {
+      return isVDRegistered;
+    },
+    setVDRegisterd: function(val) {
+      isVDRegistered = val;
+    },
+    isVDLogined: function() {
+      return isVDLogined;
+    },
+    setVDLogined: function(val) {
+      isVDLogined = val;
+    }
+  }
+})
 .factory('md5Encrypter', [function() {
   return {
     encrypt: function(input) {

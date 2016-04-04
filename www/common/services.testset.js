@@ -1,6 +1,35 @@
 'use strict';
 
 angular.module('placekoob.services')
+.factory('RESTServer', function() {
+  return {
+    getURL: function() {
+      if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+        return 'http://maukitest.cloudapp.net';
+      } else {
+        return '/mauki';
+      }
+    }
+  }
+})
+.factory('RemoteAPIService', ['$http', 'RESTServer', function($http, RESTServer){
+  var ServerUrl = RESTServer.getURL();
+
+  function registerUser(success, error) {
+    $http({
+      method: 'POST',
+      url: ServerUrl + '/users/register/'
+    })
+    .then(function(result) {
+      success(result.data.auth_user_token);
+    }, function(err) {
+      error(err);
+    });
+  }
+  return {
+    registerUser: registerUser
+  }
+}])
 .factory('PlaceManager', ['UUIDGenerator', 'PKDBManager', 'PKQueries', function(UUIDGenerator, PKDBManager, PKQueries) {
   return {
     saveCurrentPlace: function(place) {

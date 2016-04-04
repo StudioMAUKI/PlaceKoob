@@ -6,13 +6,20 @@
 'use strict';
 
 angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoogle-maps', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
-.run(['$ionicPlatform', 'PKDBManager', 'PKQueries', function($ionicPlatform, PKDBManager, PKQueries) {
+.run(['$ionicPlatform', 'PKDBManager', 'PKQueries', 'RemoteAPIService', function($ionicPlatform, PKDBManager, PKQueries, RemoteAPIService) {
   $ionicPlatform.ready(function() {
     PKDBManager.execute(PKQueries.createPlaces)
     .then(function(result) {
       console.log(result);
     }, function(error) {
       console.error(error);
+    })
+    .then(function() {
+      RemoteAPIService.registerUser(function(result) {
+        console.log('auth_user_token: ' + result);
+      }, function(err) {
+        console.error(err);
+      });
     });
 
     if(window.cordova && window.cordova.plugins.Keyboard) {

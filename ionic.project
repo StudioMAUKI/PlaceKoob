@@ -5,6 +5,10 @@
     {
       "path": "/naver",
       "proxyUrl": "http://blog.naver.com"
+    },
+    {
+      "path": "/mauki",
+      "proxyUrl": "http://maukitest.cloudapp.net"
     }
   ]
 }
