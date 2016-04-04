@@ -28,32 +28,36 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     });
 
     // 유저 등록
-    var auth_user_token = StorageService.getData('auth_user_token');
-    if (!auth_user_token) {
-      RemoteAPIService.registerUser(function(result) {
-        console.log('auth_user_token: ' + result);
-        StorageService.addData('auth_user_token', result);
-        AppStatus.setUserRegisterd(true);
-        auth_user_token = result;
-        console.log('User Registration successed.');
+    RemoteAPIService.registerUser(function(result) {
+      console.log('auth_user_token: ' + result);
+
+      // 유저 로그인
+      RemoteAPIService.loginUser(result, function(result) {
+        console.log('User Login successed : ' + result);
+
+        RemoteAPIService.registerVD('hoonja@gmail.com', function(result) {
+          console.log('auth_vd_token: ' + result);
+
+          // VD 로그인
+          RemoteAPIService.loginVD(result, function(result) {
+            console.log('VD Login successed : ' + result);
+          }, function(err) {
+            console.error(err);
+          });
+        }, function(err) {
+          console.error(err);
+        });
       }, function(err) {
-        AppStatus.setUserRegisterd(false);
-        console.error('User Registration failed: ' + JSON.stringify(err));
-
-        showAlert('사용자 등록 과정에서 오류가 발생하여 앱을 종료합니다.');
+        console.error(err);
+        showAlert('사용자 로그인 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
       });
-    } else {
-      console.log('auth_user_token: ' + auth_user_token);
-    }
-
-    // 유저 로그인
-    RemoteAPIService.loginUser(auth_user_token, function(result) {
-      console.log('Login successed : ' + result);
-      AppStatus.setUserLogined(true);
     }, function(err) {
-      console.error(err);
-      showAlert('사용자 로그인 과정에서 오류가 발생하여 앱을 종료합니다.');
+      console.error('User Registration failed: ' + JSON.stringify(err));
+
+      showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
     });
+
+
 
     // VD 등록
 
