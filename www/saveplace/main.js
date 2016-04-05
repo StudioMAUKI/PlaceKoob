@@ -6,27 +6,7 @@ angular.module('placekoob.controllers')
 	saveModal.images = [];
 	saveModal.URL = '';
 
-	if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-		$cordovaClipboard.paste()
-		.then(function(result) {
-			var pastedURL = result;
-			if (pastedURL !== '') {
-				// var confirmPopup = $ionicPopup.confirm({
-				// 	title: '클립보드에 저장한 내용이 있습니다',
-				// 	template: '클립보드의 URL을 붙여넣기 하시겠습니까?'
-				// });
-				//
-				// confirmPopup.then(function(result) {
-				// 	if(result) {
-						saveModal.URL = pastedURL;
-				// 	}
-				// });
-			}
 
-		}, function(err) {
-			console.error('Clipboard paste error : ' + error);
-		});
-	}
 
 	saveModal.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
@@ -47,6 +27,29 @@ angular.module('placekoob.controllers')
 		.then(function(modal) {
 			saveModal.saveDlg = modal;
 			saveModal.saveDlg.show();
+
+			if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+				$cordovaClipboard.paste()
+				.then(function(result) {
+					console.log('URL in clipboard: ' + result);
+					var pastedURL = result;
+					if (pastedURL !== '') {
+						// var confirmPopup = $ionicPopup.confirm({
+						// 	title: '클립보드에 저장한 내용이 있습니다',
+						// 	template: '클립보드의 URL을 붙여넣기 하시겠습니까?'
+						// });
+						//
+						// confirmPopup.then(function(result) {
+						// 	if(result) {
+								saveModal.URL = pastedURL;
+						// 	}
+						// });
+					}
+
+				}, function(err) {
+					console.error('Clipboard paste error : ' + error);
+				});
+			}
 		})
 	};
 
@@ -69,7 +72,7 @@ angular.module('placekoob.controllers')
 		saveModal.closeSaveDlg();
 	};
 
-	saveModal.confirmSaveURL = function() {		
+	saveModal.confirmSaveURL = function() {
 		saveModal.closeSaveDlg();
 	};
 
