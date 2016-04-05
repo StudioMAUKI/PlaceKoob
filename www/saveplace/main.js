@@ -6,17 +6,22 @@ angular.module('placekoob.controllers')
 	saveModal.images = [];
 	saveModal.URL = '';
 
-
-
 	saveModal.savePosition = function() {
-		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
-			scope: $scope,
-			animation: 'slide-in-up'
-		})
-		.then(function(modal) {
-			saveModal.saveDlg = modal;
-			saveModal.saveDlg.show();
-		})
+		saveModal.addImageWithCamera(function() {
+			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
+				scope: $scope,
+				animation: 'slide-in-up'
+			})
+			.then(function(modal) {
+				saveModal.saveDlg = modal;
+				saveModal.saveDlg.show();
+			});
+		}, function(){
+			$ionicPopup.alert({
+        title: '어이쿠',
+        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
+      });
+		});
 	};
 
 	saveModal.saveURL = function() {
@@ -46,6 +51,7 @@ angular.module('placekoob.controllers')
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();
+
 		saveModal.images = [];
 		saveModal.note = '';
 		saveModal.URL = '';
@@ -54,24 +60,48 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		RemoteAPIService.sendUserPost({
-			lonLat: {
-				lon: curPos.longitude,
-				lat: curPos.latitude
-			},
-			notes: [{
-				content: saveModal.note
-			}],
-			images: [{
-				uuid: '0C18B363C58E0D7B82FDFB17E0FF7F80.jpg'
-			},{
-				uuid: 'F60D583660C03F7F74F8B0E143807F7F.jpg'
-			}]
-		}, function(result) {
-			console.log("Sending user post successed.");
+		RemoteAPIService.uploadImage(saveModal.images[0], function(response) {
+			console.log('Image UUID: ' + response.uuid);
+			RemoteAPIService.sendUserPost({
+				lonLat: {
+					lon: curPos.longitude,
+					lat: curPos.latitude
+				},
+				notes: [{
+					content: saveModal.note
+				}],
+				images: [{
+					uuid: response.uuid
+				}]
+			}, function(result) {
+				console.log("Sending user post successed.");
+				$ionicPopup.alert({
+	        title: 'SUCCESS',
+	        template: '현재 위치를 저장했습니다.'
+	      })
+				.then(function(){
+					saveModal.closeSaveDlg();
+				});
+			}, function(err) {
+				console.error("Sending user post failed.");
+				$ionicPopup.alert({
+	        title: 'ERROR: Create UPost',
+	        template: JSON.stringify(err)
+	      })
+				.then(function(){
+					saveModal.closeSaveDlg();
+				});
+			});
 		}, function(err) {
-			console.error("Sending user post failed.");
+			$ionicPopup.alert({
+        title: 'ERROR: Upload Image',
+        template: JSON.stringify(err)
+      })
+			.then(function(){
+				saveModal.closeSaveDlg();
+			});
 		});
+
 		// PlaceManager.saveCurrentPlace({
 		// 	images: saveModal.images,
 		// 	note: saveModal.note,
@@ -81,10 +111,35 @@ angular.module('placekoob.controllers')
 	};
 
 	saveModal.confirmSaveURL = function() {
-		saveModal.closeSaveDlg();
+		RemoteAPIService.sendUserPost({
+			notes: [{
+				content: saveModal.note
+			}],
+			urls: [{
+				content: saveModal.URL
+			}]
+		}, function(result) {
+			console.log("Sending user post successed.");
+			$ionicPopup.alert({
+        title: 'SUCCESS',
+        template: '웹문서를 저장했습니다.'
+      })
+			.then(function(){
+				saveModal.closeSaveDlg();
+			});
+		}, function(err) {
+			console.error("Sending user post failed.");
+			$ionicPopup.alert({
+        title: 'ERROR: Create UPost',
+        template: JSON.stringify(err)
+      })
+			.then(function(){
+				saveModal.closeSaveDlg();
+			});
+		});
 	};
 
-	saveModal.addImageWithCamera = function() {
+	saveModal.addImageWithCamera = function(success, error) {
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			var options = {
 	      quality: 70,
@@ -103,12 +158,20 @@ angular.module('placekoob.controllers')
 	    .then(function (imageURI) {
 	      saveModal.images.push(imageURI);
 	      console.log('imageUrl: ' + imageURI);
-	    }, function (error) {
-	      console.error('Camera capture failed : ' + error);
-				alert(error);
+				if (success) {
+					success();
+				}
+	    }, function (err) {
+	      console.error('Camera capture failed : ' + err);
+				if (error) {
+					error();
+				}
 	    });
 		} else {	// test in web-browser
 			saveModal.images.push('http://cfile4.uf.tistory.com/image/2773F53C565C0DA82E6FDB');
+			if (success) {
+				success();
+			}
 		}
 	};
 

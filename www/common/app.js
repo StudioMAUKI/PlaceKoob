@@ -9,7 +9,7 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
 .run(['$ionicPlatform', '$ionicPopup', '$state', 'PKDBManager', 'PKQueries', 'RemoteAPIService', 'StorageService', 'AppStatus',  function($ionicPlatform, $ionicPopup, $state, PKDBManager, PKQueries, RemoteAPIService, StorageService, AppStatus) {
   $ionicPlatform.ready(function() {
     function showAlert(msg) {
-      var alertPopup = $ionicPopup.alert({
+      $ionicPopup.alert({
         title: '오류가 발생했습니다',
         template: msg
       })
