@@ -111,7 +111,32 @@ angular.module('placekoob.controllers')
 	};
 
 	saveModal.confirmSaveURL = function() {
-		saveModal.closeSaveDlg();
+		RemoteAPIService.sendUserPost({
+			notes: [{
+				content: saveModal.note
+			}],
+			urls: [{
+				content: saveModal.URL
+			}]
+		}, function(result) {
+			console.log("Sending user post successed.");
+			$ionicPopup.alert({
+        title: 'SUCCESS',
+        template: '웹문서를 저장했습니다.'
+      })
+			.then(function(){
+				saveModal.closeSaveDlg();
+			});
+		}, function(err) {
+			console.error("Sending user post failed.");
+			$ionicPopup.alert({
+        title: 'ERROR: Create UPost',
+        template: JSON.stringify(err)
+      })
+			.then(function(){
+				saveModal.closeSaveDlg();
+			});
+		});
 	};
 
 	saveModal.addImageWithCamera = function(success, error) {

@@ -120,7 +120,7 @@ angular.module('placekoob.services')
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
-      console.dir(result);
+      //console.dir(result);
       if (success) success();
     }, function(err) {
       console.error(err);
