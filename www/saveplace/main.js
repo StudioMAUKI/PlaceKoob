@@ -183,31 +183,38 @@ angular.module('placekoob.controllers')
 .controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
 	var main = this;
 	main.places = placeListService.getPlaces();
-	main.activeIndex = -1;
+	main.prevIndex = -1;
 
 
 	main.slidehasChanged = function(index) {
-		if (main.activeIndex != -1) {
-			main.places[main.activeIndex].options.icon = 'img/icon/pin_base_small.png';
-		}
+		//	여기서 미묘한 문제는..
+		//	슬라이드는 [0][1] ... [N]로  인데,
+		//	마커는	[cur][0][1] ... [N-1]인 형태로 매핑이 되는 것을 감안하여 처리해야 함
 
-		main.activeIndex = index - 1;
-		if (index == -1) {
-			main.map.center = main.currentPosMarker.coords;
+		//	선택된 슬라이드의 위치로 지도를 이동시키고, 관련 마커를 활성화된 상태로 바꿔주고
+		if (index == 0) {
+			main.map.center.latitude = main.currentPosMarker.coords.latitude;
+			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
-			main.map.center.latitude = main.places[main.activeIndex].coords.latitude;
-			main.map.center.longitude = main.places[main.activeIndex].coords.longitude;
-			main.places[main.activeIndex].options.icon = 'img/icon/pin_active_small.png';
+			main.places[index - 1].options.icon = 'img/icon/pin_active_small.png';
+			main.map.center.latitude = main.places[index - 1].coords.latitude;
+			main.map.center.longitude = main.places[index - 1].coords.longitude;
 		}
+		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
+		if (main.prevIndex != 0 && main.prevIndex != -1) {
+				main.places[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+		}
+		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
+		main.prevIndex = index;
 	}
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
- 	main.divToFit = function() {
- 		var divMap = $(document);
- 		$('.angular-google-map-container').css({
- 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
- 		});
- 	};
+	main.divToFit = function() {
+		var divMap = $(document);
+		$('.angular-google-map-container').css({
+			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
+		});
+	};
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
@@ -221,7 +228,8 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							main.currentPosMarker.coords = main.map.center;
+							main.currentPosMarker.coords.latitude = main.map.center.latitude;
+							main.currentPosMarker.coords.longitude = main.map.center.longitude;
 						},
 						center_changed: function(map, event, args) {
 							console.log('Map center changed : ' + JSON.stringify(main.map.center));
@@ -248,7 +256,8 @@ angular.module('placekoob.controllers')
 					},
           events: {
             dragend: function (currentPosMarker, eventName, args) {
-              main.map.center = main.currentPosMarker.coords;
+              main.map.center.latitude = main.currentPosMarker.coords.latitude;
+							main.map.center.longitude = main.currentPosMarker.coords.longitude;
             }
           }
         };
