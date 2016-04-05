@@ -5,6 +5,7 @@
 			입력하신 주소로 e메일이 발송되었습니다. 받은 메일을 열고 [확인] 버튼을 눌러 주세요.
 		</p>
 		<button class="button pk-accent" ng-click="register.goBack()">주소 변경</button>
-		<button class="button pk-accent" ng-click="register.goComplete()">e메일 재전송</button>
+		<button class="button pk-accent" ng-click="register.resendEmail()">e메일 재전송</button>
 	</div>
+	<div><a ng-href="#/register/complete" ng-click="register.goComplete()">Next</a></div>
 </ion-view>
