@@ -113,12 +113,28 @@ angular.module('placekoob.services')
     return (email !== null);
   }
 
+  function sendUserPost(sendObj, success, error){
+    $http({
+      method: 'POST',
+      url: ServerUrl + '/uposts/',
+      data: JSON.stringify({ add: JSON.stringify(sendObj) })
+    })
+    .then(function(result) {
+      console.dir(result);
+      success();
+    }, function(err) {
+      console.error(err);
+      error(err);
+    });
+  }
+
   return {
     initCall: initCall,
     registerUser: registerUser,
     loginUser: loginUser,
     registerVD: registerVD,
     loginVD: loginVD,
-    hasEmail: hasEmail
+    hasEmail: hasEmail,
+    sendUserPost: sendUserPost
   }
 }]);

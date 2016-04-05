@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', '$http', 'PlaceManager', 'CacheService', '$cordovaClipboard', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, $http, PlaceManager, CacheService, $cordovaClipboard) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', '$http', 'PlaceManager', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, $http, PlaceManager, CacheService, $cordovaClipboard, RemoteAPIService) {
 	var saveModal = this;
 	saveModal.images = [];
 	saveModal.URL = '';
@@ -34,18 +34,8 @@ angular.module('placekoob.controllers')
 					console.log('URL in clipboard: ' + result);
 					var pastedURL = result;
 					if (pastedURL !== '') {
-						// var confirmPopup = $ionicPopup.confirm({
-						// 	title: '클립보드에 저장한 내용이 있습니다',
-						// 	template: '클립보드의 URL을 붙여넣기 하시겠습니까?'
-						// });
-						//
-						// confirmPopup.then(function(result) {
-						// 	if(result) {
-								saveModal.URL = pastedURL;
-						// 	}
-						// });
+						saveModal.URL = pastedURL;
 					}
-
 				}, function(err) {
 					console.error('Clipboard paste error : ' + error);
 				});
@@ -64,12 +54,33 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		PlaceManager.saveCurrentPlace({
-			images: saveModal.images,
-			note: saveModal.note,
-			coords: curPos
+		RemoteAPIService.sendUserPost({
+			lonLat: {
+				lon: curPos.longitude,
+				lat: curPos.latitude
+			},
+			notes: [{
+				uuid: null,
+				content: saveModal.note
+			}],
+			images: [{
+				uuid: '0C18B363C58E0D7B82FDFB17E0FF7F80.jpg',
+				note: null
+			},{
+				uuid: 'F60D583660C03F7F74F8B0E143807F7F.jpg',
+				note: null
+			}]
+		}, function(result) {
+			console.log("Sending user post successed.");
+		}, function(err) {
+			console.error("Sending user post failed.");
 		});
-		saveModal.closeSaveDlg();
+		// PlaceManager.saveCurrentPlace({
+		// 	images: saveModal.images,
+		// 	note: saveModal.note,
+		// 	coords: curPos
+		// });
+		// saveModal.closeSaveDlg();
 	};
 
 	saveModal.confirmSaveURL = function() {
@@ -84,8 +95,8 @@ angular.module('placekoob.controllers')
 	      sourceType: Camera.PictureSourceType.CAMERA,
 	      allowEdit: false,
 	      encodingType: Camera.EncodingType.JPEG,
-	      targetWidth: 1024,
-	      targetHeight: 768,
+	      targetWidth: 1280,
+	      targetHeight: 1280,
 	      popoverOptions: CameraPopoverOptions,
 	      correctOrientation: true,
 	      saveToPhotoAlbum: false
@@ -109,12 +120,12 @@ angular.module('placekoob.controllers')
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			$cordovaImagePicker.getPictures({
 	      maximumImagesCount: restCount,
-	      width: 1024
+	      width: 1280,
+				height: 1280
 	    }).
 	    then(function(imageURIs) {
 	      for (var i = 0; i < imageURIs.length; i++) {
 	        console.log('Image URI: ' + imageURIs[i]);
-	        //alert(results[i]);
 	        saveModal.images.push(imageURIs[i]);
 	      }
 	    }, function (error) {
@@ -228,11 +239,12 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
+							// 속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+							// 지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
 							main.currentPosMarker.coords.latitude = main.map.center.latitude;
 							main.currentPosMarker.coords.longitude = main.map.center.longitude;
 						},
 						center_changed: function(map, event, args) {
-							console.log('Map center changed : ' + JSON.stringify(main.map.center));
 							CacheService.add('curPos', main.map.center);
 						}
 					},
