@@ -3,6 +3,12 @@
 angular.module('placekoob.controllers')
 .controller('configCtrl', ['$http', '$cordovaOauth', 'SocialService', function($http, $cordovaOauth, SocialService) {
 	var config = this;
+	config.foursquare = false;
+	config.google = false;
+	config.naver = false;
+	config.libraries = false;
+	config.contacts = false;
+
 	if (SocialService.foursquare.token === '') {
     config.foursquare = false;
   } else {
@@ -37,4 +43,11 @@ angular.module('placekoob.controllers')
       console.log("Error -> " + error);
     });
   }
+
+	config.connectOther = function() {
+		config.google = false;
+		config.naver = false;
+		config.libraries = false;
+		config.contacts = false;
+	}
 }]);

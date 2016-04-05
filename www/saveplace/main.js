@@ -1,10 +1,12 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', 'PlaceManager', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, PlaceManager) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', '$http', 'PlaceManager', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, $http, PlaceManager, CacheService, $cordovaClipboard, RemoteAPIService) {
 	var saveModal = this;
 	saveModal.images = [];
+	saveModal.URL = '';
+
+
 
 	saveModal.savePosition = function() {
 		$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
@@ -17,19 +19,69 @@ angular.module('placekoob.controllers')
 		})
 	};
 
+	saveModal.saveURL = function() {
+		$ionicModal.fromTemplateUrl('saveplace/saveurl.html', {
+			scope: $scope,
+			animation: 'slide-in-up'
+		})
+		.then(function(modal) {
+			saveModal.saveDlg = modal;
+			saveModal.saveDlg.show();
+
+			if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+				$cordovaClipboard.paste()
+				.then(function(result) {
+					console.log('URL in clipboard: ' + result);
+					var pastedURL = result;
+					if (pastedURL !== '') {
+						saveModal.URL = pastedURL;
+					}
+				}, function(err) {
+					console.error('Clipboard paste error : ' + error);
+				});
+			}
+		})
+	};
+
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();
 		saveModal.images = [];
+		saveModal.note = '';
+		saveModal.URL = '';
 	};
 
-	saveModal.confirmSave = function(curPos) {
+	saveModal.confirmSave = function() {
+		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
+		RemoteAPIService.sendUserPost({
+			lonLat: {
+				lon: curPos.longitude,
+				lat: curPos.latitude
+			},
+			notes: [{
+				content: saveModal.note
+			}],
+			images: [{
+				uuid: '0C18B363C58E0D7B82FDFB17E0FF7F80.jpg'
+			},{
+				uuid: 'F60D583660C03F7F74F8B0E143807F7F.jpg'
+			}]
+		}, function(result) {
+			console.log("Sending user post successed.");
+		}, function(err) {
+			console.error("Sending user post failed.");
+		});
 		// PlaceManager.saveCurrentPlace({
 		// 	images: saveModal.images,
 		// 	note: saveModal.note,
-		// 	coords: $scope.parent.map.center
-		// })
+		// 	coords: curPos
+		// });
+		// saveModal.closeSaveDlg();
+	};
+
+	saveModal.confirmSaveURL = function() {
+		saveModal.closeSaveDlg();
 	};
 
 	saveModal.addImageWithCamera = function() {
@@ -40,8 +92,8 @@ angular.module('placekoob.controllers')
 	      sourceType: Camera.PictureSourceType.CAMERA,
 	      allowEdit: false,
 	      encodingType: Camera.EncodingType.JPEG,
-	      targetWidth: 1024,
-	      targetHeight: 768,
+	      targetWidth: 1280,
+	      targetHeight: 1280,
 	      popoverOptions: CameraPopoverOptions,
 	      correctOrientation: true,
 	      saveToPhotoAlbum: false
@@ -65,12 +117,12 @@ angular.module('placekoob.controllers')
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			$cordovaImagePicker.getPictures({
 	      maximumImagesCount: restCount,
-	      width: 1024
+	      width: 1280,
+				height: 1280
 	    }).
 	    then(function(imageURIs) {
 	      for (var i = 0; i < imageURIs.length; i++) {
 	        console.log('Image URI: ' + imageURIs[i]);
-	        //alert(results[i]);
 	        saveModal.images.push(imageURIs[i]);
 	      }
 	    }, function (error) {
@@ -95,40 +147,88 @@ angular.module('placekoob.controllers')
 			}
 		});
 	}
+
+	saveModal.getURPreview = function() {
+		if (saveModal.URL === '') {
+			console.warn("URL must be valid value.");
+			return;
+		}
+		if (!saveModal.URL.startsWith('http://') && !saveModal.URL.startsWith('https://')) {
+			saveModal.URL = 'http://' + saveModal.URL;
+		}
+
+		// 브라우저 모드에서는 CORS 문제로 다른 도메인 호출이 기본적으로 안되기 때문에 테스트를 위해 분기를 시킴
+		var reqURL = saveModal.URL;
+		// test in web-browser
+		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
+			console.log('Test in browser-mode');
+			reqURL = 'naver/PostView.nhn?blogId=mardukas&logNo=220647764523&redirect=Dlog&widgetTypeCall=true';
+		}
+
+		// 참고
+		// /mardukas/220647764523
+		// /PostView.nhn?blogId=mardukas&logNo=220647764523&redirect=Dlog&widgetTypeCall=true
+		// 일단 감 잡았으.
+		// 1. 네이버 블로그이냐 아니냐 판단 -> 맞을 경우 URL 변환
+		// 2. open graph tag 탐색
+		// 3. 성공한 경우 뿌려줌. 그렇지 않은 경우 별도로 실패 로그를 남기고 왜 그런치 추후 파악할 수 있도록 함
+		// 4. 요 로직은 결국 서버에 둬야 함
+
+		$http({
+			method: 'GET',
+			url: reqURL
+		}).
+		then(function(result) {
+			console.log(result.data);
+			var url = /<meta property="og:url"[\s]+content[\s]*=[\s]*['"][\S]+['"][\s]*\/>/i;
+			console.log('URL content: ' + url.exec(result.data));
+		}, function(err) {
+			console.error(JSON.stringify(err));
+		});
+		console.log('URL : ' + saveModal.URL);
+	}
 }])
-.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService) {
+.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
 	var main = this;
 	main.places = placeListService.getPlaces();
-	main.activeIndex = -1;
+	main.prevIndex = -1;
 
 
 	main.slidehasChanged = function(index) {
-		if (main.activeIndex != -1) {
-			main.places[main.activeIndex].options.icon = 'img/icon/pin_base_small.png';
-		}
+		//	여기서 미묘한 문제는..
+		//	슬라이드는 [0][1] ... [N]로  인데,
+		//	마커는	[cur][0][1] ... [N-1]인 형태로 매핑이 되는 것을 감안하여 처리해야 함
 
-		main.activeIndex = index - 1;
-		if (index == -1) {
-			main.map.center = main.currentPosMarker.coords;
+		//	선택된 슬라이드의 위치로 지도를 이동시키고, 관련 마커를 활성화된 상태로 바꿔주고
+		if (index == 0) {
+			main.map.center.latitude = main.currentPosMarker.coords.latitude;
+			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
-			main.map.center.latitude = main.places[main.activeIndex].coords.latitude;
-			main.map.center.longitude = main.places[main.activeIndex].coords.longitude;
-			main.places[main.activeIndex].options.icon = 'img/icon/pin_active_small.png';
+			main.places[index - 1].options.icon = 'img/icon/pin_active_small.png';
+			main.map.center.latitude = main.places[index - 1].coords.latitude;
+			main.map.center.longitude = main.places[index - 1].coords.longitude;
 		}
+		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
+		if (main.prevIndex != 0 && main.prevIndex != -1) {
+				main.places[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+		}
+		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
+		main.prevIndex = index;
 	}
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
- 	main.divToFit = function() {
- 		var divMap = $(document);
- 		$('.angular-google-map-container').css({
- 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
- 		});
- 	};
+	main.divToFit = function() {
+		var divMap = $(document);
+		$('.angular-google-map-container').css({
+			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
+		});
+	};
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
+				CacheService.add('curPos', pos);
         main.map = {
 					center: {
 						latitude: pos.latitude,
@@ -136,10 +236,13 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							main.currentPosMarker.coords = main.map.center;
+							// 속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+							// 지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
+							main.currentPosMarker.coords.latitude = main.map.center.latitude;
+							main.currentPosMarker.coords.longitude = main.map.center.longitude;
 						},
 						center_changed: function(map, event, args) {
-							console.log('Map center changed : ' + JSON.stringify(main.map.center));
+							CacheService.add('curPos', main.map.center);
 						}
 					},
 					zoom: 14,
@@ -162,7 +265,8 @@ angular.module('placekoob.controllers')
 					},
           events: {
             dragend: function (currentPosMarker, eventName, args) {
-              main.map.center = main.currentPosMarker.coords;
+              main.map.center.latitude = main.currentPosMarker.coords.latitude;
+							main.map.center.longitude = main.currentPosMarker.coords.longitude;
             }
           }
         };

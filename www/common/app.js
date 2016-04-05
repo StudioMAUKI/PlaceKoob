@@ -6,8 +6,20 @@
 'use strict';
 
 angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoogle-maps', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
-.run(['$ionicPlatform', 'PKDBManager', 'PKQueries', function($ionicPlatform, PKDBManager, PKQueries) {
+.run(['$ionicPlatform', '$ionicPopup', '$state', 'PKDBManager', 'PKQueries', 'RemoteAPIService', 'StorageService', 'AppStatus',  function($ionicPlatform, $ionicPopup, $state, PKDBManager, PKQueries, RemoteAPIService, StorageService, AppStatus) {
   $ionicPlatform.ready(function() {
+    function showAlert(msg) {
+      var alertPopup = $ionicPopup.alert({
+        title: '오류가 발생했습니다',
+        template: msg
+      })
+      .then(function(res) {
+        console.log('앱을 종료할려는데..');
+        ionic.Platform.exitApp();
+      });
+    };
+
+    // 데이터 관리를 위한 DB 생성
     PKDBManager.execute(PKQueries.createPlaces)
     .then(function(result) {
       console.log(result);
@@ -28,5 +40,44 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     if(window.StatusBar) {
       StatusBar.styleDefault();
     }
+
+    // 유저 등록
+    RemoteAPIService.registerUser(function(result) {
+      console.log('auth_user_token: ' + result);
+
+      // 유저 로그인
+      RemoteAPIService.loginUser(result, function(result) {
+        console.log('User Login successed : ' + result);
+
+        // 이메일 정보를 가지고 있는가?
+        if (RemoteAPIService.hasEmail()) {
+          // VD 등록
+          RemoteAPIService.registerVD(function(result) {
+            console.log('auth_vd_token: ' + result);
+
+            // VD 로그인
+            RemoteAPIService.loginVD(result, function(result) {
+              console.log('VD Login successed : ' + result);
+            }, function(err) {
+              console.error(err);
+              showAlert('서버 접속 중 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
+            });
+          }, function(err) {
+            console.error(err);
+            showAlert('이메일 등록 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
+          });
+        } else {
+          // 초기 등록 과정으로 넘김
+          $state.go('register');
+        }
+      }, function(err) {
+        console.error(err);
+        //showAlert('사용자 로그인 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
+        showAlert(JSON.stringify(err));
+      });
+    }, function(err) {
+      console.error('User Registration failed: ' + JSON.stringify(err));
+      showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
+    });
   });
 }]);

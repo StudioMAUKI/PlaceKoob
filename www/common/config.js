@@ -1,7 +1,11 @@
 'use strict';
 
 angular.module('placekoob.config', [])
-.config(function($ionicConfigProvider, $stateProvider, $urlRouterProvider) {
+.config(function($ionicConfigProvider, $stateProvider, $urlRouterProvider, $httpProvider) {
+	// CSRF token 설정을 위함 (꼭 들어가야 함!!)
+	$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
 	$ionicConfigProvider.tabs.position('bottom');
 
 	$stateProvider

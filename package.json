@@ -31,7 +31,12 @@
     "cordova-plugin-geolocation",
     "cordova-plugin-inappbrowser",
     "cordova-plugin-camera",
-    "cordova-plugin-image-picker"
+    "cordova-plugin-image-picker",
+    {
+      "locator": "https://github.com/VersoSolutions/CordovaClipboard.git",
+      "id": "com.verso.cordova.clipboard"
+    },
+    "cordova-plugin-file-transfer"
   ],
   "cordovaPlatforms": [
     "ios",
