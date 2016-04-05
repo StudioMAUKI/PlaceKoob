@@ -5,7 +5,7 @@ angular.module('placekoob.controllers')
 	var saveModal = this;
 	saveModal.images = [];
 	saveModal.URL = '';
-
+	saveModal.capturedImgUrl = 'http://4.bp.blogspot.com/-FwL5ctJlxLM/VkOLwoZoVxI/AAAAAAAAA6E/xCkISOV5ymU/s640/fbd8c5619475fff7197eab0aaa9ae3ea_BayD7MpiBZ2FPCReqqRhVt3wiaL65.jpg';
 
 
 	saveModal.savePosition = function() {
@@ -87,7 +87,7 @@ angular.module('placekoob.controllers')
 		saveModal.closeSaveDlg();
 	};
 
-	saveModal.addImageWithCamera = function() {
+	saveModal.addImageWithCamera = function(success, error) {
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			var options = {
 	      quality: 70,
@@ -106,12 +106,21 @@ angular.module('placekoob.controllers')
 	    .then(function (imageURI) {
 	      saveModal.images.push(imageURI);
 	      console.log('imageUrl: ' + imageURI);
+				if (success) {
+					success();
+				}
 	    }, function (error) {
 	      console.error('Camera capture failed : ' + error);
 				alert(error);
+				if (error) {
+					error();
+				}
 	    });
 		} else {	// test in web-browser
 			saveModal.images.push('http://cfile4.uf.tistory.com/image/2773F53C565C0DA82E6FDB');
+			if (success) {
+				success();
+			}
 		}
 	};
 
