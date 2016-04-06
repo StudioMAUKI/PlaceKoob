@@ -266,12 +266,12 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
+.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, UPostsService, CacheService) {
 	var main = this;
-	main.placelist = placeListService;
-	main.places = placeListService.getPlaces();
+	main.uPostsService = UPostsService;
+	main.posts = UPostsService.getLocatablePosts().results;
 	main.prevIndex = -1;
-
+	//console.dir(main.posts);
 
 	main.slidehasChanged = function(index) {
 		//	여기서 미묘한 문제는..
@@ -283,13 +283,13 @@ angular.module('placekoob.controllers')
 			main.map.center.latitude = main.currentPosMarker.coords.latitude;
 			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
-			main.places[index - 1].options.icon = 'img/icon/pin_active_small.png';
-			main.map.center.latitude = main.places[index - 1].coords.latitude;
-			main.map.center.longitude = main.places[index - 1].coords.longitude;
+			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
+			main.map.center.latitude = main.posts[index - 1].userPost.lonLat.lat;
+			main.map.center.longitude = main.posts[index - 1].userPost.lonLat.lon;
 		}
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.places[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
@@ -351,12 +351,16 @@ angular.module('placekoob.controllers')
         };
 
 				// markers for saved positions
-				for(var i = 0; i < main.places.length; i++) {
-					main.places[i].id = i;
-					main.places[i].options = {
+				for(var i = 0; i < main.posts.length; i++) {
+					main.posts[i].id = i;
+					main.posts[i].options = {
 						draggable: false,
 						icon: 'img/icon/pin_base_small.png'
 					};
+					main.posts[i].coords = {
+            latitude: main.posts[i].userPost.lonLat.lat,
+            longitude: main.posts[i].userPost.lonLat.lon
+          }
 				}
       },
       function(reason){

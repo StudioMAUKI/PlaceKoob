@@ -149,7 +149,19 @@ angular.module('placekoob.services')
   }
 
   function getPosts(limit, offset) {
-    
+    var deferred = $q.defer();
+    $http({
+      method: 'GET',
+      url: ServerUrl + '/uposts/'
+    })
+    .then(function(response) {
+      //console.dir(response.data);
+      deferred.resolve(response.data);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
   }
 
   return {

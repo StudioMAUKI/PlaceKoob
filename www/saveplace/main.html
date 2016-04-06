@@ -15,7 +15,7 @@
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
-			<ui-gmap-marker ng-repeat="place in main.places track by $index" coords="place.coords" options="place.options" idkey="place.id">
+			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id">
       </ui-gmap-marker>
     </ui-gmap-google-map>
 		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
@@ -29,19 +29,19 @@
 					</section>
 				</div>
 			</ion-slide>
-			<ion-slide  ng-repeat="place in main.places">
+			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<img class="list-thumbnail" ng-src="{{place.images[0]}}" alt="{{place.name}}">
+					<img class="list-thumbnail" ng-src="{{maiin.uPostsService.getImageURL(post.userPost.images[0].uuid)}}" alt="{{post.userPost.name?'미지정':post.userPost.name}}">
 					<section>
-						<h5>{{place.name}}</h5>
-						<span class="place-desc">{{place.address}}</span><br>
+						<h5>{{$index}}{{post.userPost.name?'미지정':post.userPost.name}}</h5>
+						<span class="place-desc">{{'주소 필드 아직 없음'}}</span><br>
 						<span class="place-note">
-							<strong>{{main.placelist.getTagString(place.tag)}}</strong>
-							{{main.placelist.getFeeling(place.feeling)}}
+							<strong>{{main.uPostsService.getTagString(post.userPost.notes[0].content)}}</strong>
 						</span>
 					</section>
 				</div>
 			</ion-slide>
+		</ion-slide-box>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
 		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>
