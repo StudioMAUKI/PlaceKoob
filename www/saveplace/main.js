@@ -7,7 +7,24 @@ angular.module('placekoob.controllers')
 	saveModal.URL = '';
 
 	saveModal.savePosition = function() {
-		saveModal.addImageWithCamera(function() {
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			saveModal.addImageWithCamera(function() {
+				$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
+					scope: $scope,
+					animation: 'slide-in-up'
+				})
+				.then(function(modal) {
+					saveModal.saveDlg = modal;
+					saveModal.saveDlg.show();
+				});
+			}, function(){
+				$ionicPopup.alert({
+	        title: '어이쿠',
+	        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
+	      });
+			});
+		} else {
+			saveModal.images.push('http://maukitest.cloudapp.net/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -16,12 +33,7 @@ angular.module('placekoob.controllers')
 				saveModal.saveDlg = modal;
 				saveModal.saveDlg.show();
 			});
-		}, function(){
-			$ionicPopup.alert({
-        title: '어이쿠',
-        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
-      });
-		});
+		}
 	};
 
 	saveModal.saveURL = function() {

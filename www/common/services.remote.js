@@ -127,18 +127,24 @@ angular.module('placekoob.services')
 
   function uploadImage(fileURI) {
     var deferred = $q.defer();
-    var options = {
-      fileKey: 'file',
-      httpMethod: 'POST'
-    };
-    $cordovaFileTransfer.upload(ServerUrl + '/imgs/', fileURI, options)
-    .then(function(result) {
-      //console.dir(result);
-      deferred.resolve(JSON.parse(result.response));
-    }, function(err) {
-      //console.error(err);
-      deferred.reject(err);
-    });
+
+    // browser에서 개발하는 거 때문에 할수 없이 분기해서 처리..
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      var options = {
+        fileKey: 'file',
+        httpMethod: 'POST'
+      };
+      $cordovaFileTransfer.upload(ServerUrl + '/imgs/', fileURI, options)
+      .then(function(result) {
+        //console.dir(result);
+        deferred.resolve(JSON.parse(result.response));
+      }, function(err) {
+        //console.error(err);
+        deferred.reject(err);
+      });
+    } else {
+      deferred.resolve({uuid: '0DC200ED17A056ED448EF8E1C3952B94.img'});
+    }
     return deferred.promise;
   }
 
