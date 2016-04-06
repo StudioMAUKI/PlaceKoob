@@ -161,7 +161,7 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       console.dir(response.data);
-      deferred.resolve(response.data);
+      deferred.resolve(response.data.results);
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -182,7 +182,7 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       //console.dir(response.data);
-      deferred.resolve(response.data);
+      deferred.resolve(response.data.results);
     }, function(err) {
       console.error(err);
       deferred.reject(err);

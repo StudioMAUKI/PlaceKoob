@@ -266,12 +266,10 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, UPostsService, CacheService) {
+.controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, UPostsService, CacheService) {
 	var main = this;
 	main.uPostsService = UPostsService;
-	main.posts = UPostsService.getLocatablePosts().results;
 	main.prevIndex = -1;
-	//console.dir(main.posts);
 
 	main.slidehasChanged = function(index) {
 		//	여기서 미묘한 문제는..
@@ -350,18 +348,25 @@ angular.module('placekoob.controllers')
           }
         };
 
-				// markers for saved positions
-				for(var i = 0; i < main.posts.length; i++) {
-					main.posts[i].id = i;
-					main.posts[i].options = {
-						draggable: false,
-						icon: 'img/icon/pin_base_small.png'
-					};
-					main.posts[i].coords = {
-            latitude: main.posts[i].userPost.lonLat.lat,
-            longitude: main.posts[i].userPost.lonLat.lon
-          }
-				}
+				UPostsService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
+				.then(function(posts) {
+					main.posts = posts;
+
+					// markers for saved positions
+					for(var i = 0; i < main.posts.length; i++) {
+						main.posts[i].id = i;
+						main.posts[i].options = {
+							draggable: false,
+							icon: 'img/icon/pin_base_small.png'
+						};
+						main.posts[i].coords = {
+	            latitude: main.posts[i].userPost.lonLat.lat,
+	            longitude: main.posts[i].userPost.lonLat.lon
+	          }
+					}
+					$ionicSlideBoxDelegate.update();
+				});
+
       },
       function(reason){
         $ionicPopup.alert({ title: 'Warning!', template: reason });

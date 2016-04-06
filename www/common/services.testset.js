@@ -180,7 +180,7 @@ angular.module('placekoob.services')
     }
   }
 }])
-.factory('UPostsService', [function(){
+.factory('UPostsService', ['$q', '$timeout', function($q, $timeout){
   var posts = {
     count: 15,
     next: null,
@@ -901,19 +901,26 @@ angular.module('placekoob.services')
     return posts;
   }
 
-  function getLocatablePosts() {
+  function getPostsWithPlace(lat, lon, radius) {
+    var deferred = $q.defer();
     var retPosts = {
       results: [],
       count: 0
     };
 
-    for (var i = 0; i < posts.results.length; i++){
-      if (posts.results[i].userPost.lonLat || posts.results[i].placePost.lonLat) {
-        retPosts.results.push(posts.results[i]);
-        retPosts.count++;
+    $timeout(function(){
+
+
+      for (var i = 0; i < posts.results.length; i++){
+        if (posts.results[i].userPost.lonLat || posts.results[i].placePost.lonLat) {
+          retPosts.results.push(posts.results[i]);
+          retPosts.count++;
+        }
       }
-    }
-    return retPosts;
+      deferred.resolve(retPosts.results);
+    }, 1000);
+
+    return deferred.promise;
   }
 
   function getName(place) {
@@ -967,7 +974,7 @@ angular.module('placekoob.services')
 
   return {
     getPostsOfMine: getPostsOfMine,
-    getLocatablePosts: getLocatablePosts,
+    getPostsWithPlace: getPostsWithPlace,
     getName: getName,
     getAddress: getAddress,
     getPhoneNo: getPhoneNo,
