@@ -268,6 +268,7 @@ angular.module('placekoob.controllers')
 }])
 .controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
 	var main = this;
+	main.placelist = placeListService;
 	main.places = placeListService.getPlaces();
 	main.prevIndex = -1;
 

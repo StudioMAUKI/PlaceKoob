@@ -148,6 +148,10 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function getPosts(limit, offset) {
+    
+  }
+
   return {
     registerUser: registerUser,
     loginUser: loginUser,
@@ -155,6 +159,7 @@ angular.module('placekoob.services')
     loginVD: loginVD,
     hasEmail: hasEmail,
     sendUserPost: sendUserPost,
-    uploadImage: uploadImage
+    uploadImage: uploadImage,
+    getPosts: getPosts
   }
 }]);
