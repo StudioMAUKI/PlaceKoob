@@ -51,7 +51,7 @@ describe('placekoob.services', function() {
     }));
 
     it('tests to get post list', function() {
-      var posts = UPostsService.getPosts();
+      var posts = UPostsService.getPostsOfMine();
       expect(posts.count).toEqual(15);
       expect(posts.results.length).toEqual(15);
     });

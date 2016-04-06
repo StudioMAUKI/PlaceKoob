@@ -143,6 +143,10 @@ img.list-thumbnail {
   height: 450px;
 }
 
+.button-bar-on-map {
+  opacity: 0.85;
+}
+
 div.slide-box-on-map {
   position: relative;
   top: -115px;
@@ -157,6 +161,7 @@ div.slide-on-map {
   padding: 5px;
   background-color: white;
   color: #727272;
+  opacity: 0.85;
 }
 
 .slide-on-map h5 {

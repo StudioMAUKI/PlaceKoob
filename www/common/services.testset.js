@@ -897,7 +897,7 @@ angular.module('placekoob.services')
     ]
 };
 
-  function getPosts() {
+  function getPostsOfMine() {
     return posts;
   }
 
@@ -966,7 +966,7 @@ angular.module('placekoob.services')
   }
 
   return {
-    getPosts: getPosts,
+    getPostsOfMine: getPostsOfMine,
     getLocatablePosts: getLocatablePosts,
     getName: getName,
     getAddress: getAddress,

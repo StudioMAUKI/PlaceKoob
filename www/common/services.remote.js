@@ -148,11 +148,37 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getPosts(limit, offset) {
+  function getPostsOfMine(limit, offset) {
     var deferred = $q.defer();
     $http({
       method: 'GET',
-      url: ServerUrl + '/uposts/'
+      url: ServerUrl + '/uposts/',
+      params: {
+        ru: 'myself',
+        limit: limit,
+        offset: offset
+      }
+    })
+    .then(function(response) {
+      console.dir(response.data);
+      deferred.resolve(response.data);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
+  function getPostsWithPlace(lat, lon, radius) {
+    var deferred = $q.defer();
+    $http({
+      method: 'GET',
+      url: ServerUrl + '/uplaces/',
+      params: {
+        lon: lon,
+        lat: lat,
+        r: radius
+      }
     })
     .then(function(response) {
       //console.dir(response.data);
@@ -172,6 +198,7 @@ angular.module('placekoob.services')
     hasEmail: hasEmail,
     sendUserPost: sendUserPost,
     uploadImage: uploadImage,
-    getPosts: getPosts
+    getPostsOfMine: getPostsOfMine,
+    getPostsWithPlace: getPostsWithPlace
   }
 }]);
