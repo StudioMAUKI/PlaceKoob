@@ -60,7 +60,8 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		RemoteAPIService.uploadImage(saveModal.images[0], function(response) {
+		RemoteAPIService.uploadImage(saveModal.images[0])
+		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
 			RemoteAPIService.sendUserPost({
 				lonLat: {
@@ -73,7 +74,8 @@ angular.module('placekoob.controllers')
 				images: [{
 					uuid: response.uuid
 				}]
-			}, function(result) {
+			})
+			.then(function(result) {
 				console.log("Sending user post successed.");
 				$ionicPopup.alert({
 	        title: 'SUCCESS',
@@ -118,7 +120,8 @@ angular.module('placekoob.controllers')
 			urls: [{
 				content: saveModal.URL
 			}]
-		}, function(result) {
+		})
+		.then(function(result) {
 			console.log("Sending user post successed.");
 			$ionicPopup.alert({
         title: 'SUCCESS',
