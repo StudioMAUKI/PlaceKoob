@@ -11,7 +11,7 @@
   	</ion-refresher>
 		<ion-list show-delete="plNotYet.showDelete">
 			<div class="item item-divider">
-		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기 중입니다
+		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
 			<ion-item ng-repeat="post in plNotYet.posts" href="#">
 				<img class="list-thumbnail" ng-src="{{plNotYet.postHelper.getImageURL(post)}}" alt="{{plNotYet.postHelper.getPlaceName(post)}}">

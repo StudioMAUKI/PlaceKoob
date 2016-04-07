@@ -289,12 +289,22 @@ angular.module('placekoob.services')
     }
   }
 
+  function isOrganized(post) {
+    //  공식적인 장소 이름이 규정이 되었다면, 장소화 되었다고 간주한다
+    if (!post.placePost.name || post.placePost.name === '') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   return {
     getTags: getTags,
     getUserNote: getUserNote,
     getImageURL: getImageURL,
     getPlaceName: getPlaceName,
     getAddress: getAddress,
-    getPhoneNo: getPhoneNo
+    getPhoneNo: getPhoneNo,
+    isOrganized: isOrganized
   }
 }]);
