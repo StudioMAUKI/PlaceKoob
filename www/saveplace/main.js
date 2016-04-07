@@ -85,6 +85,9 @@ angular.module('placekoob.controllers')
 				}],
 				images: [{
 					uuid: response.uuid
+				}],
+				addrs: [{
+					content: '테스트 주소(경기도 성남시 분당구 삼평동)'
 				}]
 			})
 			.then(function(result) {

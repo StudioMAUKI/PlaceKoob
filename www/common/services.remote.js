@@ -25,9 +25,14 @@ angular.module('placekoob.services')
     } else {
       // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
       StorageService.removeData('auth_vd_token');
+      StorageService.removeData('email');
+
       $http({
         method: 'POST',
-        url: ServerUrl + '/users/register/'
+        url: ServerUrl + '/users/register/',
+        country:StorageService.getData('country'),
+        language:StorageService.getData('lang'),
+        timezone:''
       })
       .then(function(result) {
         console.log('User Registration successed.');
@@ -112,7 +117,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/uposts/',
+      url: ServerUrl + '/uplaces/',
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
@@ -152,7 +157,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'GET',
-      url: ServerUrl + '/uposts/',
+      url: ServerUrl + '/uplaces/',
       params: {
         ru: 'myself',
         limit: limit,
@@ -260,11 +265,25 @@ angular.module('placekoob.services')
   }
 
   function getAddress(post) {
-    return '주소 필드 아직 없음';
+    // 주소는 공식 포스트의 주소를 우선한다.
+    if (!post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
+      return post.placePost.addrs[0].content;
+    } else if (!post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
+      return post.userPost.addrs[0].content;
+    } else {
+      return '미지정 상태';
+    }
   }
 
   function getPhoneNo(post) {
-    return '전화번호 필드 아직 없음';
+    // 전화번호는 공식 포스트의 전화번호를 우선한다.
+    if (!post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
+      return post.placePost.phone.content;
+    } else if (!post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
+      return post.userPost.phone.content;
+    } else {
+      return '미지정 상태';
+    }
   }
 
   return {
