@@ -171,6 +171,7 @@ div.slide-on-map {
 
 .slide-on-map .place-desc {
   font-size: 80%;
+  color: #727272;
 }
 
 .slide-on-map .place-note {
@@ -193,6 +194,7 @@ span.place-item-name {
 
 span.place-item-addr {
   font-size: 80%;
+  color: #727272;
 }
 
 div.place-item-note {
