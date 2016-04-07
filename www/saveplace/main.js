@@ -268,7 +268,7 @@ angular.module('placekoob.controllers')
 }])
 .controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, UPostsService, CacheService) {
 	var main = this;
-	main.uPostsService = UPostsService;
+	main.postHelper = UPostsService;
 	main.prevIndex = -1;
 
 	main.slidehasChanged = function(index) {
@@ -351,6 +351,7 @@ angular.module('placekoob.controllers')
 				UPostsService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
 				.then(function(posts) {
 					main.posts = posts;
+					//console.dir(posts);
 
 					// markers for saved positions
 					for(var i = 0; i < main.posts.length; i++) {

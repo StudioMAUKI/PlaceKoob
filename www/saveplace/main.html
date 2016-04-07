@@ -31,12 +31,12 @@
 			</ion-slide>
 			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<img class="list-thumbnail" ng-src="{{maiin.uPostsService.getImageURL(post.userPost.images[0].uuid)}}" alt="{{post.userPost.name?'미지정':post.userPost.name}}">
+					<img class="list-thumbnail" ng-src="{{main.postHelper.getImageURL(post)}}">
 					<section>
-						<h5>{{$index}}{{post.userPost.name?'미지정':post.userPost.name}}</h5>
-						<span class="place-desc">{{'주소 필드 아직 없음'}}</span><br>
+						<h5>{{$index}}{{main.postHelper.getPlaceName(post)}}</h5>
+						<span class="place-desc">{{main.postHelper.getAddress(post)}}, {{main.postHelper.getPhoneNo(post)}}</span><br>
 						<span class="place-note">
-							<strong>{{main.uPostsService.getTagString(post.userPost.notes[0].content)}}</strong>
+							<strong>{{main.postHelper.getUserNote(post)}}</strong>
 						</span>
 					</section>
 				</div>

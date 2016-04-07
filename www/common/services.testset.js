@@ -923,25 +923,6 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getName(place) {
-    // 장소의 이름은 공식 포스트의 이름을 우선한다.
-    if (place.placePost.name && place.placePost.name !== '') {
-      return place.placePost.name;
-    } else if (place.userPost.name && place.userPost.name !== ''){
-      return place.userPost.name;
-    } else {
-      return '';
-    }
-  }
-
-  function getAddress(place) {
-    return 'Not yet';
-  }
-
-  function getPhoneNo(place) {
-    return 'Not yet';
-  }
-
   function getTags(note) {
     var words = note.split(/\s+/);
     var output = [];
@@ -954,32 +935,67 @@ angular.module('placekoob.services')
     return output;
   }
 
-  function getTagString(note) {
-    // var tags = getTags(note);
+  function getTagString(post) {
+    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
+      return '태그를 뿌릴 내용이 없음';
+    }
+
+    // var tags = getTags(post.userPost.notes[0].content);
     // var result = '';
     // for (var i = 0; i < tags.length; i++){
     //   result += tags[i] + ' ';
     // }
     // return result;
-    return '';
+    return post.userPost.notes[0].content;
   }
 
-  function getImageURL(uuid) {
-    if (uuid.indexOf('.img') != -1) {
-      return 'http://maukitest.cloudapp.net/media/images/' + uuid;
+  function getUserNote(post) {
+    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
+      return '태그를 뿌릴 내용이 없음';
+    }
+
+    return post.userPost.notes[0].content;
+  }
+
+  function getImageURL(post) {
+    if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
+      return 'img/icon/404.png';
+    }
+    if (post.userPost.images[0].content){
+      return post.userPost.images[0].content;
     } else {
       return '';
     }
   }
 
+  function getPlaceName(post) {
+    // 장소의 이름은 공식 포스트의 이름을 우선한다.
+    if (!post.placePost && post.placePost.name && post.placePost.name !== '') {
+      return post.placePost.name;
+    } else if (!post.userPost && post.userPost.name && post.userPost.name !== ''){
+      return post.userPost.name;
+    } else {
+      return '미지정 상태';
+    }
+  }
+
+  function getAddress(post) {
+    return '주소 필드 아직 없음';
+  }
+
+  function getPhoneNo(post) {
+    return '전화번호 필드 아직 없음';
+  }
+
   return {
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
-    getName: getName,
-    getAddress: getAddress,
-    getPhoneNo: getPhoneNo,
     getTags: getTags,
     getTagString: getTagString,
-    getImageURL: getImageURL
+    getUserNote: getUserNote,
+    getImageURL: getImageURL,
+    getPlaceName: getPlaceName,
+    getAddress: getAddress,
+    getPhoneNo: getPhoneNo
   };
 }]);
