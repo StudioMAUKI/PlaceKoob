@@ -1,0 +1,45 @@
+<!-- start : real contents area -->
+<ion-view title="목록으로 보기">
+	<ion-header-bar class="pk-primary">
+		<button class="button button-icon icon ion-chevron-left pk-primary" ng-click="plNotYet.goBack()">Back</button>
+		<h1 class="title">저장한 목록</h1>
+		<button class="button button-icon button-clear ion-connection-bars pk-primary
+		" ng-click="plNotYet.popOverOrdering($event)"></button>
+	</ion-header-bar>
+	<ion-content>
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="plNotYet.doRefresh()">
+  	</ion-refresher>
+		<ion-list show-delete="plNotYet.showDelete">
+			<div class="item item-divider">
+		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기 중입니다
+		  </div>
+			<ion-item ng-repeat="post in plNotYet.posts" href="#">
+				<img class="list-thumbnail" ng-src="{{plNotYet.postHelper.getImageURL(post)}}" alt="{{plNotYet.postHelper.getPlaceName(post)}}">
+				<span class="place-item-name"><strong>{{plNotYet.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
+				<span class="place-item-addr">{{plNotYet.postHelper.getAddress(post)}}</span><br>
+				<div class="place-item-note">{{plNotYet.postHelper.getUserNote(post)}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="plNotYet.onItemDelete(post)">
+      	</ion-delete-button>
+      	<ion-option-button class="pk-accent" ng-click="plNotYet.edit(post)">
+        	Edit
+      	</ion-option-button>
+      	<ion-option-button class="button-calm" ng-click="plNotYet.share(post)">
+        	Share
+      	</ion-option-button>
+			</ion-item>
+		</ion-list>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->
+
+<script id="popover-ordering.html" type="text/ng-template">
+	<ion-popover-view>
+		<ion-content>
+			<ion-list>
+				<button class="button button-clear button-full" ng-click="plNotYet.orderByDate()">최신순</button>
+				<button class="button button-clear button-full" ng-click="plNotYet.orderByDistance()">거리순</button>
+			</ion-list>
+		</ion-content>
+	</ion-popover-view>
+</script>
