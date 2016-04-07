@@ -227,11 +227,13 @@ angular.module('placekoob.services')
     var words = post.userPost.notes[0].content.split(/\s+/);
     var output = [];
     for (var i = 0; i < words.length; i++) {
-      if (words[i].startsWith('#')) {
+      //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
+      //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
+      if (words[i].charAt(0) === '#') {
         output.push(words[i].substring(1));
       }
     }
-    //console.log(output);
+
     return output;
   }
 

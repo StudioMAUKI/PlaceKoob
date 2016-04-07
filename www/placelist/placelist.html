@@ -38,7 +38,7 @@
 				<span class="place-item-name"><strong>{{placeList.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
 				<span class="place-item-addr">{{placeList.postHelper.getAddress(post)}}</span><br>
 				<div class="place-item-note">{{placeList.postHelper.getUserNote(post)}}</div><br>
-				<span class="place-item-tag" ng-repeat="tag in placeList.postHelper.getTags(post)">{{tag}}</span>
+				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete(post)">
       	</ion-delete-button>
       	<ion-option-button class="pk-accent" ng-click="placeList.edit(post)">

@@ -48,6 +48,9 @@ angular.module('placekoob.controllers')
 		console.log('placelistCtrl: loadSavedPlace() called.');
 		RemoteAPIService.getPostsOfMine(100, 0)
 		.then(function(posts) {
+			for (var i = 0; i < posts.length; i++) {
+				posts[i].tags = placeList.postHelper.getTags(posts[i]);
+			}
 			placeList.posts = posts;
 			deferred.resolve();
 		});
