@@ -240,7 +240,7 @@ angular.module('placekoob.services')
       return '태그를 뿌릴 내용이 없음';
     }
 
-    return post.userPost.notes[0].content.replace('#', '');
+    return post.userPost.notes[0].content.replace(/#/g, '');
   }
 
   function getImageURL(post) {

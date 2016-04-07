@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, RemoteAPIService, PostHelper) {
+.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
 	var placeList = this;
 	placeList.postHelper = PostHelper;
 
@@ -44,10 +44,21 @@ angular.module('placekoob.controllers')
 	};
 
 	placeList.loadSavedPlace = function() {
+		var deferred = $q.defer();
 		console.log('placelistCtrl: loadSavedPlace() called.');
 		RemoteAPIService.getPostsOfMine(100, 0)
 		.then(function(posts) {
 			placeList.posts = posts;
+			deferred.resolve();
+		});
+
+		return deferred.promise;
+	}
+
+	placeList.doRefresh = function() {
+		placeList.loadSavedPlace()
+		.finally(function(){
+			$scope.$broadcast('scroll.refreshComplete');
 		});
 	}
 

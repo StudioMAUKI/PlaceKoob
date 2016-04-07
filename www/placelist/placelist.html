@@ -9,6 +9,8 @@
 		" ng-click="placeList.popOverOrdering($event)"></button>
 	</ion-header-bar>
 	<ion-content>
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="placeList.doRefresh()">
+  	</ion-refresher>
 		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;padding-right:50px;" ng-href="#">저장된 장소(장소화 이전) XX 개</a>
 		<ion-list show-delete="placeList.showDelete">
 			<div class="item item-divider">
