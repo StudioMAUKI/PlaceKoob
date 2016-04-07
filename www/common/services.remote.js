@@ -187,7 +187,18 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       //console.dir(response.data);
-      deferred.resolve(response.data.results);
+      //  !!!Start 성능을 생각하면 이렇게 하면 안되는데, 일단 급하니까 땜빵
+      var retPosts = [];
+      for (var i = 0; i < response.data.results.length; i++){
+        if (response.data.results[i].userPost.lonLat || response.data.results[i].placePost.lonLat) {
+          retPosts.push(response.data.results[i]);
+        }
+      }
+      deferred.resolve(retPosts);
+      //  !!!End
+
+      // 요기서부터가 정식
+      //deferred.resolve(response.data.results);
     }, function(err) {
       console.error(err);
       deferred.reject(err);

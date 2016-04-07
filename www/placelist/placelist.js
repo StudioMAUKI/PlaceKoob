@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'UPostsService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, UPostsService, PostHelper) {
+.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, RemoteAPIService, PostHelper) {
 	var placeList = this;
 	placeList.postHelper = PostHelper;
 
@@ -51,7 +51,7 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	UPostsService.getPostsOfMine(100, 0)
+	RemoteAPIService.getPostsOfMine(100, 0)
 	.then(function(posts) {
 		placeList.posts = posts;
 	});

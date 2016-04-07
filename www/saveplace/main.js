@@ -24,7 +24,7 @@ angular.module('placekoob.controllers')
 	      });
 			});
 		} else {
-			saveModal.images.push('http://maukitest.cloudapp.net/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
+			saveModal.images.push('http://maukitest.cloudapp.net/media/images/2016/04/07/image.jpg');
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -269,7 +269,7 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', 'PostHelper', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, UPostsService, CacheService, PostHelper) {
+.controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;
 	main.postHelper = PostHelper;
 	main.prevIndex = -1;
@@ -351,7 +351,7 @@ angular.module('placekoob.controllers')
           }
         };
 
-				UPostsService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
+				RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
 				.then(function(posts) {
 					main.posts = posts;
 					//console.dir(posts);
