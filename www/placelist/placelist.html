@@ -11,7 +11,24 @@
 	<ion-content>
 		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;padding-right:50px;" ng-href="#">저장된 장소(장소화 이전) XX 개</a>
 		<ion-list show-delete="placeList.showDelete">
-			<ion-item class="item-divider">오늘</ion-item>
+			<div class="item item-divider">
+		    내 장소 XX 곳
+		  </div>
+			<ion-item href="#">
+				<img class="list-thumbnail" ng-src="{{'http://maukitest.cloudapp.net/media/images/FFFD070A1C004081F9F3A7CF1F274CF8.jpg'}}" alt="{{place.name}}">
+				<span class="place-item-name"><strong>{{'맛있는 막창 (0)'}}</strong></span><br>
+				<span class="place-item-addr">경기도 성남시 분당구 판교동 123</span><br>
+				<div class="place-item-note">운중동 국수집 옆에 막창 집! 소금구기가 짱! 나머지는 글쎄~</div><br>
+				<span class="place-item-tag">판교맛집</span>&nbsp;<span class="place-item place-item-tag">단골</span>&nbsp;<span class="place-item place-item-tag">소금구이</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('today', place)">
+      	</ion-delete-button>
+      	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
+        	Edit
+      	</ion-option-button>
+      	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
+        	Share
+      	</ion-option-button>
+			</ion-item>
 			<ion-item ng-repeat="place in placeList.places.today" href="#/place">
 				<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
 				{{place.address}}<br>

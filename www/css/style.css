@@ -186,3 +186,33 @@ button.button-square-large {
 img.image-list-thumb {
   height: 124px;
 }
+
+span.place-item-name {
+
+}
+
+span.place-item-addr {
+  font-size: 85%;
+}
+
+div.place-item-note {
+  font-size: 95%;
+  display: inline-block;
+}
+
+span.place-item-tag {
+  font-size: 85%;
+  margin: 2px;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 5px;
+  background-color: #727272;
+  color: #FFFFFF;
+}
+
+/* ion-item의 위아래 간격을 좁혀서 좀 더 타이트하게 만듦 */
+.item-complex .item-content {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
