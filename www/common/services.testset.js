@@ -158,25 +158,6 @@ angular.module('placekoob.services')
   return {
     getPlaces: function() {
       return places;
-    },
-    getTagString: function(tags) {
-      var strTag = '';
-  		for(var i = 0; i < tags.length; i++) {
-  			strTag += '#' + tags[i] + ' ';
-  		}
-  		return strTag;
-    },
-    getFeeling: function(feeling) {
-      switch (feeling) {
-        case 0:
-          return '다시 가고 싶은 곳';
-        case 1:
-          return '괜찮은 곳';
-        case 2:
-          return '별로인 곳';
-        case 3:
-          return '가보고 싶은 곳';
-      }
     }
   }
 }])

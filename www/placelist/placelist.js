@@ -31,14 +31,6 @@ angular.module('placekoob.controllers')
 		console.log('placeList.orderByDistance is invoked.');
 	};
 
-	placeList.getTagString = function(tags) {
-		return placeListService.getTagString(tags);
-	};
-
-	placeList.getFeeling = function(feeling) {
-		return placeListService.getFeeling(feeling);
-	};
-
 	placeList.onItemDelete = function(post) {
 		console.log('onItemDelete is invoked, but not implemented yet.');
 	};

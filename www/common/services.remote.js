@@ -220,34 +220,19 @@ angular.module('placekoob.services')
 }])
 .factory('PostHelper', ['RESTServer', function(RESTServer) {
   function getTags(post) {
-    // if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
-    //   return '태그를 뿌릴 내용이 없음';
-    // }
-    //
-    // var words = post.userPost.notes[0].content.split(/\s+/);
-    // var output = [];
-    // for (var i = 0; i < words.length; i++) {
-    //   if (words[i].startsWith('#')) {
-    //     output.push(words[i]);
-    //   }
-    // }
-    // //console.log(output);
-    // return output;
-    return ['test1', 'test2', 'test3'];
-  }
-
-  function getTagString(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
       return '태그를 뿌릴 내용이 없음';
     }
 
-    // var tags = getTags(post.userPost.notes[0].content);
-    // var result = '';
-    // for (var i = 0; i < tags.length; i++){
-    //   result += tags[i] + ' ';
-    // }
-    // return result;
-    return post.userPost.notes[0].content;
+    var words = post.userPost.notes[0].content.split(/\s+/);
+    var output = [];
+    for (var i = 0; i < words.length; i++) {
+      if (words[i].startsWith('#')) {
+        output.push(words[i].substring(1));
+      }
+    }
+    //console.log(output);
+    return output;
   }
 
   function getUserNote(post) {
@@ -255,7 +240,7 @@ angular.module('placekoob.services')
       return '태그를 뿌릴 내용이 없음';
     }
 
-    return post.userPost.notes[0].content;
+    return post.userPost.notes[0].content.replace('#', '');
   }
 
   function getImageURL(post) {
@@ -304,7 +289,6 @@ angular.module('placekoob.services')
 
   return {
     getTags: getTags,
-    getTagString: getTagString,
     getUserNote: getUserNote,
     getImageURL: getImageURL,
     getPlaceName: getPlaceName,
