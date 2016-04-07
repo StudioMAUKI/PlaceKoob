@@ -266,9 +266,9 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, UPostsService, CacheService) {
+.controller('mainCtrl', ['$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'UPostsService', 'CacheService', 'PostHelper', function($ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, UPostsService, CacheService, PostHelper) {
 	var main = this;
-	main.postHelper = UPostsService;
+	main.postHelper = PostHelper;
 	main.prevIndex = -1;
 
 	main.slidehasChanged = function(index) {

@@ -190,6 +190,19 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  return {
+    registerUser: registerUser,
+    loginUser: loginUser,
+    registerVD: registerVD,
+    loginVD: loginVD,
+    hasEmail: hasEmail,
+    sendUserPost: sendUserPost,
+    uploadImage: uploadImage,
+    getPostsOfMine: getPostsOfMine,
+    getPostsWithPlace: getPostsWithPlace
+  }
+}])
+.factory('PostHelper', [function() {
   function getTags(note) {
     var words = note.split(/\s+/);
     var output = [];
@@ -255,15 +268,6 @@ angular.module('placekoob.services')
   }
 
   return {
-    registerUser: registerUser,
-    loginUser: loginUser,
-    registerVD: registerVD,
-    loginVD: loginVD,
-    hasEmail: hasEmail,
-    sendUserPost: sendUserPost,
-    uploadImage: uploadImage,
-    getPostsOfMine: getPostsOfMine,
-    getPostsWithPlace: getPostsWithPlace,
     getTags: getTags,
     getTagString: getTagString,
     getUserNote: getUserNote,
