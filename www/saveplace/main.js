@@ -7,7 +7,24 @@ angular.module('placekoob.controllers')
 	saveModal.URL = '';
 
 	saveModal.savePosition = function() {
-		saveModal.addImageWithCamera(function() {
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			saveModal.addImageWithCamera(function() {
+				$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
+					scope: $scope,
+					animation: 'slide-in-up'
+				})
+				.then(function(modal) {
+					saveModal.saveDlg = modal;
+					saveModal.saveDlg.show();
+				});
+			}, function(){
+				$ionicPopup.alert({
+	        title: '어이쿠',
+	        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
+	      });
+			});
+		} else {
+			saveModal.images.push('http://maukitest.cloudapp.net/media/images/2016/04/07/image.jpg');
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -16,12 +33,7 @@ angular.module('placekoob.controllers')
 				saveModal.saveDlg = modal;
 				saveModal.saveDlg.show();
 			});
-		}, function(){
-			$ionicPopup.alert({
-        title: '어이쿠',
-        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
-      });
-		});
+		}
 	};
 
 	saveModal.saveURL = function() {
@@ -60,7 +72,8 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		RemoteAPIService.uploadImage(saveModal.images[0], function(response) {
+		RemoteAPIService.uploadImage(saveModal.images[0])
+		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
 			RemoteAPIService.sendUserPost({
 				lonLat: {
@@ -72,8 +85,12 @@ angular.module('placekoob.controllers')
 				}],
 				images: [{
 					uuid: response.uuid
+				}],
+				addrs: [{
+					content: '테스트 주소(경기도 성남시 분당구 삼평동)'
 				}]
-			}, function(result) {
+			})
+			.then(function(result) {
 				console.log("Sending user post successed.");
 				$ionicPopup.alert({
 	        title: 'SUCCESS',
@@ -81,6 +98,7 @@ angular.module('placekoob.controllers')
 	      })
 				.then(function(){
 					saveModal.closeSaveDlg();
+					$scope.$emit('place_saved');
 				});
 			}, function(err) {
 				console.error("Sending user post failed.");
@@ -118,7 +136,8 @@ angular.module('placekoob.controllers')
 			urls: [{
 				content: saveModal.URL
 			}]
-		}, function(result) {
+		})
+		.then(function(result) {
 			console.log("Sending user post successed.");
 			$ionicPopup.alert({
         title: 'SUCCESS',
@@ -126,6 +145,7 @@ angular.module('placekoob.controllers')
       })
 			.then(function(){
 				saveModal.closeSaveDlg();
+				$scope.$emit('place_saved');
 			});
 		}, function(err) {
 			console.error("Sending user post failed.");
@@ -251,11 +271,11 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$ionicPopup', 'uiGmapGoogleMapApi', 'MapService', 'placeListService', 'CacheService', function($ionicPopup, uiGmapGoogleMapApi, MapService, placeListService, CacheService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;
-	main.places = placeListService.getPlaces();
+	main.postHelper = PostHelper;
 	main.prevIndex = -1;
-
+	main.needToUpdateCurMarker = false;
 
 	main.slidehasChanged = function(index) {
 		//	여기서 미묘한 문제는..
@@ -267,13 +287,13 @@ angular.module('placekoob.controllers')
 			main.map.center.latitude = main.currentPosMarker.coords.latitude;
 			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
-			main.places[index - 1].options.icon = 'img/icon/pin_active_small.png';
-			main.map.center.latitude = main.places[index - 1].coords.latitude;
-			main.map.center.longitude = main.places[index - 1].coords.longitude;
+			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
+			main.map.center.latitude = main.posts[index - 1].userPost.lonLat.lat;
+			main.map.center.longitude = main.posts[index - 1].userPost.lonLat.lon;
 		}
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.places[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
@@ -299,13 +319,19 @@ angular.module('placekoob.controllers')
 					},
 					events: {
 						dragend: function(map, event, args) {
-							// 속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
-							// 지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
-							main.currentPosMarker.coords.latitude = main.map.center.latitude;
-							main.currentPosMarker.coords.longitude = main.map.center.longitude;
+							main.needToUpdateCurMarker = true;
 						},
 						center_changed: function(map, event, args) {
 							CacheService.add('curPos', main.map.center);
+
+							//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
+							if (main.needToUpdateCurMarker) {
+								//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+								//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
+								main.currentPosMarker.coords.latitude = main.map.center.latitude;
+								main.currentPosMarker.coords.longitude = main.map.center.longitude;
+								main.needToUpdateCurMarker = false;
+							}
 						}
 					},
 					zoom: 14,
@@ -334,18 +360,36 @@ angular.module('placekoob.controllers')
           }
         };
 
-				// markers for saved positions
-				for(var i = 0; i < main.places.length; i++) {
-					main.places[i].id = i;
-					main.places[i].options = {
-						draggable: false,
-						icon: 'img/icon/pin_base_small.png'
-					};
-				}
+				main.loadSavedPlace();
       },
       function(reason){
         $ionicPopup.alert({ title: 'Warning!', template: reason });
       }
     );
   });
+
+	main.loadSavedPlace = function() {
+		var pos = CacheService.get('curPos');
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
+		.then(function(posts) {
+			main.posts = posts;
+			//console.dir(posts);
+
+			// markers for saved positions
+			for(var i = 0; i < main.posts.length; i++) {
+				main.posts[i].id = i;
+				main.posts[i].options = {
+					draggable: false,
+					icon: 'img/icon/pin_base_small.png'
+				};
+				main.posts[i].coords = {
+					latitude: main.posts[i].userPost.lonLat.lat,
+					longitude: main.posts[i].userPost.lonLat.lon
+				}
+			}
+			$ionicSlideBoxDelegate.update();
+		});
+	};
+
+	$scope.$on('place_saved', main.loadSavedPlace);
 }]);

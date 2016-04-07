@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'placeListService', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, placeListService) {
+.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
 	var placeList = this;
+	placeList.postHelper = PostHelper;
 
 	placeList.orderingType = "최신순";
 	placeList.showDelete = false;
@@ -30,26 +31,38 @@ angular.module('placekoob.controllers')
 		console.log('placeList.orderByDistance is invoked.');
 	};
 
-	placeList.getTagString = function(tags) {
-		return placeListService.getTagString(tags);
+	placeList.onItemDelete = function(post) {
+		console.log('onItemDelete is invoked, but not implemented yet.');
 	};
 
-	placeList.getFeeling = function(feeling) {
-		return placeListService.getFeeling(feeling);
+	placeList.edit = function(post) {
+		console.log('edit is invoked');
 	};
 
-	placeList.onItemDelete = function(objName, item) {
-		console.log("onItemDelete is invoked");
-		placeList.places[objName].splice(placeList.places[objName].indexOf(item), 1);
+	placeList.share = function(post) {
+		console.log('share is invoked');
 	};
 
-	placeList.edit = function(item) {
-		console.log("edit is invoked");
-	};
+	placeList.loadSavedPlace = function() {
+		var deferred = $q.defer();
+		console.log('placelistCtrl: loadSavedPlace() called.');
+		RemoteAPIService.getPostsOfMine(100, 0)
+		.then(function(posts) {
+			placeList.posts = posts;
+			deferred.resolve();
+		});
 
-	placeList.share = function(item) {
-		console.log("share is invoked");
-	};
+		return deferred.promise;
+	}
 
-	placeList.places = placeListService.getPlaces();
+	placeList.doRefresh = function() {
+		placeList.loadSavedPlace()
+		.finally(function(){
+			$scope.$broadcast('scroll.refreshComplete');
+		});
+	}
+
+	placeList.loadSavedPlace();
+
+	$scope.$on('refresh_posts', placeList.loadSavedPlace);
 }]);

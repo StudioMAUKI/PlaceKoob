@@ -17,8 +17,4 @@ angular.module('placekoob.controllers')
     console.log("Move Back");
     $ionicHistory.goBack();
   };
-
-  place.getTagString = function() {
-    return '#평양냉면 #해장에도최고 #일주일에한번은생각난다 #가격이비쌈';
-  }
 }]);

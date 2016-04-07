@@ -245,4 +245,22 @@ angular.module('placekoob.services', [])
       }
     }
   };
+}])
+.factory('UtilService', [function() {
+  return {
+    InIOSorAndroid: function(expected) {
+      var called = false;
+      if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+        called = true;
+        expected();
+      }
+      return {
+        else : function(otherwise) {
+          if (!called) {
+            otherwise();
+          }
+        }
+      }
+    }
+  }
 }]);

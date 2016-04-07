@@ -7,7 +7,7 @@
 	<ion-content scroll="false">
 		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl">
 			<script type="text/ng-template" id="save-dlg.tpl.html">
-				<div class="button-bar">
+				<div class="button-bar button-bar-on-map">
 					<a class="button pk-accent button-icon ion-pinpoint" ng-click="saveModal.savePosition()"> 현재 위치 저장</a>
 					<a class="button pk-accent button-icon ion-link" ng-click="saveModal.saveURL()"> URL 저장</a>
 				</div>
@@ -15,27 +15,31 @@
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
-			<ui-gmap-marker ng-repeat="place in main.places track by $index" coords="place.coords" options="place.options" idkey="place.id">
+			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id">
       </ui-gmap-marker>
     </ui-gmap-google-map>
-		<ion-slide-box class="place-preview" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
 			<ion-slide>
-				<ion-list>
-					<ion-item >
-						<img class="list-thumbnail" ng-src="img/icon/main_pin_small.png" alt="{{'현재 위치'}}">
-						{{'현재 위치 근처의 장소를 둘러보세요. (좌우로 스크롤)'}}<br>
-					</ion-item>
-				</ion-list>
+				<div class="slide-on-map">
+					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
+					<section>
+						<h5>현재 위치</h5>
+						<span class="place-desc">경기도 성남시 분당구 삼평동(가라로 쓴것)</span><br>
+						<span class="place-note">저장된 곳들을 둘러보세요. (좌우로 밀어서 확인)</span>
+					</section>
+				</div>
 			</ion-slide>
-			<ion-slide ng-repeat="place in main.places">
-				<ion-list>
-					<ion-item href="#/place">
-						<img class="list-thumbnail" ng-src="{{place.images[0]}}" alt="{{place.name}}">
-						{{place.address}}<br>
-						<strong>{{main.placelist.getTagString(place.tag)}}</strong><br>
-						{{main.placelist.getFeeling(place.feeling)}}
-					</ion-item>
-				</ion-list>
+			<ion-slide  ng-repeat="post in main.posts">
+				<div class="slide-on-map">
+					<img class="list-thumbnail" ng-src="{{main.postHelper.getImageURL(post)}}">
+					<section>
+						<h5>{{$index}}{{main.postHelper.getPlaceName(post)}}</h5>
+						<span class="place-desc">{{main.postHelper.getAddress(post)}}, {{main.postHelper.getPhoneNo(post)}}</span><br>
+						<span class="place-note">
+							<strong>{{main.postHelper.getUserNote(post)}}</strong>
+						</span>
+					</section>
+				</div>
 			</ion-slide>
 		</ion-slide-box>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
