@@ -44,7 +44,6 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     // 언어, 국가 정보 얻어오기. 이코드는 디바이스에서만 작동됨
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
       navigator.globalization.getPreferredLanguage(function(result) {
-          alert(JSON.stringify(result));
           var arr = result.value.split('-');
           StorageService.addData('lang', arr[0]);
           StorageService.addData('country', arr[1]);
