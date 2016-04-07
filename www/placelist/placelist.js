@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'placeListService', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, placeListService) {
+.controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', 'UPostsService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, UPostsService, PostHelper) {
 	var placeList = this;
+	placeList.postHelper = PostHelper;
 
 	placeList.orderingType = "최신순";
 	placeList.showDelete = false;
@@ -38,18 +39,20 @@ angular.module('placekoob.controllers')
 		return placeListService.getFeeling(feeling);
 	};
 
-	placeList.onItemDelete = function(objName, item) {
-		console.log("onItemDelete is invoked");
-		placeList.places[objName].splice(placeList.places[objName].indexOf(item), 1);
+	placeList.onItemDelete = function(post) {
+		console.log('onItemDelete is invoked, but not implemented yet.');
 	};
 
-	placeList.edit = function(item) {
-		console.log("edit is invoked");
+	placeList.edit = function(post) {
+		console.log('edit is invoked');
 	};
 
-	placeList.share = function(item) {
-		console.log("share is invoked");
+	placeList.share = function(post) {
+		console.log('share is invoked');
 	};
 
-	placeList.places = placeListService.getPlaces();
+	UPostsService.getPostsOfMine(100, 0)
+	.then(function(posts) {
+		placeList.posts = posts;
+	});
 }]);

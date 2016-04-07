@@ -188,15 +188,15 @@ img.image-list-thumb {
 }
 
 span.place-item-name {
-
+  font-size: 90%;
 }
 
 span.place-item-addr {
-  font-size: 85%;
+  font-size: 80%;
 }
 
 div.place-item-note {
-  font-size: 95%;
+  font-size: 90%;
   display: inline-block;
 }
 

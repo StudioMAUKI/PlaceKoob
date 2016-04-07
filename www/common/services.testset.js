@@ -897,8 +897,13 @@ angular.module('placekoob.services')
     ]
 };
 
-  function getPostsOfMine() {
-    return posts;
+  function getPostsOfMine(limit, offset) {
+    var deferred = $q.defer();
+    $timeout(function() {
+      deferred.resolve(posts.results);
+    }, 1000);
+
+    return deferred.promise;
   }
 
   function getPostsWithPlace(lat, lon, radius) {

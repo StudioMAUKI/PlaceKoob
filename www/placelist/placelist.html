@@ -14,11 +14,12 @@
 			<div class="item item-divider">
 		    내 장소 XX 곳
 		  </div>
+			<!-- 기준 start -->
 			<ion-item href="#">
 				<img class="list-thumbnail" ng-src="{{'http://maukitest.cloudapp.net/media/images/FFFD070A1C004081F9F3A7CF1F274CF8.jpg'}}" alt="{{place.name}}">
-				<span class="place-item-name"><strong>{{'맛있는 막창 (0)'}}</strong></span><br>
+				<span class="place-item-name"><strong>{{'맛있는 막창 (0) - 요건 샘플'}}</strong></span><br>
 				<span class="place-item-addr">경기도 성남시 분당구 판교동 123</span><br>
-				<div class="place-item-note">운중동 국수집 옆에 막창 집! 소금구기가 짱! 나머지는 글쎄~</div><br>
+				<div class="place-item-note">운중동 국수집 옆에 막창 집! 소금구이가 짱! 나머지는 글쎄~</div><br>
 				<span class="place-item-tag">판교맛집</span>&nbsp;<span class="place-item place-item-tag">단골</span>&nbsp;<span class="place-item place-item-tag">소금구이</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('today', place)">
       	</ion-delete-button>
@@ -29,47 +30,19 @@
         	Share
       	</ion-option-button>
 			</ion-item>
-			<ion-item ng-repeat="place in placeList.places.today" href="#/place">
-				<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
-				{{place.address}}<br>
-				<strong>{{placeList.getTagString(place.tag)}}</strong><br>
-				{{placeList.getFeeling(place.feeling)}}
-				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('today', place)">
+			<!-- 기준 end -->
+			<ion-item ng-repeat="post in placeList.posts" href="#">
+				<img class="list-thumbnail" ng-src="{{placeList.postHelper.getImageURL(post)}}" alt="{{placeList.postHelper.getPlaceName(post)}}">
+				<span class="place-item-name"><strong>{{placeList.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
+				<span class="place-item-addr">{{placeList.postHelper.getAddress(post)}}</span><br>
+				<div class="place-item-note">{{placeList.postHelper.getUserNote(post)}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in placeList.postHelper.getTags(post)">{{tag}}</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete(post)">
       	</ion-delete-button>
-      	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
+      	<ion-option-button class="pk-accent" ng-click="placeList.edit(post)">
         	Edit
       	</ion-option-button>
-      	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
-        	Share
-      	</ion-option-button>
-			</ion-item>
-			<ion-item class="item-divider">이번 주</ion-item>
-			<ion-item ng-repeat="place in placeList.places.thisWeek">
-				<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
-				{{place.address}}<br>
-				<strong>{{placeList.getTagString(place.tag)}}</strong><br>
-				{{placeList.getFeeling(place.feeling)}}
-				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('thisWeek', place)">
-      	</ion-delete-button>
-      	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
-        	Edit
-      	</ion-option-button>
-      	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
-        	Share
-      	</ion-option-button>
-			</ion-item>
-			<ion-item class="item-divider">지난 기록</ion-item>
-			<ion-item ng-repeat="place in placeList.places.other">
-				<img class="list-thumbnail" ng-src="{{place.img}}" alt="{{place.name}}">
-				{{place.address}}<br>
-				<strong>{{placeList.getTagString(place.tag)}}</strong><br>
-				{{placeList.getFeeling(place.feeling)}}
-				<ion-delete-button class="ion-minus-circled" ng-click="placeList.onItemDelete('other', place)">
-      	</ion-delete-button>
-      	<ion-option-button class="pk-accent" ng-click="placeList.edit(place)">
-        	Edit
-      	</ion-option-button>
-      	<ion-option-button class="button-calm" ng-click="placeList.share(place)">
+      	<ion-option-button class="button-calm" ng-click="placeList.share(post)">
         	Share
       	</ion-option-button>
 			</ion-item>

@@ -207,17 +207,22 @@ angular.module('placekoob.services')
     getPostsWithPlace: getPostsWithPlace
   }
 }])
-.factory('PostHelper', [function() {
-  function getTags(note) {
-    var words = note.split(/\s+/);
-    var output = [];
-    for (var i = 0; i < words.length; i++) {
-      if (words[i].startsWith('#')) {
-        output.push(words[i]);
-      }
-    }
-    //console.log(output);
-    return output;
+.factory('PostHelper', ['RESTServer', function(RESTServer) {
+  function getTags(post) {
+    // if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
+    //   return '태그를 뿌릴 내용이 없음';
+    // }
+    //
+    // var words = post.userPost.notes[0].content.split(/\s+/);
+    // var output = [];
+    // for (var i = 0; i < words.length; i++) {
+    //   if (words[i].startsWith('#')) {
+    //     output.push(words[i]);
+    //   }
+    // }
+    // //console.log(output);
+    // return output;
+    return ['test1', 'test2', 'test3'];
   }
 
   function getTagString(post) {
@@ -247,7 +252,7 @@ angular.module('placekoob.services')
       return 'img/icon/404.png';
     }
     if (post.userPost.images[0].content){
-      return post.userPost.images[0].content;
+      return RESTServer.getURL() + post.userPost.images[0].content;
     } else {
       return '';
     }
