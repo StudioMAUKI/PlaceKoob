@@ -64,5 +64,5 @@ angular.module('placekoob.controllers')
 
 	placeList.loadSavedPlace();
 
-	$scope.$on('refresh_posts', placeList.loadSavedPlace);
+	$scope.$on('post.list.update', placeList.loadSavedPlace);
 }]);
