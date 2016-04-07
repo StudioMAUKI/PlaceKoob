@@ -20,12 +20,12 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     };
 
     // 데이터 관리를 위한 DB 생성
-    PKDBManager.execute(PKQueries.createPlaces)
-    .then(function(result) {
-      console.log(result);
-    }, function(error) {
-      console.error(error);
-    });
+    // PKDBManager.execute(PKQueries.createPlaces)
+    // .then(function(result) {
+    //   console.log(result);
+    // }, function(error) {
+    //   console.error(error);
+    // });
 
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -39,6 +39,22 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     }
     if(window.StatusBar) {
       StatusBar.styleDefault();
+    }
+
+    // 언어, 국가 정보 얻어오기. 이코드는 디바이스에서만 작동됨
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      navigator.globalization.getPreferredLanguage(function(result) {
+          alert(JSON.stringify(result));
+          var arr = result.value.split('-');
+          StorageService.addData('lang', arr[0]);
+          StorageService.addData('country', arr[1]);
+        },
+        function(error) {
+          console.error(error);
+      });
+    } else {
+      StorageService.addData('lang', 'ko');
+      StorageService.addData('country', 'KR');
     }
 
     // 유저 등록
