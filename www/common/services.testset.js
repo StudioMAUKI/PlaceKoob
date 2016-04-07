@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.services')
-.factory('UPostsService', ['$q', '$timeout', function($q, $timeout){
+.factory('DummyRemoteAPIService', ['$q', '$timeout', function($q, $timeout){
   var posts = {
     count: 15,
     next: null,

@@ -2,8 +2,8 @@
 beforeEach(module('placekoob'));
 
 describe('placekoob.services', function() {
-  describe('UPostsService', function() {
-    var UPostsService;
+  describe('DummyRemoteAPIService', function() {
+    var DummyRemoteAPIService;
     var place = {
       userPost: {
         name: '마우키스튜디오',
@@ -46,38 +46,38 @@ describe('placekoob.services', function() {
       }
     }
 
-    beforeEach(inject(function(_UPostsService_) {
-      UPostsService = _UPostsService_;
+    beforeEach(inject(function(_DummyRemoteAPIService_) {
+      DummyRemoteAPIService = _DummyRemoteAPIService_;
     }));
 
     it('tests to get post list', function() {
-      var posts = UPostsService.getPostsOfMine();
+      var posts = DummyRemoteAPIService.getPostsOfMine();
       expect(posts.count).toEqual(15);
       expect(posts.results.length).toEqual(15);
     });
 
     it('tests to get proper name of place', function() {
-      expect(UPostsService.getName(place)).toEqual('(주)마우키스튜디오');
+      expect(DummyRemoteAPIService.getName(place)).toEqual('(주)마우키스튜디오');
     });
 
     it('tests to get address', function() {
-      expect(UPostsService.getAddress()).toEqual('Not yet');
+      expect(DummyRemoteAPIService.getAddress()).toEqual('Not yet');
     });
 
     it('tests to get phone number', function() {
-      expect(UPostsService.getPhoneNo()).toEqual('Not yet');
+      expect(DummyRemoteAPIService.getPhoneNo()).toEqual('Not yet');
     });
 
     it('tests to get array of tags', function() {
-      expect(UPostsService.getTags(place.userPost.notes[1].content).length).toEqual(3);
+      expect(DummyRemoteAPIService.getTags(place.userPost.notes[1].content).length).toEqual(3);
     });
 
     it('test to get proper url of image', function() {
-      expect(UPostsService.getImageURL(place.placePost.images[0].uuid)).toEqual('http://maukitest.cloudapp.net/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
+      expect(DummyRemoteAPIService.getImageURL(place.placePost.images[0].uuid)).toEqual('http://maukitest.cloudapp.net/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
     });
 
     it('tests to get list of the locatable posts.', function() {
-      expect(UPostsService.getLocatablePosts().count).toEqual(11);
+      expect(DummyRemoteAPIService.getLocatablePosts().count).toEqual(11);
     });
 
     xdescribe('> Each query', function() {
