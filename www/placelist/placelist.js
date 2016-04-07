@@ -43,8 +43,15 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	RemoteAPIService.getPostsOfMine(100, 0)
-	.then(function(posts) {
-		placeList.posts = posts;
-	});
+	placeList.loadSavedPlace = function() {
+		console.log('placelistCtrl: loadSavedPlace() called.');
+		RemoteAPIService.getPostsOfMine(100, 0)
+		.then(function(posts) {
+			placeList.posts = posts;
+		});
+	}
+
+	placeList.loadSavedPlace();
+
+	$scope.$on('refresh_posts', placeList.loadSavedPlace);
 }]);

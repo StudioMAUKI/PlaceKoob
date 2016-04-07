@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoogle-maps', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
-.run(['$ionicPlatform', '$ionicPopup', '$state', 'RemoteAPIService', 'StorageService',  function($ionicPlatform, $ionicPopup, $state, RemoteAPIService, StorageService) {
+.run(['$rootScope', '$ionicPlatform', '$ionicPopup', '$state', 'RemoteAPIService', 'StorageService',  function($rootScope, $ionicPlatform, $ionicPopup, $state, RemoteAPIService, StorageService) {
   $ionicPlatform.ready(function() {
     function showAlert(msg) {
       $ionicPopup.alert({
@@ -97,6 +97,11 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
     }, function(err) {
       console.error('User Registration failed: ' + JSON.stringify(err));
       showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
+    });
+
+    $rootScope.$on('place_saved', function() {
+      console.log("RootScope received the event of place_saved.");
+      $rootScope.$broadcast('refresh_posts');
     });
   });
 }]);
