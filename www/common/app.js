@@ -99,9 +99,11 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
       showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
     });
 
-    $rootScope.$on('place_saved', function() {
-      console.log("RootScope received the event of place_saved.");
-      $rootScope.$broadcast('refresh_posts');
+    //  새로운 장소가 저장되었다는 이벤트를 감지하면, 다른 뷰의 목록도 갱신하도록 전달
+    //  현재는 개별 저장에 대해서만 작동하도록 되어 있음
+    $rootScope.$on('post.created', function() {
+      console.log("RootScope received the event of post.created.");
+      $rootScope.$broadcast('post.list.update');
     });
   });
 }]);

@@ -98,7 +98,7 @@ angular.module('placekoob.controllers')
 	      })
 				.then(function(){
 					saveModal.closeSaveDlg();
-					$scope.$emit('place_saved');
+					$scope.$emit('post.created');
 				});
 			}, function(err) {
 				console.error("Sending user post failed.");
@@ -145,7 +145,7 @@ angular.module('placekoob.controllers')
       })
 			.then(function(){
 				saveModal.closeSaveDlg();
-				$scope.$emit('place_saved');
+				$scope.$emit('post.created');
 			});
 		}, function(err) {
 			console.error("Sending user post failed.");
@@ -391,5 +391,5 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	$scope.$on('place_saved', main.loadSavedPlace);
+	$scope.$on('post.created', main.loadSavedPlace);
 }]);

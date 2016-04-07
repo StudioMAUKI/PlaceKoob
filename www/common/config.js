@@ -10,61 +10,71 @@ angular.module('placekoob.config', [])
 
 	$stateProvider
 	.state('tab', {
-      url: '',
-      abstract: true,
-      controller: 'tabCtrl',
-      templateUrl: 'common/tab.html'
-    })
+    url: '',
+    abstract: true,
+    controller: 'tabCtrl',
+    templateUrl: 'common/tab.html'
+  })
 	.state('tab.home', {
-      url: '/home',
-      views: {
-        'home': {
-          templateUrl: 'saveplace/main.html',
-          controller: 'mainCtrl',
-          controllerAs: 'main'
-        }
+    url: '/home',
+    views: {
+      'home': {
+        templateUrl: 'saveplace/main.html',
+        controller: 'mainCtrl',
+        controllerAs: 'main'
       }
-    })
-    .state('tab.place-list', {
-      url: '/placelist',
-      views: {
-        'place-list': {
-          templateUrl: 'placelist/placelist.html',
-          controller: 'placeListCtrl',
-          controllerAs: 'placeList'
-        }
+    }
+  })
+  .state('tab.place-list', {
+    url: '/placelist',
+    views: {
+      'place-list': {
+        templateUrl: 'placelist/placelist.html',
+        controller: 'placeListCtrl',
+        controllerAs: 'placeList'
       }
-    })
-		.state('tab.place', {
-      url: '/place',
-      views: {
-        'place-list': {
-          templateUrl: 'placelist/place.html',
-          controller: 'placeCtrl',
-          controllerAs: 'place'
-        }
+    }
+  })
+	.state('tab.place-list-not-yet', {
+    url: '/placelist-not-yet',
+    views: {
+      'place-list': {
+        templateUrl: 'placelist/placelist-notyet.html',
+        controller: 'placeListNotYetCtrl',
+        controllerAs: 'plNotYet'
       }
-    })
-		.state('tab.explore', {
-      url: '/explore',
-      views: {
-        'explore': {
-          templateUrl: 'explore/list.html',
-          controller: 'listCtrl',
-          controllerAs: 'list'
-        }
+    }
+  })
+	.state('tab.place', {
+    url: '/place',
+    views: {
+      'place-list': {
+        templateUrl: 'placelist/place.html',
+        controller: 'placeCtrl',
+        controllerAs: 'place'
       }
-    })
-    .state('tab.config', {
-      url: '/config',
-      views: {
-        'config': {
-          templateUrl: 'config/config.html',
-          controller: 'configCtrl',
-          controllerAs: 'config'
-        }
+    }
+  })
+	.state('tab.explore', {
+    url: '/explore',
+    views: {
+      'explore': {
+        templateUrl: 'explore/list.html',
+        controller: 'listCtrl',
+        controllerAs: 'list'
       }
-    })
+    }
+  })
+  .state('tab.config', {
+    url: '/config',
+    views: {
+      'config': {
+        templateUrl: 'config/config.html',
+        controller: 'configCtrl',
+        controllerAs: 'config'
+      }
+    }
+  })
 	.state('register', {
 		url: '/register',
 		templateUrl: 'register/register.html',

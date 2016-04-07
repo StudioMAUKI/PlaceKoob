@@ -4,9 +4,9 @@ angular.module('placekoob.controllers')
 .controller('placeListCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
 	var placeList = this;
 	placeList.postHelper = PostHelper;
-
 	placeList.orderingType = "최신순";
 	placeList.showDelete = false;
+	placeList.notYetCount = 0;
 
 	placeList.toggleLeft = function() {
 		$ionicSideMenuDelegate.toggleLeft();
@@ -48,7 +48,15 @@ angular.module('placekoob.controllers')
 		console.log('placelistCtrl: loadSavedPlace() called.');
 		RemoteAPIService.getPostsOfMine(100, 0)
 		.then(function(posts) {
-			placeList.posts = posts;
+			var results = [];
+			for (var i = 0; i < posts.length; i++) {
+				posts[i].tags = placeList.postHelper.getTags(posts[i]);
+				if (placeList.postHelper.isOrganized(posts[i])){
+					results.push(posts[i]);
+				}
+			}
+			placeList.posts = results;
+			placeList.notYetCount = posts.length - results.length;
 			deferred.resolve();
 		});
 
@@ -64,5 +72,5 @@ angular.module('placekoob.controllers')
 
 	placeList.loadSavedPlace();
 
-	$scope.$on('refresh_posts', placeList.loadSavedPlace);
+	$scope.$on('post.list.update', placeList.loadSavedPlace);
 }]);
