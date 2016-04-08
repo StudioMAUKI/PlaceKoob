@@ -67,6 +67,7 @@ div.pk-dark-primary{
 .app-title .main-title {
   text-align: center;
   color: #FFFFFF;
+  text-shadow: 0px 0px 2px #B6B6B6;
 }
 
 .app-title .sub-title {
@@ -79,12 +80,12 @@ div.pk-dark-primary{
   font-size: 90%;
 }
 
-.button.button-more-width {
-  width: 200px;
+.register-content {
+  padding-top:30%;
 }
 
-.start-button-container {
-  padding-top: 20%;
+.register-button-container {
+  padding-top: 10%;
 }
 
 .company {
@@ -240,4 +241,13 @@ span.place-item-tag {
 .item-complex .item-content {
   padding-top: 8px;
   padding-bottom: 8px;
+}
+
+/* ionic component customizing area*/
+.popup-container .popup {
+  width: 100%;
+}
+
+.button.button-more-width {
+  width: 200px;
 }

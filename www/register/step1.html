@@ -1,15 +1,23 @@
 <ion-view title="e-mail을 등록하세요">
-	<ion-content>
-		<div style="margin-top:200px;">
+	<ion-content scroll="false" class="pk-primary register">
+		<div class="register-content">
+			<div class="app-title">
+				<h4 class="main-title">메일 주소를 입력해주세요</h4>
+			</div>
 			<div class="list list-inset">
-				<label class="item item-input item-stacked-label">
+				<label class="item item-input item-stacked-label" style="text-align:left;">
 					<span class="input-label">Email</span>
 					<input type="text" placeholder="user@domain.com" ng-model="register.email">
 				</label>
 			</div>
+		</div>
+		<div class="register-button-container">
 			<button class="button button-block pk-accent icon-left ion-edit" ng-click="register.goStep2()">
 				등록하기
 			</button>
+		</div>
+		<div style="font-size:50%;padding-top:30%;">
+			계속하면 <a ng-href="#">서비스약관</a> 및 <a ng-href="#">개인보호정책</a>에 동의하는 것입니다.
 		</div>
 	</ion-content>
 </ion-view>

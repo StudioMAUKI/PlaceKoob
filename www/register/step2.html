@@ -1,11 +1,25 @@
 <ion-view title="이메일이 전송되었습니다.">
-	<div>
-		<h3>e메일 확인</h3>
-		<p>
-			입력하신 주소로 e메일이 발송되었습니다. 받은 메일을 열고 [확인] 버튼을 눌러 주세요.
-		</p>
-		<button class="button pk-accent" ng-click="register.goBack()">주소 변경</button>
-		<button class="button pk-accent" ng-click="register.resendEmail()">e메일 재전송</button>
-	</div>
-	<div><a ng-href="#/register/complete" ng-click="register.goComplete()">Next</a></div>
+	<ion-content scroll="false" class="pk-primary register">
+		<div class="register-content">
+			<div class="app-title">
+				<h4 class="main-title">e 메일 발송 완료</h4>
+			</div>
+			<p>
+				입력하신 주소로 e 메일이 발송되었습니다.<br>
+				받은 메일을 열고 [확인] 버튼을 눌러 주세요.<br>
+				(그러나 아직.. 사실은 발송을 안했습니다.;;)
+			</p>
+		</div>
+		<div class="register-button-container">
+			<div style="margin-top:10px;">
+				<button class="button button-more-width pk-accent" ng-click="register.goBack()">주소 변경</button>
+			</div>
+			<div style="margin-top:10px;">
+				<button class="button button-more-width pk-accent" ng-click="register.resendEmail()">e메일 재전송</button>
+			</div>
+		</div>
+		<div style="padding-top:30%;">
+			<a ng-href="#/register/complete" ng-click="register.goComplete()">Next</a>
+		</div>
+	</ion-content>
 </ion-view>
