@@ -1,14 +1,33 @@
 <ion-view title="Register">
 	<ion-content class="pk-primary register">
-		<div class="app-title" style="margin-top:100px;">
+		<div class="app-title">
 			<!-- <h4 class="sub-title">플레이스쿱</h4> -->
 			<h2 class="main-title">PlaceKoob</h2>
 		</div>
-		<p>사진 한 장으로 내가 방문한 장소를 저장하고 나만의 장소 DB를 만들 수 있는 서비스입니다</p>
-		<div><button class="button button-energized" ng-click="register.goStep1()">시작하기</button></div>
-		<!-- <div><a href="#/home">skip</a></div> -->
+		<div class="introduction">
+			<p>
+				어디 가지? 어디서 만나지?<br>
+				우리를 괴롭히는 일상적인 질문.
+			</p>
+			<p>
+				여긴 꼭 기억해뒀다 가봐야겠다.<br>
+				그러나 금새 휘발되어 버리는 기억력.
+			</p>
+			<p>
+				사진만 찍어 두세요.<br>
+				당신이 좋아하는 장소들을<br>
+				플레이스쿱에 저장해 둘께요~
+			</p>
+			<p>
+				쉽고 편리하게 나만의 장소를 저장하세요.<br>
+				장소에 담긴 당신의 경험도 함께 저장됩니다.
+			</p>
+		</div>
+		<div class="start-button-container">
+			<button class="button button-energized button-more-width" ng-click="register.goStep1()">시작하기</button>
+		</div>
 		<div class="company">
-			<div class="logo">
+			<div class="company-logo">
 				<img src="img/company_logo_primary.png" alt="company logo" />
 			</div>
 			<div>

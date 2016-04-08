@@ -106,7 +106,7 @@ angular.module('placekoob.config', [])
 		controllerAs: 'analyzer'
 	});
 
-	$urlRouterProvider.otherwise('/home');
+	$urlRouterProvider.otherwise('/register');
 })
 .config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({

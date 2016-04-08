@@ -59,8 +59,9 @@ div.pk-dark-primary{
 }
 
 .app-title {
-  margin-left: 30%;
-  margin-right: 30%;
+  margin-left: 25%;
+  margin-right: 25%;
+  padding-top: 50px;
 }
 
 .app-title .main-title {
@@ -73,8 +74,30 @@ div.pk-dark-primary{
   color: #FFFFFF;
 }
 
-.company-name{
+.introduction {
+  align-text: center;
+  font-size: 90%;
+}
+
+.button.button-more-width {
+  width: 200px;
+}
+
+.start-button-container {
+  padding-top: 20%;
+}
+
+.company {
+  padding-top: 30px;
+}
+
+.company-name {
   color: #FFFFFF;
+  font-size: 60%;
+}
+
+.company-logo img {
+  height: 96px;
 }
 
 .guide-message {
