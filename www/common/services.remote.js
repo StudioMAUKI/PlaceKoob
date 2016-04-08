@@ -258,9 +258,9 @@ angular.module('placekoob.services')
 
   function getPlaceName(post) {
     // 장소의 이름은 공식 포스트의 이름을 우선한다.
-    if (!post.placePost && post.placePost.name && post.placePost.name !== '') {
+    if (post.placePost && post.placePost.name && post.placePost.name !== '') {
       return post.placePost.name;
-    } else if (!post.userPost && post.userPost.name && post.userPost.name !== ''){
+    } else if (post.userPost && post.userPost.name && post.userPost.name !== ''){
       return post.userPost.name;
     } else {
       return '미지정 상태';
@@ -269,9 +269,9 @@ angular.module('placekoob.services')
 
   function getAddress(post) {
     // 주소는 공식 포스트의 주소를 우선한다.
-    if (!post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
+    if (post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
       return post.placePost.addrs[0].content;
-    } else if (!post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
+    } else if (post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
       return post.userPost.addrs[0].content;
     } else {
       return '미지정 상태';
@@ -280,9 +280,9 @@ angular.module('placekoob.services')
 
   function getPhoneNo(post) {
     // 전화번호는 공식 포스트의 전화번호를 우선한다.
-    if (!post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
+    if (post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
       return post.placePost.phone.content;
-    } else if (!post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
+    } else if (post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
       return post.userPost.phone.content;
     } else {
       return '미지정 상태';

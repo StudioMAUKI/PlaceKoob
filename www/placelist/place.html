@@ -1,14 +1,28 @@
 <ion-view>
 	<ion-header-bar class="pk-primary">
-    <button class="button-clear pk-primary" ng-click="place.goBack()">
-      <i class="ion-arrow-left-c"></i> 뒤로
-    </button>
+		<div class="buttons">
+	    <button class="button-clear button-icon ion-chevron-left ion-arrow-left pk-primary" ng-click="place.goBack()">
+	      뒤로
+	    </button>
+		</div>
 		<h1 class="title">능라</h1>
-    <button class="button-clear pk-primary" ng-click="place.goBack()">
-      <i class="ion-compose"></i> 수정
-    </button>
+		<div class="buttons">
+			<button class="button-clear button-icon ion-share pk-primary" ng-click=""></button>
+	    <button class="button-clear button-icon ion-trash-a pk-primary" ng-click=""></button>
+		</div>
 	</ion-header-bar>
 	<ion-content>
+		<div class="place-container">
+			<div class="place-name">
+
+			</div>
+			<div class="place-addr">
+			</div>
+			<div class="place-phone">
+			</div>
+			<div class="place-tags-container">
+			</div>
+		</div>
 		<ion-scroll direction="x" class="image-container">
       <img ng-repeat="image in place.images track by $index" class="image-list-thumb" ng-show="image !== undefined" ng-src="{{ image }}">
     </ion-scroll>
