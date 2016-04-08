@@ -31,7 +31,7 @@
 			</ion-slide>
 			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<img class="list-thumbnail" ng-src="{{main.postHelper.getImageURL(post)}}">
+					<img class="list-thumbnail" ng-src="{{main.postHelper.getFirstImageURL(post)}}">
 					<section>
 						<h5>{{$index}}{{main.postHelper.getPlaceName(post)}}</h5>
 						<span class="place-desc">{{main.postHelper.getAddress(post)}}, {{main.postHelper.getPhoneNo(post)}}</span><br>

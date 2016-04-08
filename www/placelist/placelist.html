@@ -32,7 +32,7 @@
 			</ion-item>
 			<!-- 기준 end -->
 			<ion-item ng-repeat="post in placeList.posts" href="#">
-				<img class="list-thumbnail" ng-src="{{placeList.postHelper.getImageURL(post)}}" alt="{{placeList.postHelper.getPlaceName(post)}}">
+				<img class="list-thumbnail" ng-src="{{placeList.postHelper.getFirstImageURL(post)}}" alt="{{placeList.postHelper.getPlaceName(post)}}">
 				<span class="place-item-name"><strong>{{placeList.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
 				<span class="place-item-addr">{{placeList.postHelper.getAddress(post)}}</span><br>
 				<div class="place-item-note">{{placeList.postHelper.getUserNote(post)}}</div><br>

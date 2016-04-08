@@ -81,7 +81,7 @@ describe('placekoob.services', function() {
     });
 
     it('test to get proper url of image', function() {
-      expect(PostHelper.getImageURL(place)).toEqual('/mauki/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
+      expect(PostHelper.getFirstImageURL(place)).toEqual('/mauki/media/images/0DC200ED17A056ED448EF8E1C3952B94.img');
     });
 
     it('tests to get list of the locatable posts.', function() {

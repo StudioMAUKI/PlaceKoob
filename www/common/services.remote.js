@@ -245,15 +245,19 @@ angular.module('placekoob.services')
     return post.userPost.notes[0].content.replace(/#/g, '');
   }
 
-  function getImageURL(post) {
+  function getFirstImageURL(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
       return 'img/icon/404.png';
     }
-    if (post.userPost.images[0].content){
-      return RESTServer.getURL() + post.userPost.images[0].content;
-    } else {
-      return '';
+    return getImageURL(post.userPost.images[0].content);
+  }
+
+  function getImageURL(content) {
+    if (!content || content === '') {
+      return 'img/icon/404.png';
     }
+
+    return RESTServer.getURL() + content;
   }
 
   function getPlaceName(post) {
@@ -301,6 +305,7 @@ angular.module('placekoob.services')
   return {
     getTags: getTags,
     getUserNote: getUserNote,
+    getFirstImageURL: getFirstImageURL,
     getImageURL: getImageURL,
     getPlaceName: getPlaceName,
     getAddress: getAddress,
