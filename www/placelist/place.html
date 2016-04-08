@@ -5,25 +5,47 @@
 	      뒤로
 	    </button>
 		</div>
-		<h1 class="title">능라</h1>
+		<h1 class="title">능라도</h1>
 		<div class="buttons">
 			<button class="button-clear button-icon ion-share pk-primary" ng-click=""></button>
 	    <button class="button-clear button-icon ion-trash-a pk-primary" ng-click=""></button>
 		</div>
 	</ion-header-bar>
-	<ion-content>
-		<div class="place-container">
-			<div class="place-name">
-
-			</div>
+	<ion-content class="post-container">
+		<div class="place-post-container">
 			<div class="place-addr">
+				<i class="ion-flag"></i>&nbsp;&nbsp;경기도 성남시 분당구 산운로 32번길 12
 			</div>
 			<div class="place-phone">
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;031-123-4567
 			</div>
 			<div class="place-tags-container">
+				<span class="place-item-tag">판교맛집</span>&nbsp;<span class="place-item place-item-tag">단골</span>&nbsp;<span class="place-item place-item-tag">녹두부침개</span>&nbsp;<span class="place-item-tag">온반</span>
 			</div>
 		</div>
-		<ion-scroll direction="x" class="image-container">
+		<article class="user-post-container">
+			<div class="user-post-title">
+				2016. 03.18. 점심
+			</div>
+			<section class="user-note">
+				어제 마신 술을 해장하기 위해 능라에 옴.<br>
+				해장은 역시 물냉~!<br>
+				같이 주는 김치는 좀 팔았으면 좋겠다. 집에 두고 먹게.
+			</section>
+			<section class="user-image">
+				<img ng-src="https://dcimgs.s3.amazonaws.com/images/r_images/51587/58817/51587_58817_80_0_8139_201554183752653_300x200.jpg">
+				<div class="user-image-comment">
+					이미지 코멘트
+				</div>
+			</section>
+			<section class="user-image">
+				<img ng-src="https://dcimgs.s3.amazonaws.com/images/r_images/51587/58817/51587_58817_80_0_8139_201554183752653_300x200.jpg">
+				<div class="user-image-comment">
+					이미지 코멘트
+				</div>
+			</section>
+		</article>
+		<!-- <ion-scroll direction="x" class="image-container">
       <img ng-repeat="image in place.images track by $index" class="image-list-thumb" ng-show="image !== undefined" ng-src="{{ image }}">
     </ion-scroll>
 		<div class="address">
@@ -32,7 +54,7 @@
 		</div>
 		<blockquote>
       {{place.comment}}
-    </blockquote>
+    </blockquote> -->
 		<p><strong>{{place.getTagString()}}</strong></p>
 	</ion-content>
 </ion-view>
