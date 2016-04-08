@@ -271,10 +271,13 @@ span.place-item-tag {
 
 .user-post-container .user-image {
   max-width: 100%;
-  width: auto;
-  height: 214px;
   text-align: center;
   position: relative;
+}
+
+.user-post-container .user-image .image-preview {
+  width: auto;
+  height: 214px;
 }
 
 .user-post-container .user-image .user-image-comment {

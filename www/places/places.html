@@ -15,7 +15,7 @@
 		    내 장소 {{places.posts.length}} 곳
 		  </div>
 			<!-- 기준 start -->
-			<ion-item ui-sref="tab.place({place_id: 32})">
+			<ion-item href="#/places/32">
 				<img class="list-thumbnail" ng-src="{{'http://maukitest.cloudapp.net/media/images/FFFD070A1C004081F9F3A7CF1F274CF8.jpg'}}" alt="{{place.name}}">
 				<span class="place-item-name"><strong>{{'맛있는 막창 (0) - 요건 샘플'}}</strong></span><br>
 				<span class="place-item-addr">경기도 성남시 분당구 판교동 123</span><br>
@@ -31,7 +31,7 @@
       	</ion-option-button>
 			</ion-item>
 			<!-- 기준 end -->
-			<ion-item ng-repeat="post in places.posts" href="#">
+			<ion-item ng-repeat="post in places.posts" href="#/places/{{post.place_id}}">
 				<img class="list-thumbnail" ng-src="{{places.postHelper.getFirstImageURL(post)}}" alt="{{places.postHelper.getPlaceName(post)}}">
 				<span class="place-item-name"><strong>{{places.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
 				<span class="place-item-addr">{{places.postHelper.getAddress(post)}}</span><br>
