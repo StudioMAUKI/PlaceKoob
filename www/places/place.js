@@ -2,9 +2,10 @@
 
 angular.module('placekoob.controllers')
 .controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', function($scope, $ionicHistory, $stateParams) {
-  var place = this;
+  var place = this
+  place.place_id = parseInt($stateParams.place_id);
+  console.log('Place ID : ' + place.place_id);
 
-  console.dir($stateParams);
   place.images = [
     'https://dcimgs.s3.amazonaws.com/images/r_images/51587/58817/51587_58817_80_0_8139_201554183752653_300x200.jpg',
     'https://dcimgs.s3.amazonaws.com/images/r_images/54435/54511/54435_54511_83_2_5265_201432716121355_300x200.jpg',
