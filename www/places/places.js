@@ -46,7 +46,7 @@ angular.module('placekoob.controllers')
 	places.loadSavedPlace = function() {
 		var deferred = $q.defer();
 		console.log('placesCtrl: loadSavedPlace() called.');
-		RemoteAPIService.getPostsOfMine(100, 0)
+		RemoteAPIService.getPostsOfMine(1000, 0)
 		.then(function(posts) {
 			var results = [];
 			for (var i = 0; i < posts.length; i++) {

@@ -14,6 +14,7 @@ angular.module('placekoob.services')
 })
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus){
   var ServerUrl = RESTServer.getURL();
+  var cachedPosts = {};
 
   function registerUser() {
     var deferred = $q.defer();
@@ -166,6 +167,7 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       //console.dir(response.data);
+      cachedPosts = response.data.results;
       deferred.resolve(response.data.results);
     }, function(err) {
       console.error(err);
@@ -206,8 +208,45 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getPost(place_id) {
+  function findPost(posts, place_id) {
+    for (var i = 0; i < posts.length; i++) {
+      if (posts[i].place_id === place_id) {
+        return posts[i];
+      }
+    }
     return null;
+  }
+
+  function getPost(place_id) {
+    var deferred = $q.defer();
+    var needToUpdate = false;
+    var foundPost = null;
+
+    if (cachedPosts && cachedPosts.length > 0) {
+      foundPost = findPost(cachedPosts, place_id);
+      if (foundPost) {
+        console.log('캐시된 목록에 장소 정보가 있어 반환함.');
+        setTimeout(function() {
+          deferred.resolve(foundPost);
+        }, 10);
+        return deferred.promise;
+      }
+    }
+
+    getPostsOfMine(1000, 0)
+    .then(function(posts) {
+      foundPost = findPost(posts, place_id);
+      if (foundPost) {
+        deferred.resolve(foundPost);
+      } else {
+        console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
+        deferred.reject('Could not find the post with such place_id.');
+      }
+    }, function(err){
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
   }
 
   return {
