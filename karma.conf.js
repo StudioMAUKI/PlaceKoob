@@ -27,7 +27,7 @@ module.exports = function(config) {
       'www/common/**/*.js',
       'www/album/**/*.js',
       'www/config/**/*.js',
-      'www/placelist/**/*.js',
+      'www/places/**/*.js',
       'www/register/**/*.js',
       'www/saveplace/**/*.js',
       'www/spec/**/*.js'
