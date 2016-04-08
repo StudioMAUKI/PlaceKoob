@@ -12,17 +12,18 @@
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container">
-		<div class="place-post-container">
+		<article class="place-post-container" ng-show="place.post.placePost">
 			<div class="place-addr">
-				<i class="ion-flag"></i>&nbsp;&nbsp;경기도 성남시 분당구 산운로 32번길 12
+				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.placePost.addrs[0].content}}
 			</div>
 			<div class="place-phone">
-				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;031-123-4567
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;{{place.post.placePost.phone}}
 			</div>
 			<div class="place-tags-container">
-				<span class="place-item-tag">판교맛집</span>&nbsp;<span class="place-item place-item-tag">단골</span>&nbsp;<span class="place-item place-item-tag">녹두부침개</span>&nbsp;<span class="place-item-tag">온반</span>
+				<!-- <span class="place-item-tag">판교맛집&nbsp;</span><span class="place-item-tag">단골&nbsp;</span><span class="place-item-tag">녹두부침개&nbsp;</span><span class="place-item-tag">온반</span> -->
+				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
 			</div>
-		</div>
+		</article>
 		<article class="user-post-container">
 			<div class="user-post-title">
 				2016. 03.18. 점심

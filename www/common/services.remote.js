@@ -206,6 +206,10 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function getPost(place_id) {
+    return null;
+  }
+
   return {
     registerUser: registerUser,
     loginUser: loginUser,
@@ -215,7 +219,8 @@ angular.module('placekoob.services')
     sendUserPost: sendUserPost,
     uploadImage: uploadImage,
     getPostsOfMine: getPostsOfMine,
-    getPostsWithPlace: getPostsWithPlace
+    getPostsWithPlace: getPostsWithPlace,
+    getPost: getPost
   }
 }])
 .factory('PostHelper', ['RESTServer', function(RESTServer) {
@@ -224,7 +229,11 @@ angular.module('placekoob.services')
       return '태그를 뿌릴 내용이 없음';
     }
 
-    var words = post.userPost.notes[0].content.split(/\s+/);
+    return getTagsFromString(post.userPost.notes[0].content);
+  }
+
+  function getTagsFromString(content) {
+    var words = content.split(/\s+/);
     var output = [];
     for (var i = 0; i < words.length; i++) {
       //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
@@ -304,6 +313,7 @@ angular.module('placekoob.services')
 
   return {
     getTags: getTags,
+    getTagsFromString: getTagsFromString,
     getUserNote: getUserNote,
     getFirstImageURL: getFirstImageURL,
     getImageURL: getImageURL,

@@ -20,6 +20,15 @@
         <i class="icon ion-person-stalker"></i> Contacts
       </ion-toggle>
       <button class="button button-outline button-balanced button-full" ng-click="config.requestUserInfo()">사용자 정보 얻기</button>
+			<div>
+				<table style="border:1px solid grey">
+					<tr><td style="border:1px solid grey">auth_user_token</td><td>{{config.auth_user_token}}</td></tr>
+					<tr><td style="border:1px solid grey">auth_vd_token</td><td>{{config.auth_vd_token}}</td></tr>
+					<tr><td style="border:1px solid grey">email</td><td>{{config.email}}</td></tr>
+					<tr><td style="border:1px solid grey">language</td><td>{{config.lang}}</td></tr>
+					<tr><td style="border:1px solid grey">country</td><td>{{config.country}}</td></tr>
+				</table>
+			</div>
     </ion-list>
 	</ion-content>
 </ion-view>
