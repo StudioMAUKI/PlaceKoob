@@ -1,17 +1,25 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', 'RemoteAPIService', 'PostHelper', function($scope, $ionicHistory, $stateParams, $ionicPopup, RemoteAPIService, PostHelper) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicScrollDelegate', 'RemoteAPIService', 'PostHelper', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, RemoteAPIService, PostHelper) {
   var place = this
   place.place_id = parseInt($stateParams.place_id);
   console.log('Place ID : ' + place.place_id);
   place.postHelper = PostHelper;
+  place.zoomMin = 1;
+  place.ImagesForSlide = [];
 
   RemoteAPIService.getPost(place.place_id)
   .then(function(post) {
       place.post = post;
-      if (place.post.placePost)
+      if (place.post.placePost) {
         place.post.tags = PostHelper.getTagsFromString(place.post.placePost.notes[0].content);
+      }
+      if (place.post.userPost.images) {
+        for (var i = 0; i < place.post.userPost.images.length; i++) {
+            place.ImagesForSlide.push(place.post.userPost.images[i].content);
+        }
+      }
   }, function(err) {
     $ionicPopup.alert({
       title: '죄송합니다!',
@@ -29,5 +37,33 @@ angular.module('placekoob.controllers')
   place.goBack = function() {
     console.log("Move Back");
     $ionicHistory.goBack();
+  };
+
+  place.showImagesWithFullScreen = function(index) {
+    place.activeSlide = index;
+    place.showModal('places/image-zoomview.html');
+  }
+
+  place.showModal = function(templateUrl) {
+    $ionicModal.fromTemplateUrl(templateUrl, {
+      scope: $scope
+    }).then(function(modal) {
+      place.modal = modal;
+      place.modal.show();
+    });
+  }
+
+  place.closeModal = function() {
+    place.modal.hide();
+    place.modal.remove()
+  };
+
+  place.updateSlideStatus = function(slide) {
+    var zoomFactor = $ionicScrollDelegate.$getByHandle('scrollHandle' + slide).getScrollPosition().zoom;
+    if (zoomFactor == place.zoomMin) {
+      $ionicSlideBoxDelegate.enableSlide(true);
+    } else {
+      $ionicSlideBoxDelegate.enableSlide(false);
+    }
   };
 }]);
