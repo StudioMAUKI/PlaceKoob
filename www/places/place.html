@@ -27,8 +27,9 @@
 			<div class="user-post-title">
 				2016. 03.18. 점심
 			</div>
-			<section class="user-note">
-				{{place.post.userPost.notes[0].content}}
+			<section class="user-note" ng-repeat="note in place.post.userPost.notes">
+				{{note.content}}<br>
+				at {{place.postHelper.getTimeString(note.timestamp)}}
 			</section>
 			<section class="user-image" ng-repeat="image in place.post.userPost.images">
 				<img class="image-preview" ng-src="{{place.postHelper.getImageURL(image.content)}}" ng-click="place.showImagesWithFullScreen($index)">

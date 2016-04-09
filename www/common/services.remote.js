@@ -350,6 +350,10 @@ angular.module('placekoob.services')
     }
   }
 
+  function getTimeString(timestamp) {
+    return new Date(timestamp).toLocaleDateString();
+  }
+
   return {
     getTags: getTags,
     getTagsFromString: getTagsFromString,
@@ -359,6 +363,7 @@ angular.module('placekoob.services')
     getPlaceName: getPlaceName,
     getAddress: getAddress,
     getPhoneNo: getPhoneNo,
-    isOrganized: isOrganized
+    isOrganized: isOrganized,
+    getTimeString: getTimeString
   }
 }]);
