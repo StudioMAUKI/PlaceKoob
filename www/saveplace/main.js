@@ -24,7 +24,7 @@ angular.module('placekoob.controllers')
 	      });
 			});
 		} else {
-			saveModal.images.push('http://maukitest.cloudapp.net/media/images/2016/04/07/image.jpg');
+			saveModal.images.push('img/sample/sample_01.jpg');
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -84,7 +84,7 @@ angular.module('placekoob.controllers')
 					content: saveModal.note
 				}],
 				images: [{
-					uuid: response.uuid
+					content: response.file
 				}],
 				addrs: [{
 					content: '테스트 주소(경기도 성남시 분당구 삼평동)'

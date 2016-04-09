@@ -140,9 +140,9 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(ServerUrl + '/imgs/', fileURI, options)
+      $cordovaFileTransfer.upload(ServerUrl + '/rfs/', fileURI, options)
       .then(function(result) {
-        //console.dir(result);
+        console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
       }, function(err) {
         //console.error(err);
