@@ -271,6 +271,8 @@ span.place-item-tag {
   max-width: 100%;
   text-align: center;
   position: relative;
+  background-color: #FFFFFF;
+  padding-top: 6px;
 }
 
 .user-post-container .user-image .image-preview {
