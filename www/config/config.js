@@ -1,13 +1,19 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$http', '$cordovaOauth', 'SocialService', function($http, $cordovaOauth, SocialService) {
+.controller('configCtrl', ['$http', '$cordovaOauth', 'SocialService', 'StorageService', function($http, $cordovaOauth, SocialService, StorageService) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
 	config.naver = false;
 	config.libraries = false;
 	config.contacts = false;
+
+	config.auth_user_token = StorageService.getData('auth_user_token');
+	config.auth_vd_token = StorageService.getData('auth_vd_token');
+	config.email = StorageService.getData('email');
+	config.lang = StorageService.getData('lang');
+	config.country = StorageService.getData('country');
 
 	if (SocialService.foursquare.token === '') {
     config.foursquare = false;

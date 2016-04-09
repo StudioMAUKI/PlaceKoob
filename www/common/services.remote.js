@@ -14,6 +14,7 @@ angular.module('placekoob.services')
 })
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus){
   var ServerUrl = RESTServer.getURL();
+  var cachedPosts = {};
 
   function registerUser() {
     var deferred = $q.defer();
@@ -139,9 +140,9 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(ServerUrl + '/imgs/', fileURI, options)
+      $cordovaFileTransfer.upload(ServerUrl + '/rfs/', fileURI, options)
       .then(function(result) {
-        //console.dir(result);
+        console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
       }, function(err) {
         //console.error(err);
@@ -166,6 +167,7 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       //console.dir(response.data);
+      cachedPosts = response.data.results;
       deferred.resolve(response.data.results);
     }, function(err) {
       console.error(err);
@@ -206,6 +208,47 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function findPost(posts, place_id) {
+    for (var i = 0; i < posts.length; i++) {
+      if (posts[i].place_id === place_id) {
+        return posts[i];
+      }
+    }
+    return null;
+  }
+
+  function getPost(place_id) {
+    var deferred = $q.defer();
+    var needToUpdate = false;
+    var foundPost = null;
+
+    if (cachedPosts && cachedPosts.length > 0) {
+      foundPost = findPost(cachedPosts, place_id);
+      if (foundPost) {
+        console.log('캐시된 목록에 장소 정보가 있어 반환함.');
+        setTimeout(function() {
+          deferred.resolve(foundPost);
+        }, 10);
+        return deferred.promise;
+      }
+    }
+
+    getPostsOfMine(1000, 0)
+    .then(function(posts) {
+      foundPost = findPost(posts, place_id);
+      if (foundPost) {
+        deferred.resolve(foundPost);
+      } else {
+        console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
+        deferred.reject('Could not find the post with such place_id.');
+      }
+    }, function(err){
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
   return {
     registerUser: registerUser,
     loginUser: loginUser,
@@ -215,7 +258,8 @@ angular.module('placekoob.services')
     sendUserPost: sendUserPost,
     uploadImage: uploadImage,
     getPostsOfMine: getPostsOfMine,
-    getPostsWithPlace: getPostsWithPlace
+    getPostsWithPlace: getPostsWithPlace,
+    getPost: getPost
   }
 }])
 .factory('PostHelper', ['RESTServer', function(RESTServer) {
@@ -224,7 +268,11 @@ angular.module('placekoob.services')
       return '태그를 뿌릴 내용이 없음';
     }
 
-    var words = post.userPost.notes[0].content.split(/\s+/);
+    return getTagsFromString(post.userPost.notes[0].content);
+  }
+
+  function getTagsFromString(content) {
+    var words = content.split(/\s+/);
     var output = [];
     for (var i = 0; i < words.length; i++) {
       //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
@@ -245,22 +293,26 @@ angular.module('placekoob.services')
     return post.userPost.notes[0].content.replace(/#/g, '');
   }
 
-  function getImageURL(post) {
+  function getFirstImageURL(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
       return 'img/icon/404.png';
     }
-    if (post.userPost.images[0].content){
-      return RESTServer.getURL() + post.userPost.images[0].content;
-    } else {
-      return '';
+    return getImageURL(post.userPost.images[0].content);
+  }
+
+  function getImageURL(content) {
+    if (!content || content === '') {
+      return 'img/icon/404.png';
     }
+
+    return content;
   }
 
   function getPlaceName(post) {
     // 장소의 이름은 공식 포스트의 이름을 우선한다.
-    if (!post.placePost && post.placePost.name && post.placePost.name !== '') {
+    if (post.placePost && post.placePost.name && post.placePost.name !== '') {
       return post.placePost.name;
-    } else if (!post.userPost && post.userPost.name && post.userPost.name !== ''){
+    } else if (post.userPost && post.userPost.name && post.userPost.name !== ''){
       return post.userPost.name;
     } else {
       return '미지정 상태';
@@ -269,9 +321,9 @@ angular.module('placekoob.services')
 
   function getAddress(post) {
     // 주소는 공식 포스트의 주소를 우선한다.
-    if (!post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
+    if (post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
       return post.placePost.addrs[0].content;
-    } else if (!post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
+    } else if (post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
       return post.userPost.addrs[0].content;
     } else {
       return '미지정 상태';
@@ -280,9 +332,9 @@ angular.module('placekoob.services')
 
   function getPhoneNo(post) {
     // 전화번호는 공식 포스트의 전화번호를 우선한다.
-    if (!post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
+    if (post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
       return post.placePost.phone.content;
-    } else if (!post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
+    } else if (post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
       return post.userPost.phone.content;
     } else {
       return '미지정 상태';
@@ -298,13 +350,20 @@ angular.module('placekoob.services')
     }
   }
 
+  function getTimeString(timestamp) {
+    return new Date(timestamp).toLocaleDateString();
+  }
+
   return {
     getTags: getTags,
+    getTagsFromString: getTagsFromString,
     getUserNote: getUserNote,
+    getFirstImageURL: getFirstImageURL,
     getImageURL: getImageURL,
     getPlaceName: getPlaceName,
     getAddress: getAddress,
     getPhoneNo: getPhoneNo,
-    isOrganized: isOrganized
+    isOrganized: isOrganized,
+    getTimeString: getTimeString
   }
 }]);

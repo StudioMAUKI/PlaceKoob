@@ -15,7 +15,7 @@ angular.module('placekoob.controllers')
 		if (register.email === '') {
 			$ionicPopup.alert({
         title: '잠시만요!',
-        template: '이메일 주소를 입력해 주세요.'
+        template: '이메일 등록은 필수 사항 입니다.'
       })
 			.then(function(result) {
 				return;

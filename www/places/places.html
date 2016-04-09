@@ -1,0 +1,63 @@
+<!-- start : real contents area -->
+<ion-view title="목록으로 보기">
+	<ion-header-bar class="pk-primary">
+		<button class="button button-icon icon ion-ios-minus-outline pk-primary" ng-click="places.showDelete = !places.showDelete"></button>
+		<h1 class="title">장소 목록 보기</h1>
+		<button class="button button-icon button-clear ion-connection-bars pk-primary
+		" ng-click="places.popOverOrdering($event)"></button>
+	</ion-header-bar>
+	<ion-content>
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="places.doRefresh()">
+  	</ion-refresher>
+		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;background-color:#CFD8DC;padding-right:10px;" ng-href="#/places-not-yet">{{places.notYetCount}}개의 저장한 장소가 정보화 대기중입니다. <i class="ion-arrow-right-c"></i></a>
+		<ion-list show-delete="places.showDelete">
+			<div class="item item-divider">
+		    내 장소 {{places.posts.length}} 곳
+		  </div>
+			<!-- 기준 start -->
+			<ion-item href="#/places/100">
+				<img class="list-thumbnail" ng-src="{{'http://maukitest.cloudapp.net/media/images/FFFD070A1C004081F9F3A7CF1F274CF8.jpg'}}" alt="{{place.name}}">
+				<span class="place-item-name"><strong>{{'맛있는 막창 (0) - 요건 샘플'}}</strong></span><br>
+				<span class="place-item-addr">경기도 성남시 분당구 판교동 123</span><br>
+				<div class="place-item-note">운중동 국수집 옆에 막창 집! 소금구이가 짱! 나머지는 글쎄~</div><br>
+				<span class="place-item-tag">판교맛집</span>&nbsp;<span class="place-item place-item-tag">단골</span>&nbsp;<span class="place-item place-item-tag">소금구이</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="places.onItemDelete('today', place)">
+      	</ion-delete-button>
+      	<ion-option-button class="pk-accent" ng-click="places.edit(place)">
+        	Edit
+      	</ion-option-button>
+      	<ion-option-button class="button-calm" ng-click="places.share(place)">
+        	Share
+      	</ion-option-button>
+			</ion-item>
+			<!-- 기준 end -->
+			<ion-item ng-repeat="post in places.posts" href="#/places/{{post.place_id}}">
+				<img class="list-thumbnail" ng-src="{{places.postHelper.getFirstImageURL(post)}}" alt="{{places.postHelper.getPlaceName(post)}}">
+				<span class="place-item-name"><strong>{{places.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
+				<span class="place-item-addr">{{places.postHelper.getAddress(post)}}</span><br>
+				<div class="place-item-note">{{places.postHelper.getUserNote(post)}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="places.onItemDelete(post)">
+      	</ion-delete-button>
+      	<ion-option-button class="pk-accent" ng-click="places.edit(post)">
+        	Edit
+      	</ion-option-button>
+      	<ion-option-button class="button-calm" ng-click="places.share(post)">
+        	Share
+      	</ion-option-button>
+			</ion-item>
+		</ion-list>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->
+
+<script id="popover-ordering.html" type="text/ng-template">
+	<ion-popover-view>
+		<ion-content>
+			<ion-list>
+				<button class="button button-clear button-full" ng-click="places.orderByDate()">최신순</button>
+				<button class="button button-clear button-full" ng-click="places.orderByDistance()">거리순</button>
+			</ion-list>
+		</ion-content>
+	</ion-popover-view>
+</script>

@@ -25,31 +25,31 @@ angular.module('placekoob.config', [])
       }
     }
   })
-  .state('tab.place-list', {
-    url: '/placelist',
+  .state('tab.places', {
+    url: '/places',
     views: {
-      'place-list': {
-        templateUrl: 'placelist/placelist.html',
-        controller: 'placeListCtrl',
-        controllerAs: 'placeList'
+      'places': {
+        templateUrl: 'places/places.html',
+        controller: 'placesCtrl',
+        controllerAs: 'places'
       }
     }
   })
-	.state('tab.place-list-not-yet', {
-    url: '/placelist-not-yet',
+	.state('tab.places-not-yet', {
+    url: '/places-not-yet',
     views: {
-      'place-list': {
-        templateUrl: 'placelist/placelist-notyet.html',
-        controller: 'placeListNotYetCtrl',
+      'places': {
+        templateUrl: 'places/places-notyet.html',
+        controller: 'placesNotYetCtrl',
         controllerAs: 'plNotYet'
       }
     }
   })
 	.state('tab.place', {
-    url: '/place',
+    url: '/places/:place_id',
     views: {
-      'place-list': {
-        templateUrl: 'placelist/place.html',
+      'places': {
+        templateUrl: 'places/place.html',
         controller: 'placeCtrl',
         controllerAs: 'place'
       }

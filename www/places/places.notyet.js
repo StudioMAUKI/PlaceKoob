@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeListNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
+.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
 
 	plNotYet.goBack = function() {
-		$state.go('tab.place-list');
+		$state.go('tab.places');
 	};
 
 	plNotYet.toggleLeft = function() {
@@ -47,7 +47,7 @@ angular.module('placekoob.controllers')
 
 	plNotYet.loadSavedPlace = function() {
 		var deferred = $q.defer();
-		console.log('placelistCtrl: loadSavedPlace() called.');
+		console.log('placesCtrl: loadSavedPlace() called.');
 		RemoteAPIService.getPostsOfMine(100, 0)
 		.then(function(posts) {
 			var results = [];

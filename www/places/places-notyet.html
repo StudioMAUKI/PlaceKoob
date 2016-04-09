@@ -13,9 +13,10 @@
 			<div class="item item-divider">
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
-			<ion-item ng-repeat="post in plNotYet.posts" href="#">
-				<img class="list-thumbnail" ng-src="{{plNotYet.postHelper.getImageURL(post)}}" alt="{{plNotYet.postHelper.getPlaceName(post)}}">
-				<span class="place-item-name"><strong>{{plNotYet.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
+			<ion-item ng-repeat="post in plNotYet.posts" href="#/places/{{post.place_id}}">
+				<img class="list-thumbnail" ng-src="{{plNotYet.postHelper.getFirstImageURL(post)}}" alt="{{plNotYet.postHelper.getPlaceName(post)}}">
+				<span class="place-item-name"><strong>{{plNotYet.postHelper.getPlaceName(post)}}({{0}})</strong></span>
+				&nbsp;-&nbsp;<span class="place-item-addr">{{plNotYet.postHelper.getTimeString(post.modified)}}</span><br>				
 				<span class="place-item-addr">{{plNotYet.postHelper.getAddress(post)}}</span><br>
 				<div class="place-item-note">{{plNotYet.postHelper.getUserNote(post)}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>

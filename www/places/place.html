@@ -1,0 +1,43 @@
+<ion-view>
+	<ion-header-bar class="pk-primary">
+		<div class="buttons">
+	    <button class="button-clear button-icon ion-chevron-left ion-arrow-left pk-primary" ng-click="place.goBack()">
+	      뒤로
+	    </button>
+		</div>
+		<h1 class="title">{{place.post.placePost.name?place.post.placePost.name:'등록 대기중'}}</h1>
+		<div class="buttons">
+			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
+	    <button class="button-clear button-icon ion-trash-a pk-primary" ng-click="place.deletePlace()"></button>
+		</div>
+	</ion-header-bar>
+	<ion-content class="post-container">
+		<article class="place-post-container" ng-show="place.post.placePost.name">
+			<div class="place-addr">
+				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.placePost.addrs[0].content}}
+			</div>
+			<div class="place-phone">
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;{{place.post.placePost.phone}}
+			</div>
+			<div class="place-tags-container">
+				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
+			</div>
+		</article>
+		<article class="user-post-container">
+			<div class="user-post-title">
+				2016. 03.18. 점심
+			</div>
+			<section class="user-note" ng-repeat="note in place.post.userPost.notes">
+				{{note.content}}<br>
+				at {{place.postHelper.getTimeString(note.timestamp)}}
+			</section>
+			<section class="user-image" ng-repeat="image in place.post.userPost.images">
+				<img class="image-preview" ng-src="{{place.postHelper.getImageURL(image.content)}}" ng-click="place.showImagesWithFullScreen($index)">
+				<div class="user-image-comment" ng-show="image.note">
+					{{image.note}}
+				</div>
+			</section>
+		</article>
+		<p><strong>{{place.getTagString()}}</strong></p>
+	</ion-content>
+</ion-view>
