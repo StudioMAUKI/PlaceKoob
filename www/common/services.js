@@ -203,49 +203,6 @@ angular.module('placekoob.services', [])
     removeData: removeData
   };
 }])
-.factory('PlaceManager', ['UUIDGenerator', 'PKDBManager', 'PKQueries', function(UUIDGenerator, PKDBManager, PKQueries) {
-  return {
-    saveCurrentPlace: function(place) {
-      var placeKey;
-      var imageCount = 0;
-      var tags = [];
-      var hasCoords = false;
-
-      // 선행 조건들 우선 체크: 1. 이미지가 첨부되어 있는가, 2. 좌표 정보가 있는가
-      if( place.images && place.images.length > 0) {
-        imageCount = place.images.length;
-      } else {
-        console.error('To save place, you MUST attatch image(s).');
-        return { result: false };
-      }
-      if(place.coords === undefined || place.coords.latitude === undefined  || place.coords.longitude === undefined ) {
-        console.error('To save place, you MUST have coordinations of current position.');
-        return { result: false };
-      } else {
-        hasCoords = true;
-      }
-
-      if (place.note && place.note !== '' && place.note.length != 0) {
-        var words = place.note.split(' ');
-        for (var i = 0; i < words.length; i++) {
-          if (words[i].startsWith('#')) {
-            tags.push(words[i]);
-          }
-        }
-      }
-      placeKey = UUIDGenerator.getUUID();
-
-      return {
-        result: true,
-        placeKey: placeKey,
-        imageCount: imageCount,
-        tagCount: tags.length,
-        hasCoords: hasCoords,
-        promise: PKDBManager.execute(PKQueries.place.create, [placeKey, place.note, JSON.stringify(place.images), JSON.stringify(place.coords)])
-      }
-    }
-  };
-}])
 .factory('UtilService', [function() {
   return {
     InIOSorAndroid: function(expected) {
@@ -262,5 +219,65 @@ angular.module('placekoob.services', [])
         }
       }
     }
+  }
+}])
+.factory('PhotoService', ['$cordovaCamera', '$cordovaImagePicker', '$q', function($cordovaCamera, $cordovaImagePicker, $q) {
+  function getPhotoWithCamera() {
+    var deferred = $q.defer();
+
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			var options = {
+	      quality: 70,
+	      destinationType: Camera.DestinationType.FILE_URI,
+	      sourceType: Camera.PictureSourceType.CAMERA,
+	      allowEdit: false,
+	      encodingType: Camera.EncodingType.JPEG,
+	      targetWidth: 1280,
+	      targetHeight: 1280,
+	      popoverOptions: CameraPopoverOptions,
+	      correctOrientation: true,
+	      saveToPhotoAlbum: false
+	    };
+
+	    $cordovaCamera.getPicture(options)
+	    .then(function (imageURI) {
+	      console.log('imageUrl: ' + imageURI);
+        deferred.resolve(imageURI);
+	    }, function (err) {
+	      console.error('Camera capture failed : ' + err);
+        deferred.reject(err);
+	    });
+		} else {	// test in web-browser
+      deferred.resolve('img/sample/sample_01.jpg');
+		}
+
+    return deferred.promise;
+	};
+
+	function getPhotoWithPhotoLibrary(reqCount) {
+    var deferred = $q.defer();
+
+		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+			$cordovaImagePicker.getPictures({
+	      maximumImagesCount: reqCount,
+	      width: 1280,
+				height: 1280
+	    }).
+	    then(function(imageURIs) {
+        deferred.resolve(imageUIRs);
+	    }, function (error) {
+	      console.error(error);
+        deferred.reject(error);
+	    });
+		} else {	// test in web-browser
+      deferred.resolve(['img/sample/sample_02.jpg','img/sample/sample_03.jpg', 'img/sample/sample_04.jpg']);
+		}
+
+    return deferred.promise;
+	};
+
+  return {
+    getPhotoWithCamera: getPhotoWithCamera,
+    getPhotoWithPhotoLibrary: getPhotoWithPhotoLibrary
   }
 }]);

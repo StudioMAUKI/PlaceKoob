@@ -305,7 +305,7 @@ angular.module('placekoob.services')
       return 'img/icon/404.png';
     }
 
-    return RESTServer.getURL() + content;
+    return content;
   }
 
   function getPlaceName(post) {

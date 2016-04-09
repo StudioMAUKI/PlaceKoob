@@ -1,30 +1,15 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$cordovaCamera', '$cordovaImagePicker', '$ionicPopup', '$http', 'PlaceManager', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', function($scope, $ionicModal, $cordovaCamera, $cordovaImagePicker, $ionicPopup, $http, PlaceManager, CacheService, $cordovaClipboard, RemoteAPIService) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', function($scope, $ionicModal, $ionicPopup, $http, CacheService, $cordovaClipboard, RemoteAPIService, PhotoService) {
 	var saveModal = this;
-	saveModal.images = [];
+	saveModal.attatchedImage = '';
 	saveModal.URL = '';
 
 	saveModal.savePosition = function() {
-		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-			saveModal.addImageWithCamera(function() {
-				$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
-					scope: $scope,
-					animation: 'slide-in-up'
-				})
-				.then(function(modal) {
-					saveModal.saveDlg = modal;
-					saveModal.saveDlg.show();
-				});
-			}, function(){
-				$ionicPopup.alert({
-	        title: '어이쿠',
-	        template: '현재 위치를 저장하려면, 사진을 찍어야 합니다.'
-	      });
-			});
-		} else {
-			saveModal.images.push('img/sample/sample_01.jpg');
+		PhotoService.getPhotoWithCamera()
+		.then(function(imageURI) {
+			saveModal.attatchedImage = imageURI;
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -33,7 +18,12 @@ angular.module('placekoob.controllers')
 				saveModal.saveDlg = modal;
 				saveModal.saveDlg.show();
 			});
-		}
+		}, function(err) {
+			$ionicPopup.alert({
+				title: '어이쿠',
+				template: '저장을 위해, 현재 위치에서 사진을 찍어주세요.'
+			});
+		});
 	};
 
 	saveModal.saveURL = function() {
@@ -72,7 +62,7 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
-		RemoteAPIService.uploadImage(saveModal.images[0])
+		RemoteAPIService.uploadImage(saveModal.attatchedImage)
 		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
 			RemoteAPIService.sendUserPost({
@@ -119,13 +109,6 @@ angular.module('placekoob.controllers')
 				saveModal.closeSaveDlg();
 			});
 		});
-
-		// PlaceManager.saveCurrentPlace({
-		// 	images: saveModal.images,
-		// 	note: saveModal.note,
-		// 	coords: curPos
-		// });
-		// saveModal.closeSaveDlg();
 	};
 
 	saveModal.confirmSaveURL = function() {
@@ -159,79 +142,7 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	saveModal.addImageWithCamera = function(success, error) {
-		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-			var options = {
-	      quality: 70,
-	      destinationType: Camera.DestinationType.FILE_URI,
-	      sourceType: Camera.PictureSourceType.CAMERA,
-	      allowEdit: false,
-	      encodingType: Camera.EncodingType.JPEG,
-	      targetWidth: 1280,
-	      targetHeight: 1280,
-	      popoverOptions: CameraPopoverOptions,
-	      correctOrientation: true,
-	      saveToPhotoAlbum: false
-	    };
-
-	    $cordovaCamera.getPicture(options)
-	    .then(function (imageURI) {
-	      saveModal.images.push(imageURI);
-	      console.log('imageUrl: ' + imageURI);
-				if (success) {
-					success();
-				}
-	    }, function (err) {
-	      console.error('Camera capture failed : ' + err);
-				if (error) {
-					error();
-				}
-	    });
-		} else {	// test in web-browser
-			saveModal.images.push('http://cfile4.uf.tistory.com/image/2773F53C565C0DA82E6FDB');
-			if (success) {
-				success();
-			}
-		}
-	};
-
-	saveModal.addImageWithPhotoLibrary = function() {
-		var restCount = 5 - saveModal.images.length;
-		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-			$cordovaImagePicker.getPictures({
-	      maximumImagesCount: restCount,
-	      width: 1280,
-				height: 1280
-	    }).
-	    then(function(imageURIs) {
-	      for (var i = 0; i < imageURIs.length; i++) {
-	        console.log('Image URI: ' + imageURIs[i]);
-	        saveModal.images.push(imageURIs[i]);
-	      }
-	    }, function (error) {
-	      console.error(error);
-	    });
-		} else {	// test in web-browser
-			for (var i = 0; i < restCount; i++){
-				saveModal.images.push('http://cfile8.uf.tistory.com/image/231BB0435212BE3E0D4A3C');
-			}
-		}
-	};
-
-	saveModal.popUpForRemove = function(index) {
-		var confirmPopup = $ionicPopup.confirm({
-			title: '사진 첨부',
-			template: '선택하신 사진을 제외하시겠습니까?'
-		});
-
-		confirmPopup.then(function(result) {
-			if(result) {
-				saveModal.images.splice(index, 1);
-			}
-		});
-	}
-
-	saveModal.getURPreview = function() {
+	saveModal.getURLPreview = function() {
 		if (saveModal.URL === '') {
 			console.warn("URL must be valid value.");
 			return;
