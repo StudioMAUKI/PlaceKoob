@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
+.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$stateParams', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $stateParams, $q, RemoteAPIService, PostHelper) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingType = "최신순";
@@ -71,6 +71,10 @@ angular.module('placekoob.controllers')
 	}
 
 	places.loadSavedPlace();
-
 	$scope.$on('post.list.update', places.loadSavedPlace);
+
+	if ($stateParams.place_id) {
+		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.place_id);
+		$state.go('tab.place', {place_id: $stateParams.place_id});
+	}
 }]);

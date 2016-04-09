@@ -26,7 +26,7 @@ angular.module('placekoob.config', [])
     }
   })
   .state('tab.places', {
-    url: '/places',
+    url: '/places?place_id',
     views: {
       'places': {
         templateUrl: 'places/places.html',

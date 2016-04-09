@@ -1,13 +1,14 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
+.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', '$ionicHistory', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, $ionicHistory, RemoteAPIService, PostHelper) {
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
 
 	plNotYet.goBack = function() {
-		$state.go('tab.places');
+		// $state.go('tab.places');
+		$ionicHistory.goBack();
 	};
 
 	plNotYet.toggleLeft = function() {

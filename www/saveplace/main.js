@@ -182,7 +182,7 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;
 	main.postHelper = PostHelper;
 	main.prevIndex = -1;
@@ -301,6 +301,11 @@ angular.module('placekoob.controllers')
 			$ionicSlideBoxDelegate.update();
 		});
 	};
+
+	main.goPlace = function(place_id) {
+		console.log('goPlace : ' + place_id);
+		$state.go('tab.places', {place_id: place_id});
+	}
 
 	$scope.$on('post.created', main.loadSavedPlace);
 }]);
