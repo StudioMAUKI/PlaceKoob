@@ -43,10 +43,10 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	places.loadSavedPlace = function() {
+	places.loadSavedPlace = function(force) {
 		var deferred = $q.defer();
 		console.log('placesCtrl: loadSavedPlace() called.');
-		RemoteAPIService.getPostsOfMine(1000, 0)
+		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
 			var results = [];
 			for (var i = 0; i < posts.length; i++) {
@@ -71,7 +71,9 @@ angular.module('placekoob.controllers')
 	}
 
 	places.loadSavedPlace();
-	$scope.$on('post.list.update', places.loadSavedPlace);
+	$scope.$on('post.list.update', function() {
+		places.loadSavedPlace(true);
+	});
 
 	if ($stateParams.place_id) {
 		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.place_id);

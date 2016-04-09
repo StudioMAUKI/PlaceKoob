@@ -46,10 +46,10 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	plNotYet.loadSavedPlace = function() {
+	plNotYet.loadSavedPlace = function(force) {
 		var deferred = $q.defer();
 		console.log('placesCtrl: loadSavedPlace() called.');
-		RemoteAPIService.getPostsOfMine(100, 0)
+		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
 			var results = [];
 			for (var i = 0; i < posts.length; i++) {
@@ -66,7 +66,7 @@ angular.module('placekoob.controllers')
 	}
 
 	plNotYet.doRefresh = function() {
-		plNotYet.loadSavedPlace()
+		plNotYet.loadSavedPlace(true)
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});

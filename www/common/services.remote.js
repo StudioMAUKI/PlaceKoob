@@ -14,7 +14,7 @@ angular.module('placekoob.services')
 })
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus){
   var ServerUrl = RESTServer.getURL();
-  var cachedPosts = {};
+  var cachedPosts = [];
 
   function registerUser() {
     var deferred = $q.defer();
@@ -154,25 +154,45 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getPostsOfMine(limit, offset) {
+  function getPostsOfMine(limit, offset, force) {
     var deferred = $q.defer();
-    $http({
-      method: 'GET',
-      url: ServerUrl + '/uplaces/',
-      params: {
-        ru: 'myself',
-        limit: limit,
-        offset: offset
+    var needToUpdate = false;
+
+    //  캐쉬가 비어있지 않다면
+    if (cachedPosts.length != 0) {
+      if (force) {
+        needToUpdate = true;
+      } else {
+        needToUpdate = false;
       }
-    })
-    .then(function(response) {
-      //console.dir(response.data);
-      cachedPosts = response.data.results;
-      deferred.resolve(response.data.results);
-    }, function(err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+    } else {
+      needToUpdate = true;
+    }
+
+    if (needToUpdate) {
+      console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출')
+      $http({
+        method: 'GET',
+        url: ServerUrl + '/uplaces/',
+        params: {
+          ru: 'myself',
+          limit: limit,
+          offset: offset
+        }
+      })
+      .then(function(response) {
+        //console.dir(response.data);
+        cachedPosts = response.data.results;
+        deferred.resolve(response.data.results);
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+    } else {
+      console.log('캐시된 것 반환');
+      deferred.resolve(cachedPosts);
+    }
+
     return deferred.promise;
   }
 
@@ -233,7 +253,7 @@ angular.module('placekoob.services')
       }
     }
 
-    getPostsOfMine(1000, 0)
+    getPostsOfMine(100, 0)
     .then(function(posts) {
       foundPost = findPost(posts, place_id);
       if (foundPost) {
