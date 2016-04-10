@@ -186,6 +186,10 @@ angular.module('placekoob.controllers')
 		});
 		console.log('URL : ' + saveModal.URL);
 	}
+
+	saveModal.showFileForm = function() {
+		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
+	}
 }])
 .controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;

@@ -9,7 +9,7 @@
 			<img style="height:240px;" ng-src="{{saveModal.attatchedImage}}">
 		</div>
 		<!-- for BrowserTest-->
-		<input type="file" file-model="saveModal.browserFile">
+		<input type="file" file-model="saveModal.browserFile" ng-show="saveModal.showFileForm()">
 		<label class="item item-input item-stacked-label">
   		<span class="input-label">Note</span>
 			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="saveModal.note"></textarea>
