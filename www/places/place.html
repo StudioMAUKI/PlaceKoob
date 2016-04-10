@@ -36,6 +36,10 @@
 			<div class="user-post-title">
 				{{place.postHelper.getTimeString(place.post.userPost.notes[0].timestamp)}}
 			</div>
+			<section class="user-note" ng-repeat="url in place.post.userPost.urls">
+				<a ng-href="{{url.content}}">{{url.content}}</a><br>
+				at {{place.postHelper.getTimeString(url.timestamp)}}
+			</section>
 			<section class="user-note" ng-repeat="note in place.post.userPost.notes">
 				{{note.content}}<br>
 				at {{place.postHelper.getTimeString(note.timestamp)}}
