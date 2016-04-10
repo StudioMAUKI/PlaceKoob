@@ -157,8 +157,31 @@ angular.module('placekoob.services', [])
     });
   };
 
-  function getCurrentAddress(){
-    return '경기도 성남시 분당구 삼평동';
+  function getCurrentAddress(latitude, longitude) {
+    var deferred = $q.defer();
+
+    var geocoder = new daum.maps.services.Geocoder();
+    geocoder.coord2detailaddr(
+      new daum.maps.LatLng(latitude, longitude),
+      function(status, result) {
+        console.dir(status);
+        console.dir(result);
+        if (status === daum.maps.services.Status.OK) {
+          if (result[0]) {
+            console.info('Current Address is ' + result[0].jibunAddress.name + '.');
+            deferred.resolve(result[0]);
+          } else {
+            console.warn('Geocoder results are not found.');
+            deferred.reject(status);
+          }
+        } else {
+          console.error('Geocoder failed due to: ' + status);
+          deferred.reject(status);
+        }
+      }
+    );
+
+    return deferred.promise;
   }
 
   return {
