@@ -266,8 +266,8 @@ angular.module('placekoob.services', [])
 	    then(function(imageURIs) {
         deferred.resolve(imageUIRs);
 	    }, function (error) {
-	      console.error(error);
-        deferred.reject(error);
+	      console.error(err);
+        deferred.reject(err);
 	    });
 		} else {	// test in web-browser
       deferred.resolve(['img/sample/sample_02.jpg','img/sample/sample_03.jpg', 'img/sample/sample_04.jpg']);

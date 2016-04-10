@@ -292,20 +292,21 @@ angular.module('placekoob.services')
         }, 10);
         return deferred.promise;
       }
+    } else {
+      getPostsOfMine(100, 0, true)
+      .then(function(posts) {
+        foundPost = findPost(posts, place_id);
+        if (foundPost) {
+          deferred.resolve(foundPost);
+        } else {
+          console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
+          var err = 'Could not find the post with such place_id.';
+          deferred.reject(err);
+        }
+      }, function(err){
+        deferred.reject(err);
+      });
     }
-
-    getPostsOfMine(100, 0)
-    .then(function(posts) {
-      foundPost = findPost(posts, place_id);
-      if (foundPost) {
-        deferred.resolve(foundPost);
-      } else {
-        console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
-        deferred.reject('Could not find the post with such place_id.');
-      }
-    }, function(err){
-      deferred.reject(err);
-    });
 
     return deferred.promise;
   }
