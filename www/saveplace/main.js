@@ -70,6 +70,20 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.uploadImage(saveModal.attatchedImage)
 		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
+
+			//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 place_id를 써서 올림
+			var last_lon = parseFloat(CacheService.get('last_lon'));
+			console.log(CacheService.get('last_lon'));
+			console.log('curPos.lon: ' + curPos.longitude + ', last_lon: ' + last_lon);
+			var last_lat = parseFloat(CacheService.get('last_lat'));
+			console.log(CacheService.get('last_lat'));
+			console.log('curPos.lat: ' + curPos.latitude + ', last_lat: ' + last_lat);
+			var prev_place_id = null;
+			if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
+				prev_place_id = parseInt(CacheService.get('last_place_id'));
+				console.log('prev_place_id: ' + prev_place_id);
+			}
+
 			RemoteAPIService.sendUserPost({
 				lonLat: {
 					lon: curPos.longitude,
@@ -83,15 +97,22 @@ angular.module('placekoob.controllers')
 				}],
 				addrs: [{
 					content: '테스트 주소(경기도 성남시 분당구 삼평동)'
-				}]
+				}],
+				place_id: prev_place_id
 			})
 			.then(function(result) {
+				//console.dir(result);
+
+				CacheService.set('last_place_id', result.data.place_id);
+				CacheService.set('last_lon', curPos.longitude);
+				CacheService.set('last_lat', curPos.latitude);
+
 				console.log("Sending user post successed.");
 				$ionicPopup.alert({
 	        title: 'SUCCESS',
 	        template: '현재 위치를 저장했습니다.'
 	      })
-				.then(function(){
+				.then(function(result){
 					saveModal.closeSaveDlg();
 					$scope.$emit('post.created');
 				});
@@ -231,7 +252,7 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
-				CacheService.add('curPos', pos);
+				CacheService.set('curPos', pos);
         main.map = {
 					center: {
 						latitude: pos.latitude,
@@ -242,7 +263,7 @@ angular.module('placekoob.controllers')
 							main.needToUpdateCurMarker = true;
 						},
 						center_changed: function(map, event, args) {
-							CacheService.add('curPos', main.map.center);
+							CacheService.set('curPos', main.map.center);
 
 							//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
 							if (main.needToUpdateCurMarker) {

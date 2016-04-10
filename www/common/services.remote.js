@@ -156,7 +156,7 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       //console.dir(result);
-      deferred.resolve();
+      deferred.resolve(result);
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -189,7 +189,7 @@ angular.module('placekoob.services')
         headers: { 'Content-Type': undefined }
       })
       .then(function(result) {
-        console.dir(result);
+        //console.dir(result);
         deferred.resolve(result.data);
       }, function(err) {
         console.error(err);

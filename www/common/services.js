@@ -170,17 +170,21 @@ angular.module('placekoob.services', [])
   var data = {};
 
   return {
-    add: function(key, value) {
-      data[key] = value;
+    set: function(key, value) {
+      //  data[key] = value;
+      return window.sessionStorage.setItem(key, JSON.stringify(value));
     },
     get: function(key) {
-      return data[key];
+      // return data[key];
+      return JSON.parse(window.sessionStorage.getItem(key));
     },
     has: function(key) {
-      return !(data[key] === undefined);
+      // return !(data[key] === undefined);
+      return (window.sessionStorage.getItem(key) !== null);
     },
     remove: function(key) {
-      data[key] = undefined;
+      // data[key] = undefined;
+      window.sessionStorage.removeItem(key);
     }
   }
 }])

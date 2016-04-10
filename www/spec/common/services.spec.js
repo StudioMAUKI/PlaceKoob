@@ -76,7 +76,7 @@ describe('placekoob.services', function() {
           b: 'bar'
         }
       };
-      CacheService.add('obj', obj);
+      CacheService.set('obj', obj);
     }));
 
     it('can get data', function() {
