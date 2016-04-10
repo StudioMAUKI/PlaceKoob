@@ -105,5 +105,10 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
       console.log("RootScope received the event of post.created.");
       $rootScope.$broadcast('post.list.update');
     });
+
+    $rootScope.$on('user.logouted', function() {
+      console.log("RootScope received the event of user.logouted.");
+      $rootScope.$broadcast('post.list.update');
+    });
   });
 }]);

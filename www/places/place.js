@@ -13,7 +13,7 @@ angular.module('placekoob.controllers')
   .then(function(post) {
       place.post = post;
       if (place.post.placePost) {
-        place.post.tags = PostHelper.getTagsFromString(place.post.placePost.notes[0].content);
+        place.post.tags = PostHelper.getTagsWithContent(place.post.placePost.notes[0].content);
       }
       if (place.post.userPost.images) {
         for (var i = 0; i < place.post.userPost.images.length; i++) {

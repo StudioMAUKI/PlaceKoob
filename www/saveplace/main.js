@@ -182,7 +182,7 @@ angular.module('placekoob.controllers')
 		console.log('URL : ' + saveModal.URL);
 	}
 }])
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;
 	main.postHelper = PostHelper;
 	main.prevIndex = -1;
@@ -279,15 +279,16 @@ angular.module('placekoob.controllers')
     );
   });
 
-	main.loadSavedPlace = function() {
+	main.loadSavedPlace = function(force) {
 		var pos = CacheService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
-			main.posts = posts;
+			var limit = posts.length > 10 ? 10 : posts.length;
+			main.posts = posts.slice(0, limit);
 			//console.dir(posts);
 
 			// markers for saved positions
-			for(var i = 0; i < main.posts.length; i++) {
+			for(var i = 0; i < limit; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
@@ -302,5 +303,12 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	$scope.$on('post.created', main.loadSavedPlace);
+	main.goPlace = function(place_id) {
+		console.log('goPlace : ' + place_id);
+		$state.go('tab.places', {place_id: place_id});
+	}
+
+	$scope.$on('post.created', function() {
+		main.loadSavedPlace(true);
+	});
 }]);

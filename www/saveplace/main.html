@@ -31,12 +31,12 @@
 			</ion-slide>
 			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<img class="list-thumbnail" ng-src="{{main.postHelper.getFirstImageURL(post)}}">
+					<a ng-click="main.goPlace(post.place_id)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
 					<section>
-						<h5>{{$index}}{{main.postHelper.getPlaceName(post)}}</h5>
-						<span class="place-desc">{{main.postHelper.getAddress(post)}}, {{main.postHelper.getPhoneNo(post)}}</span><br>
+						<a ng-click="main.goPlace(post.place_id)" href="#"><h5>{{post.name}}</h5></a>
+						<span class="place-desc">{{post.address}}, {{post.phoneNo}}</span><br>
 						<span class="place-note">
-							<strong>{{main.postHelper.getUserNote(post)}}</strong>
+							<strong>{{post.desc}}</strong>
 						</span>
 					</section>
 				</div>

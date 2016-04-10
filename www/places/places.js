@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, RemoteAPIService, PostHelper) {
+.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$stateParams', '$q', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $stateParams, $q, RemoteAPIService, PostHelper) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingType = "최신순";
@@ -43,14 +43,13 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	places.loadSavedPlace = function() {
+	places.loadSavedPlace = function(force) {
 		var deferred = $q.defer();
 		console.log('placesCtrl: loadSavedPlace() called.');
-		RemoteAPIService.getPostsOfMine(1000, 0)
+		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
 			var results = [];
 			for (var i = 0; i < posts.length; i++) {
-				posts[i].tags = places.postHelper.getTags(posts[i]);
 				if (places.postHelper.isOrganized(posts[i])){
 					results.push(posts[i]);
 				}
@@ -71,6 +70,12 @@ angular.module('placekoob.controllers')
 	}
 
 	places.loadSavedPlace();
+	$scope.$on('post.list.update', function() {
+		places.loadSavedPlace(true);
+	});
 
-	$scope.$on('post.list.update', places.loadSavedPlace);
+	if ($stateParams.place_id) {
+		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.place_id);
+		$state.go('tab.place', {place_id: $stateParams.place_id});
+	}
 }]);

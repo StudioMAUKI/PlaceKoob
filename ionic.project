@@ -9,6 +9,10 @@
     {
       "path": "/mauki",
       "proxyUrl": "http://maukitest.cloudapp.net"
+    },
+    {
+      "path": "/mauki_dev",
+      "proxyUrl": "http://192.168.1.3:8000"
     }
   ]
 }
