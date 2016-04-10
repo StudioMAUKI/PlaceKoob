@@ -32,10 +32,10 @@
 			</ion-item>
 			<!-- 기준 end -->
 			<ion-item ng-repeat="post in places.posts" href="#/places/{{post.place_id}}">
-				<img class="list-thumbnail" ng-src="{{places.postHelper.getFirstImageURL(post)}}" alt="{{places.postHelper.getPlaceName(post)}}">
-				<span class="place-item-name"><strong>{{places.postHelper.getPlaceName(post)}}({{0}})</strong></span><br>
-				<span class="place-item-addr">{{places.postHelper.getAddress(post)}}</span><br>
-				<div class="place-item-note">{{places.postHelper.getUserNote(post)}}</div><br>
+				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
+				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span><br>
+				<span class="place-item-addr">{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="places.onItemDelete(post)">
       	</ion-delete-button>

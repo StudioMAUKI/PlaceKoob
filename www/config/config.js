@@ -1,13 +1,14 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$http', '$cordovaOauth', 'SocialService', 'StorageService', function($http, $cordovaOauth, SocialService, StorageService) {
+.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', 'SocialService', 'StorageService', 'RemoteAPIService', function($scope, $http, $cordovaOauth, $ionicPopup, SocialService, StorageService, RemoteAPIService) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
 	config.naver = false;
 	config.libraries = false;
 	config.contacts = false;
+	config.devmode = StorageService.getData('devmode') === "true" ? true : false;
 
 	config.auth_user_token = StorageService.getData('auth_user_token');
 	config.auth_vd_token = StorageService.getData('auth_vd_token');
@@ -55,5 +56,24 @@ angular.module('placekoob.controllers')
 		config.naver = false;
 		config.libraries = false;
 		config.contacts = false;
+	}
+
+	config.logout = function() {
+		RemoteAPIService.logoutUser();
+		$ionicPopup.alert({
+			title: '로그아웃',
+			template: '로그아웃했습니다. 앱을 종료합니다. (아이폰 기기의 경우 직접 종료하셔야 합니다.)'
+		})
+		.then(function(res) {
+			console.log('앱을 종료할려는데..');
+			$scope.$emit('user.logouted');
+			ionic.Platform.exitApp();
+		});
+	}
+
+	config.setDevMode = function (){
+		StorageService.addData('devmode', config.devmode);
+		// 환경 바뀌면 로그아웃 해야 함
+		config.logout();
 	}
 }]);

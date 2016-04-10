@@ -50,7 +50,6 @@ angular.module('placekoob.controllers')
 		.then(function(posts) {
 			var results = [];
 			for (var i = 0; i < posts.length; i++) {
-				posts[i].tags = places.postHelper.getTags(posts[i]);
 				if (places.postHelper.isOrganized(posts[i])){
 					results.push(posts[i]);
 				}

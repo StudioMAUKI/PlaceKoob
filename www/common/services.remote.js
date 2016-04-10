@@ -1,18 +1,28 @@
 'use strict';
 
 angular.module('placekoob.services')
-.factory('RESTServer', function() {
+.factory('RESTServer', ['StorageService', function(StorageService) {
   return {
     getURL: function() {
+      var devmode = StorageService.getData('devmode') === "true" ? true : false;
+
       if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-        return 'http://maukitest.cloudapp.net';
+        if (devmode) {
+          return 'http://192.168.1.3:8000';
+        } else {
+          return 'http://maukitest.cloudapp.net';
+        }
       } else {
-        return '/mauki';
+        if (devmode) {
+          return '/mauki_dev';
+        } else {
+          return '/mauki';
+        }
       }
     }
   }
-})
-.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus){
+}])
+.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus, PostHelper){
   var ServerUrl = RESTServer.getURL();
   var cachedPosts = [];
 
@@ -26,7 +36,7 @@ angular.module('placekoob.services')
     } else {
       // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
       StorageService.removeData('auth_vd_token');
-      StorageService.removeData('email');
+      //StorageService.removeData('email'); //  원래 이메일도 날렸는데, 로그아웃 개념을 생각하면 안날려도 될듯
 
       $http({
         method: 'POST',
@@ -65,10 +75,17 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function logoutUser() {
+    StorageService.removeData('auth_user_token');
+    StorageService.removeData('auth_vd_token');
+    AppStatus.setUserLogined(false);
+  }
+
   function registerVD() {
     var deferred = $q.defer();
     var auth_vd_token = StorageService.getData('auth_vd_token');
     var email = StorageService.getData('email');
+
     if (auth_vd_token) {
       console.log('VD Registration already successed.');
       deferred.resolve(auth_vd_token);
@@ -182,6 +199,7 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         //console.dir(response.data);
+        PostHelper.decoratePosts(response.data.results);
         cachedPosts = response.data.results;
         deferred.resolve(response.data.results);
       }, function(err) {
@@ -272,6 +290,7 @@ angular.module('placekoob.services')
   return {
     registerUser: registerUser,
     loginUser: loginUser,
+    logoutUser: logoutUser,
     registerVD: registerVD,
     loginVD: loginVD,
     hasEmail: hasEmail,
@@ -285,13 +304,17 @@ angular.module('placekoob.services')
 .factory('PostHelper', ['RESTServer', function(RESTServer) {
   function getTags(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
-      return '태그를 뿌릴 내용이 없음';
+      return [];
     }
 
-    return getTagsFromString(post.userPost.notes[0].content);
+    return getTagsWithContent(post.userPost.notes[0].content);
   }
 
-  function getTagsFromString(content) {
+  function getTagsWithContent(content) {
+    if (!content || content === '') {
+        return [];
+    }
+
     var words = content.split(/\s+/);
     var output = [];
     for (var i = 0; i < words.length; i++) {
@@ -307,10 +330,17 @@ angular.module('placekoob.services')
 
   function getUserNote(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
-      return '태그를 뿌릴 내용이 없음';
+      return '';
     }
 
-    return post.userPost.notes[0].content.replace(/#/g, '');
+    return getUserNoteByContent(post.userPost.notes[0].content);
+  }
+
+  function getUserNoteByContent(content) {
+    if (!content || content === '') {
+      return '';
+    }
+    return content.replace(/#/g, '');
   }
 
   function getFirstImageURL(post) {
@@ -321,8 +351,12 @@ angular.module('placekoob.services')
   }
 
   function getImageURL(content) {
-    if (!content || content === '') {
+    if (content === undefined || !content || content === '') {
       return 'img/icon/404.png';
+    }
+
+    if (content.indexOf('http://') !== 0) {
+      return RESTServer.getURL() + '/' + content;
     }
 
     return content;
@@ -374,16 +408,26 @@ angular.module('placekoob.services')
     return new Date(timestamp).toLocaleDateString();
   }
 
+  //  ng-repeat안에서 함수가 호출되는 것을 최대한 방지하기 위해, 로딩된 포스트의 썸네일 URL, 전화번호, 주소, 태그 등을
+  //  계산해서 속성으로 담아둔다.
+  function decoratePosts(posts) {
+    for (var i = 0; i < posts.length; i++) {
+      posts[i].name = getPlaceName(posts[i]);
+      posts[i].thumbnailUrl = getFirstImageURL(posts[i]);
+      posts[i].datetime = getTimeString(posts[i].modified);
+      posts[i].address = getAddress(posts[i]);
+      posts[i].desc = getUserNote(posts[i]);
+      posts[i].tags = getTags(posts[i]);
+      posts[i].phoneNo = getPhoneNo(posts[i]);
+    }
+    console.dir(posts);
+  }
+
   return {
-    getTags: getTags,
-    getTagsFromString: getTagsFromString,
-    getUserNote: getUserNote,
-    getFirstImageURL: getFirstImageURL,
+    getTagsWithContent: getTagsWithContent,
     getImageURL: getImageURL,
-    getPlaceName: getPlaceName,
-    getAddress: getAddress,
-    getPhoneNo: getPhoneNo,
     isOrganized: isOrganized,
-    getTimeString: getTimeString
+    getTimeString: getTimeString,
+    decoratePosts: decoratePosts
   }
 }]);

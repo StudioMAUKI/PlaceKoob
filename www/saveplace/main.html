@@ -18,7 +18,7 @@
 			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id">
       </ui-gmap-marker>
     </ui-gmap-google-map>
-		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+		<!-- <ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
 			<ion-slide>
 				<div class="slide-on-map">
 					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
@@ -31,17 +31,17 @@
 			</ion-slide>
 			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<a ng-click="main.goPlace(post.place_id)" href="#"><img class="list-thumbnail" ng-src="{{main.postHelper.getFirstImageURL(post)}}"></a>
+					<a ng-click="main.goPlace(post.place_id)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
 					<section>
-						<a ng-click="main.goPlace(post.place_id)" href="#"><h5>{{main.postHelper.getPlaceName(post)}}</h5></a>
-						<span class="place-desc">{{main.postHelper.getAddress(post)}}, {{main.postHelper.getPhoneNo(post)}}</span><br>
+						<a ng-click="main.goPlace(post.place_id)" href="#"><h5>{{post.name}}</h5></a>
+						<span class="place-desc">{{post.address}}, {{post.phoneNo}}</span><br>
 						<span class="place-note">
-							<strong>{{main.postHelper.getUserNote(post)}}</strong>
+							<strong>{{post.desc}}</strong>
 						</span>
 					</section>
 				</div>
 			</ion-slide>
-		</ion-slide-box>
+		</ion-slide-box> -->
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
 		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>
