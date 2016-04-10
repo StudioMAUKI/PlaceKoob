@@ -12,6 +12,7 @@
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container">
+		<!-- placePost 영역 -->
 		<article class="place-post-container" ng-show="place.post.placePost.name">
 			<div class="place-addr">
 				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.placePost.addrs[0].content}}
@@ -23,6 +24,8 @@
 				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
 			</div>
 		</article>
+
+		<!-- userPost 영역 -->
 		<article class="user-post-container">
 			<div class="user-post-title">
 				2016. 03.18. 점심

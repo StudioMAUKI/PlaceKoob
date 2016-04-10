@@ -279,15 +279,16 @@ angular.module('placekoob.controllers')
     );
   });
 
-	main.loadSavedPlace = function() {
+	main.loadSavedPlace = function(force) {
 		var pos = CacheService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000)
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
-			main.posts = posts;
+			var limit = posts.length > 10 ? 10 : posts.length;
+			main.posts = posts.slice(0, limit);
 			//console.dir(posts);
 
 			// markers for saved positions
-			for(var i = 0; i < main.posts.length; i++) {
+			for(var i = 0; i < limit; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
@@ -307,5 +308,7 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {place_id: place_id});
 	}
 
-	$scope.$on('post.created', main.loadSavedPlace);
+	$scope.$on('post.created', function() {
+		main.loadSavedPlace(true);
+	});
 }]);

@@ -24,7 +24,8 @@ angular.module('placekoob.services')
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus, PostHelper){
   var ServerUrl = RESTServer.getURL();
-  var cachedPosts = [];
+  var cachedMyPosts = [];
+  var cachedPostionedPosts = [];
 
   function registerUser() {
     var deferred = $q.defer();
@@ -176,7 +177,7 @@ angular.module('placekoob.services')
     var needToUpdate = false;
 
     //  캐쉬가 비어있지 않다면
-    if (cachedPosts.length != 0) {
+    if (cachedMyPosts.length != 0) {
       if (force) {
         needToUpdate = true;
       } else {
@@ -200,7 +201,7 @@ angular.module('placekoob.services')
       .then(function(response) {
         //console.dir(response.data);
         PostHelper.decoratePosts(response.data.results);
-        cachedPosts = response.data.results;
+        cachedMyPosts = response.data.results;
         deferred.resolve(response.data.results);
       }, function(err) {
         console.error(err);
@@ -208,41 +209,63 @@ angular.module('placekoob.services')
       });
     } else {
       console.log('캐시된 것 반환');
-      deferred.resolve(cachedPosts);
+      deferred.resolve(cachedMyPosts);
     }
 
     return deferred.promise;
   }
 
-  function getPostsWithPlace(lat, lon, radius) {
+  function getPostsWithPlace(lat, lon, radius, force) {
     var deferred = $q.defer();
-    $http({
-      method: 'GET',
-      url: ServerUrl + '/uplaces/',
-      params: {
-        lon: lon,
-        lat: lat,
-        r: radius
-      }
-    })
-    .then(function(response) {
-      //console.dir(response.data);
-      //  !!!Start 성능을 생각하면 이렇게 하면 안되는데, 일단 급하니까 땜빵
-      var retPosts = [];
-      for (var i = 0; i < response.data.results.length; i++){
-        if (response.data.results[i].userPost.lonLat || response.data.results[i].placePost.lonLat) {
-          retPosts.push(response.data.results[i]);
-        }
-      }
-      deferred.resolve(retPosts);
-      //  !!!End
+    var needToUpdate = false;
 
-      // 요기서부터가 정식
-      //deferred.resolve(response.data.results);
-    }, function(err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+    //  캐쉬가 비어있지 않다면
+    if (cachedPostionedPosts.length != 0) {
+      if (force) {
+        needToUpdate = true;
+      } else {
+        needToUpdate = false;
+      }
+    } else {
+      needToUpdate = true;
+    }
+
+    if (needToUpdate) {
+      console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출');
+      $http({
+        method: 'GET',
+        url: ServerUrl + '/uplaces/',
+        params: {
+          lon: lon,
+          lat: lat,
+          r: radius
+        }
+      })
+      .then(function(response) {
+        //console.dir(response.data);
+        //  !!!Start 성능을 생각하면 이렇게 하면 안되는데, 일단 급하니까 땜빵
+        var retPosts = [];
+        for (var i = 0; i < response.data.results.length; i++){
+          if (response.data.results[i].userPost.lonLat || response.data.results[i].placePost.lonLat) {
+            retPosts.push(response.data.results[i]);
+          }
+        }
+        PostHelper.decoratePosts(retPosts);
+        cachedPostionedPosts = retPosts;
+        deferred.resolve(retPosts);
+        //  !!!End
+
+        // 요기서부터가 정식
+        //deferred.resolve(response.data.results);
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+    } else {
+      console.log('캐시된 것 반환');
+      deferred.resolve(cachedPostionedPosts);
+    }
+
     return deferred.promise;
   }
 
@@ -260,8 +283,8 @@ angular.module('placekoob.services')
     var needToUpdate = false;
     var foundPost = null;
 
-    if (cachedPosts && cachedPosts.length > 0) {
-      foundPost = findPost(cachedPosts, place_id);
+    if (cachedMyPosts && cachedMyPosts.length > 0) {
+      foundPost = findPost(cachedMyPosts, place_id);
       if (foundPost) {
         console.log('캐시된 목록에 장소 정보가 있어 반환함.');
         setTimeout(function() {
@@ -420,7 +443,7 @@ angular.module('placekoob.services')
       posts[i].tags = getTags(posts[i]);
       posts[i].phoneNo = getPhoneNo(posts[i]);
     }
-    console.dir(posts);
+    // console.dir(posts);
   }
 
   return {

@@ -18,7 +18,7 @@
 			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id">
       </ui-gmap-marker>
     </ui-gmap-google-map>
-		<!-- <ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
 			<ion-slide>
 				<div class="slide-on-map">
 					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
@@ -41,7 +41,7 @@
 					</section>
 				</div>
 			</ion-slide>
-		</ion-slide-box> -->
+		</ion-slide-box>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
 		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>
