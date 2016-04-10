@@ -331,7 +331,8 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
 			var limit = posts.length > 10 ? 10 : posts.length;
-			main.posts = posts.slice(0, limit);
+			var underBound = posts.length > 10 ? posts.length - 10 : 0;
+			main.posts = posts.slice(underBound).reverse();
 			//console.dir(posts);
 
 			// markers for saved positions
