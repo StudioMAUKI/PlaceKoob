@@ -1,6 +1,21 @@
 'use strict';
 
 angular.module('placekoob.services')
+.directive('fileModel', ['$parse', function ($parse) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var model = $parse(attrs.fileModel);
+      var modelSetter = model.assign;
+
+      element.bind('change', function(){
+        scope.$apply(function(){
+          modelSetter(scope, element[0].files[0]);
+        });
+      });
+    }
+  };
+}])
 .factory('RESTServer', ['StorageService', function(StorageService) {
   return {
     getURL: function() {
@@ -163,11 +178,24 @@ angular.module('placekoob.services')
         console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
       }, function(err) {
-        //console.error(err);
+        console.error(err);
         deferred.reject(err);
       });
     } else {
-      deferred.resolve({uuid: '0DC200ED17A056ED448EF8E1C3952B94.img'});
+      var fd = new FormData();
+      fd.append('file', fileURI);
+      $http.post(ServerUrl + '/rfs/', fd, {
+        transformRequest: angular.identity,
+        headers: { 'Content-Type': undefined }
+      })
+      .then(function(result) {
+        console.dir(result);
+        deferred.resolve(result.data);
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      })
+      //deferred.resolve({uuid: '0DC200ED17A056ED448EF8E1C3952B94.img'});
     }
     return deferred.promise;
   }
@@ -367,11 +395,11 @@ angular.module('placekoob.services')
     return content.replace(/#/g, '');
   }
 
-  function getFirstImageURL(post) {
+  function getThumbnailUrlByFirstImage(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
       return 'img/icon/404.png';
     }
-    return getImageURL(post.userPost.images[0].content);
+    return getImageURL(post.userPost.images[0].summary);
   }
 
   function getImageURL(content) {
@@ -437,7 +465,7 @@ angular.module('placekoob.services')
   function decoratePosts(posts) {
     for (var i = 0; i < posts.length; i++) {
       posts[i].name = getPlaceName(posts[i]);
-      posts[i].thumbnailUrl = getFirstImageURL(posts[i]);
+      posts[i].thumbnailUrl = getThumbnailUrlByFirstImage(posts[i]);
       posts[i].datetime = getTimeString(posts[i].modified);
       posts[i].address = getAddress(posts[i]);
       posts[i].desc = getUserNote(posts[i]);

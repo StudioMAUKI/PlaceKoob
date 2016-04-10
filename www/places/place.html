@@ -35,7 +35,7 @@
 				at {{place.postHelper.getTimeString(note.timestamp)}}
 			</section>
 			<section class="user-image" ng-repeat="image in place.post.userPost.images">
-				<img class="image-preview" ng-src="{{place.postHelper.getImageURL(image.content)}}" ng-click="place.showImagesWithFullScreen($index)">
+				<img class="image-preview" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
 				<div class="user-image-comment" ng-show="image.note">
 					{{image.note}}
 				</div>

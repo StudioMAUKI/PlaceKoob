@@ -62,6 +62,11 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
+
+		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
+			saveModal.attatchedImage = saveModal.browserFile;
+		}
+
 		RemoteAPIService.uploadImage(saveModal.attatchedImage)
 		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
