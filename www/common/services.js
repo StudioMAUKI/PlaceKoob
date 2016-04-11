@@ -291,13 +291,13 @@ angular.module('placekoob.services', [])
 				height: 1280
 	    }).
 	    then(function(imageURIs) {
-        deferred.resolve(imageUIRs);
+        deferred.resolve(imageURIs);
 	    }, function (error) {
 	      console.error(err);
         deferred.reject(err);
 	    });
 		} else {	// test in web-browser
-      deferred.resolve(['img/sample/sample_02.jpg','img/sample/sample_03.jpg', 'img/sample/sample_04.jpg']);
+      deferred.resolve(['img/sample/sample_02.jpg']);
 		}
 
     return deferred.promise;

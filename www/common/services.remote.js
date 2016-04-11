@@ -306,35 +306,24 @@ angular.module('placekoob.services')
     return null;
   }
 
-  function getPost(place_id) {
+  function getPost(place_id, force) {
     var deferred = $q.defer();
     var needToUpdate = false;
     var foundPost = null;
-
-    if (cachedMyPosts && cachedMyPosts.length > 0) {
-      foundPost = findPost(cachedMyPosts, place_id);
+    
+    getPostsOfMine(100, 0, force)
+    .then(function(posts) {
+      foundPost = findPost(posts, place_id);
       if (foundPost) {
-        console.log('캐시된 목록에 장소 정보가 있어 반환함.');
-        setTimeout(function() {
-          deferred.resolve(foundPost);
-        }, 10);
-        return deferred.promise;
-      }
-    } else {
-      getPostsOfMine(100, 0, true)
-      .then(function(posts) {
-        foundPost = findPost(posts, place_id);
-        if (foundPost) {
-          deferred.resolve(foundPost);
-        } else {
-          console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
-          var err = 'Could not find the post with such place_id.';
-          deferred.reject(err);
-        }
-      }, function(err){
+        deferred.resolve(foundPost);
+      } else {
+        console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
+        var err = 'Could not find the post with such place_id.';
         deferred.reject(err);
-      });
-    }
+      }
+    }, function(err){
+      deferred.reject(err);
+    });
 
     return deferred.promise;
   }
