@@ -63,7 +63,7 @@ angular.module('placekoob.controllers')
 	}
 
 	places.doRefresh = function() {
-		places.loadSavedPlace()
+		places.loadSavedPlace(true)
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});

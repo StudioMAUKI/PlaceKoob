@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', function($scope, $ionicModal, $ionicPopup, $http, CacheService, $cordovaClipboard, RemoteAPIService, PhotoService) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, CacheService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
 	var saveModal = this;
 	saveModal.attatchedImage = '';
 	saveModal.URL = '';
@@ -62,39 +62,82 @@ angular.module('placekoob.controllers')
 	saveModal.confirmSave = function() {
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
+
+		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
+			saveModal.attatchedImage = saveModal.browserFile;
+		}
+
 		RemoteAPIService.uploadImage(saveModal.attatchedImage)
 		.then(function(response) {
 			console.log('Image UUID: ' + response.uuid);
-			RemoteAPIService.sendUserPost({
-				lonLat: {
-					lon: curPos.longitude,
-					lat: curPos.latitude
-				},
-				notes: [{
-					content: saveModal.note
-				}],
-				images: [{
-					content: response.file
-				}],
-				addrs: [{
-					content: '테스트 주소(경기도 성남시 분당구 삼평동)'
-				}]
-			})
-			.then(function(result) {
-				console.log("Sending user post successed.");
-				$ionicPopup.alert({
-	        title: 'SUCCESS',
-	        template: '현재 위치를 저장했습니다.'
-	      })
-				.then(function(){
-					saveModal.closeSaveDlg();
-					$scope.$emit('post.created');
+
+			MapService.getCurrentAddress(curPos.latitude, curPos.longitude)
+			.then(function(addrs) {
+				//	주소 프로퍼티에 대입할 주소 배열 생성
+				var resultAddrs = [];
+				if (addrs.roadAddress.name !== '') {
+					resultAddrs.push({content: addrs.roadAddress.name});
+				}
+				if (addrs.jibunAddress.name !== '') {
+					resultAddrs.push({content: addrs.jibunAddress.name});
+				}
+				if (addrs.region !== '') {
+					resultAddrs.push({content: addrs.region});
+				}
+
+				//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 place_id를 써서 올림
+				var last_lon = parseFloat(CacheService.get('last_lon'));
+				var last_lat = parseFloat(CacheService.get('last_lat'));
+				var prev_place_id = null;
+				if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
+					prev_place_id = parseInt(CacheService.get('last_place_id'));
+					console.log('prev_place_id: ' + prev_place_id);
+				}
+
+				RemoteAPIService.sendUserPost({
+					lonLat: {
+						lon: curPos.longitude,
+						lat: curPos.latitude
+					},
+					notes: [{
+						content: saveModal.note
+					}],
+					images: [{
+						content: response.file
+					}],
+					addrs: resultAddrs,
+					place_id: prev_place_id
+				})
+				.then(function(result) {
+					//console.dir(result);
+
+					CacheService.set('last_place_id', result.data.place_id);
+					CacheService.set('last_lon', curPos.longitude);
+					CacheService.set('last_lat', curPos.latitude);
+
+					console.log("Sending user post successed.");
+					$ionicPopup.alert({
+		        title: 'SUCCESS',
+		        template: '현재 위치를 저장했습니다.'
+		      })
+					.then(function(result){
+						saveModal.closeSaveDlg();
+						$scope.$emit('post.created');
+					});
+				}, function(err) {
+					console.error("Sending user post failed.");
+					$ionicPopup.alert({
+		        title: 'ERROR: Create UPost',
+		        template: JSON.stringify(err)
+		      })
+					.then(function(){
+						saveModal.closeSaveDlg();
+					});
 				});
 			}, function(err) {
-				console.error("Sending user post failed.");
 				$ionicPopup.alert({
-	        title: 'ERROR: Create UPost',
-	        template: JSON.stringify(err)
+	        title: 'ERROR: 주소 얻기 실패',
+	        template: err
 	      })
 				.then(function(){
 					saveModal.closeSaveDlg();
@@ -181,6 +224,10 @@ angular.module('placekoob.controllers')
 		});
 		console.log('URL : ' + saveModal.URL);
 	}
+
+	saveModal.showFileForm = function() {
+		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
+	}
 }])
 .controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
 	var main = this;
@@ -222,7 +269,7 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
-				CacheService.add('curPos', pos);
+				CacheService.set('curPos', pos);
         main.map = {
 					center: {
 						latitude: pos.latitude,
@@ -233,7 +280,7 @@ angular.module('placekoob.controllers')
 							main.needToUpdateCurMarker = true;
 						},
 						center_changed: function(map, event, args) {
-							CacheService.add('curPos', main.map.center);
+							CacheService.set('curPos', main.map.center);
 
 							//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
 							if (main.needToUpdateCurMarker) {
@@ -284,7 +331,8 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
 			var limit = posts.length > 10 ? 10 : posts.length;
-			main.posts = posts.slice(0, limit);
+			var underBound = posts.length > 10 ? posts.length - 10 : 0;
+			main.posts = posts.slice(underBound).reverse();
 			//console.dir(posts);
 
 			// markers for saved positions

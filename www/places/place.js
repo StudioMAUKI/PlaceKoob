@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicScrollDelegate', 'RemoteAPIService', 'PostHelper', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicScrollDelegate, RemoteAPIService, PostHelper) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, RemoteAPIService, PostHelper, PhotoService) {
   var place = this
   place.place_id = parseInt($stateParams.place_id);
   console.log('Place ID : ' + place.place_id);
@@ -9,33 +9,35 @@ angular.module('placekoob.controllers')
   place.zoomMin = 1;
   place.ImagesForSlide = [];
 
-  RemoteAPIService.getPost(place.place_id)
-  .then(function(post) {
-      place.post = post;
-      if (place.post.placePost) {
-        place.post.tags = PostHelper.getTagsWithContent(place.post.placePost.notes[0].content);
-      }
-      if (place.post.userPost.images) {
-        for (var i = 0; i < place.post.userPost.images.length; i++) {
-            place.ImagesForSlide.push(place.post.userPost.images[i].content);
+  place.loadPlaceInfo = function(force) {
+    RemoteAPIService.getPost(place.place_id, force)
+    .then(function(post) {
+        place.post = post;
+        if (place.post.placePost) {
+          place.post.tags = PostHelper.getTagsWithContent(place.post.placePost.notes[0].content);
         }
-      }
-  }, function(err) {
-    $ionicPopup.alert({
-      title: '죄송합니다!',
-      template: '해당하는 장소 정보를 불러올 수 없습니다.'
-    })
-    .then(function() {
-      $ionicHistory.goBack();
+        if (place.post.userPost.images) {
+          for (var i = 0; i < place.post.userPost.images.length; i++) {
+              place.ImagesForSlide.push(place.post.userPost.images[i].content);
+          }
+        }
+    }, function(err) {
+      $ionicPopup.alert({
+        title: '죄송합니다!',
+        template: '해당하는 장소 정보를 불러올 수 없습니다.'
+      })
+      .then(function() {
+        $ionicHistory.goBack();
+      });
     });
-  });
+  }
 
   place.deletePlace = function() {
     console.warn('Post delte : Not yet implemented.');
   }
 
   place.goBack = function() {
-    console.log("Move Back");
+    console.log('Move Back');
     $ionicHistory.goBack();
   };
 
@@ -66,4 +68,149 @@ angular.module('placekoob.controllers')
       $ionicSlideBoxDelegate.enableSlide(false);
     }
   };
+
+  place.addUrl = function() {
+    // An elaborate, custom popup
+    var myPopup = $ionicPopup.show({
+      template: '<input type="text" ng-model="place.Url">',
+      title: '추가할 URL을 입력하세요',
+      subTitle: '붙여넣기를 하시면 편리합니다.',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>확인</b>',
+          type: 'pk-accent',
+          onTap: function(e) {
+            if (!$scope.place.Url) {
+              //don't allow the user to close unless he enters wifi password
+              e.preventDefault();
+            } else {
+              return $scope.place.Url;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(Url) {
+      console.log('Tapped!', Url);
+      if (Url !== undefined) {
+        RemoteAPIService.sendUserPost({
+          urls: [{
+            content: Url
+          }],
+          place_id: place.place_id
+        })
+        .then(function(result) {
+          console.log('Adding URL to the post is successed.');
+          $ionicPopup.alert({
+            title: 'SUCCESS',
+            template: 'URL이 추가되었습니다.'
+          })
+          .then(function(result){
+            place.loadPlaceInfo(true);
+          });
+        }, function(err) {
+          console.error('Adding URL to the post is failed.');
+          $ionicPopup.alert({
+            title: 'ERROR: Add URL',
+            template: JSON.stringify(err)
+          });
+        });
+      }
+    });
+  };
+
+  place.addPhoto = function() {
+    $ionicActionSheet.show({
+      buttons: [
+        { text: '카메라로 사진 찍기' },
+        { text: '사진 앨범에서 선택' }
+      ],
+      titleText: '사진을 추가 합니다.',
+      cancelText: 'Cancel',
+      buttonClicked: function(index) {
+        console.log('[Event(ActionSheet:click)]Button['+ index + '] is clicked.');
+        if (index == 0) {
+          PhotoService.getPhotoWithCamera()
+      		.then(function(imageURI) {
+            RemoteAPIService.uploadImage(imageURI)
+        		.then(function(response) {
+        			console.log('Image UUID: ' + response.uuid);
+      				RemoteAPIService.sendUserPost({
+      					images: [{
+      						content: response.file
+      					}],
+      					place_id: place.place_id
+      				})
+      				.then(function(result) {
+      					console.log('Adding image to the post is successed.');
+      					$ionicPopup.alert({
+      		        title: 'SUCCESS',
+      		        template: '이미지가 추가되었습니다.'
+      		      })
+                .then(function() {
+                  place.loadPlaceInfo(true);
+                });
+      				}, function(err) {
+      					console.error('Adding image to the post is failed.');
+      					$ionicPopup.alert({
+      		        title: 'ERROR: Add Image',
+      		        template: JSON.stringify(err)
+      		      });
+      				});
+        		}, function(err) {
+        			$ionicPopup.alert({
+                title: 'ERROR: Upload Image',
+                template: JSON.stringify(err)
+              });
+        		});
+      		});
+        } else {
+          PhotoService.getPhotoWithPhotoLibrary(1)
+      		.then(function(imageURIs) {
+            console.dir(imageURIs);
+            for (var i = 0; i < imageURIs.length; i++){
+              RemoteAPIService.uploadImage(imageURIs[i])
+          		.then(function(response) {
+          			console.log('Image UUID: ' + response.uuid);
+        				RemoteAPIService.sendUserPost({
+        					images: [{
+        						content: response.file
+        					}],
+        					place_id: place.place_id
+        				})
+        				.then(function(result) {
+        					console.log('Adding image to the post is successed.');
+        					$ionicPopup.alert({
+        		        title: 'SUCCESS',
+        		        template: '이미지가 추가되었습니다.'
+        		      })
+                  .then(function() {
+                    place.loadPlaceInfo(true);
+                  });
+        				}, function(err) {
+        					console.error('Adding image to the post is failed.');
+        					$ionicPopup.alert({
+        		        title: 'ERROR: Add Image',
+        		        template: JSON.stringify(err)
+        		      });
+        				});
+          		}, function(err) {
+          			$ionicPopup.alert({
+                  title: 'ERROR: Upload Image',
+                  template: JSON.stringify(err)
+                });
+          		});
+            }
+      		});
+        }
+
+        return true;
+      }
+    });
+  }
+
+  place.loadPlaceInfo();
 }]);

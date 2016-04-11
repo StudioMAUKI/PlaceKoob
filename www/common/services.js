@@ -157,8 +157,31 @@ angular.module('placekoob.services', [])
     });
   };
 
-  function getCurrentAddress(){
-    return '경기도 성남시 분당구 삼평동';
+  function getCurrentAddress(latitude, longitude) {
+    var deferred = $q.defer();
+
+    var geocoder = new daum.maps.services.Geocoder();
+    geocoder.coord2detailaddr(
+      new daum.maps.LatLng(latitude, longitude),
+      function(status, result) {
+        console.dir(status);
+        console.dir(result);
+        if (status === daum.maps.services.Status.OK) {
+          if (result[0]) {
+            console.info('Current Address is ' + result[0].jibunAddress.name + '.');
+            deferred.resolve(result[0]);
+          } else {
+            console.warn('Geocoder results are not found.');
+            deferred.reject(status);
+          }
+        } else {
+          console.error('Geocoder failed due to: ' + status);
+          deferred.reject(status);
+        }
+      }
+    );
+
+    return deferred.promise;
   }
 
   return {
@@ -170,17 +193,21 @@ angular.module('placekoob.services', [])
   var data = {};
 
   return {
-    add: function(key, value) {
-      data[key] = value;
+    set: function(key, value) {
+      //  data[key] = value;
+      return window.sessionStorage.setItem(key, JSON.stringify(value));
     },
     get: function(key) {
-      return data[key];
+      // return data[key];
+      return JSON.parse(window.sessionStorage.getItem(key));
     },
     has: function(key) {
-      return !(data[key] === undefined);
+      // return !(data[key] === undefined);
+      return (window.sessionStorage.getItem(key) !== null);
     },
     remove: function(key) {
-      data[key] = undefined;
+      // data[key] = undefined;
+      window.sessionStorage.removeItem(key);
     }
   }
 }])
@@ -264,13 +291,13 @@ angular.module('placekoob.services', [])
 				height: 1280
 	    }).
 	    then(function(imageURIs) {
-        deferred.resolve(imageUIRs);
+        deferred.resolve(imageURIs);
 	    }, function (error) {
-	      console.error(error);
-        deferred.reject(error);
+	      console.error(err);
+        deferred.reject(err);
 	    });
 		} else {	// test in web-browser
-      deferred.resolve(['img/sample/sample_02.jpg','img/sample/sample_03.jpg', 'img/sample/sample_04.jpg']);
+      deferred.resolve(['img/sample/sample_02.jpg']);
 		}
 
     return deferred.promise;
