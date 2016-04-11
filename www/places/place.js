@@ -17,6 +17,7 @@ angular.module('placekoob.controllers')
           place.post.tags = PostHelper.getTagsWithContent(place.post.placePost.notes[0].content);
         }
         if (place.post.userPost.images) {
+          place.ImagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {
               place.ImagesForSlide.push(place.post.userPost.images[i].content);
           }
