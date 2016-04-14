@@ -226,10 +226,9 @@ angular.module('placekoob.controllers')
 		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
 	}
 }])
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService) {
 	console.log('mainCtrl is called.');
 	var main = this;
-	main.postHelper = PostHelper;
 	main.prevIndex = -1;
 	main.needToUpdateCurMarker = false;
 
