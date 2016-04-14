@@ -310,7 +310,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     var needToUpdate = false;
     var foundPost = null;
-    
+
     getPostsOfMine(100, 0, force)
     .then(function(posts) {
       foundPost = findPost(posts, place_id);

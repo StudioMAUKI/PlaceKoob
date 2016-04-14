@@ -62,14 +62,14 @@ angular.module('placekoob.controllers')
 		});
 
 		return deferred.promise;
-	}
+	};
 
 	plNotYet.doRefresh = function() {
 		plNotYet.loadSavedPlace(true)
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});
-	}
+	};
 
 	plNotYet.loadSavedPlace();
 
