@@ -247,6 +247,10 @@ span.place-item-tag {
   text-align: center;
 }
 
+.place-name {
+  font-size: 150%;
+}
+
 .user-post-container {
   background-color: #CFD8DC;
   border-radius: 5px;

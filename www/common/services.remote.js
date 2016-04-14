@@ -404,11 +404,11 @@ angular.module('placekoob.services')
   }
 
   function getPlaceName(post) {
-    // 장소의 이름은 공식 포스트의 이름을 우선한다.
-    if (post.placePost && post.placePost.name && post.placePost.name !== '') {
-      return post.placePost.name;
-    } else if (post.userPost && post.userPost.name && post.userPost.name !== ''){
-      return post.userPost.name;
+    // 장소의 이름은 공식 포스트의 이.content름을 우선한다.
+    if (post.placePost && post.placePost.name && post.placePost.name.content !== '') {
+      return post.placePost.name.content;
+    } else if (post.userPost && post.userPost.name && post.userPost.name.content !== ''){
+      return post.userPost.name.content;
     } else {
       return '미지정 상태';
     }

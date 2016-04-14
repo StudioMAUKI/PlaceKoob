@@ -81,7 +81,7 @@ describe('placekoob.services', function() {
 
     it('can get data', function() {
       var ret = CacheService.get('obj');
-      expect(CacheService.get('obj2')).not.toBeDefined();
+      expect(CacheService.get('obj2')).toBeNull();
       expect(ret.count).toEqual(5);
       expect(ret.words).toEqual('Hello, World');
       expect(ret.subObj).toBeDefined();
