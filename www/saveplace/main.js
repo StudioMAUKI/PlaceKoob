@@ -81,9 +81,6 @@ angular.module('placekoob.controllers')
 				if (addrs.jibunAddress.name !== '') {
 					resultAddrs.push({content: addrs.jibunAddress.name});
 				}
-				if (addrs.region !== '') {
-					resultAddrs.push({content: addrs.region});
-				}
 
 				//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 place_id를 써서 올림
 				var last_lon = parseFloat(CacheService.get('last_lon'));
@@ -229,9 +226,9 @@ angular.module('placekoob.controllers')
 		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
 	}
 }])
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', 'PostHelper', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService, PostHelper) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService) {
+	console.log('mainCtrl is called.');
 	var main = this;
-	main.postHelper = PostHelper;
 	main.prevIndex = -1;
 	main.needToUpdateCurMarker = false;
 
@@ -269,61 +266,62 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
-				CacheService.set('curPos', pos);
-        main.map = {
-					center: {
-						latitude: pos.latitude,
-						longitude: pos.longitude
+			//	임시코드
+			pos.latitude = 37.4003292;
+			pos.longitude = 127.1032845;
+			CacheService.set('curPos', pos);
+      main.map = {
+				center: {
+					latitude: pos.latitude,
+					longitude: pos.longitude
+				},
+				events: {
+					dragend: function(map, event, args) {
+						main.needToUpdateCurMarker = true;
 					},
-					events: {
-						dragend: function(map, event, args) {
-							main.needToUpdateCurMarker = true;
-						},
-						center_changed: function(map, event, args) {
-							CacheService.set('curPos', main.map.center);
+					center_changed: function(map, event, args) {
+						CacheService.set('curPos', main.map.center);
 
-							//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
-							if (main.needToUpdateCurMarker) {
-								//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
-								//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
-								main.currentPosMarker.coords.latitude = main.map.center.latitude;
-								main.currentPosMarker.coords.longitude = main.map.center.longitude;
-								main.needToUpdateCurMarker = false;
-							}
+						//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
+						if (main.needToUpdateCurMarker) {
+							//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+							//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
+							main.currentPosMarker.coords.latitude = main.map.center.latitude;
+							main.currentPosMarker.coords.longitude = main.map.center.longitude;
+							main.needToUpdateCurMarker = false;
 						}
-					},
-					zoom: 14,
-					options: {
-						zoomControl: false,
-						mapTypeControl: false,
-						streetViewControl: false
 					}
-				};
-				// marker for current position
-        main.currentPosMarker = {
-          id: 'currentPosMarker',
-          coords: {
-            latitude: pos.latitude,
-            longitude: pos.longitude
-          },
-          options: {
-						draggable: true,
-						icon: 'img/icon/main_pin_small.png'
-					},
-          events: {
-            dragend: function (currentPosMarker, eventName, args) {
-              main.map.center.latitude = main.currentPosMarker.coords.latitude;
-							main.map.center.longitude = main.currentPosMarker.coords.longitude;
-            }
+				},
+				zoom: 14,
+				options: {
+					zoomControl: false,
+					mapTypeControl: false,
+					streetViewControl: false
+				}
+			};
+			// marker for current position
+      main.currentPosMarker = {
+        id: 'currentPosMarker',
+        coords: {
+          latitude: pos.latitude,
+          longitude: pos.longitude
+        },
+        options: {
+					draggable: true,
+					icon: 'img/icon/main_pin_small.png'
+				},
+        events: {
+          dragend: function (currentPosMarker, eventName, args) {
+            main.map.center.latitude = main.currentPosMarker.coords.latitude;
+						main.map.center.longitude = main.currentPosMarker.coords.longitude;
           }
-        };
+        }
+      };
 
-				main.loadSavedPlace();
-      },
-      function(reason){
-        $ionicPopup.alert({ title: 'Warning!', template: reason });
-      }
-    );
+			main.loadSavedPlace();
+    }, function(err){
+      $ionicPopup.alert({ title: 'Warning!', template: err });
+    });
   });
 
 	main.loadSavedPlace = function(force) {

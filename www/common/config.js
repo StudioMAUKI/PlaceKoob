@@ -84,19 +84,19 @@ angular.module('placekoob.config', [])
 	.state('register-step1', {
 		url: '/register/step1',
 		templateUrl: 'register/step1.html',
-		controller: 'registerCtrl',
+		controller: 'registerStep1Ctrl',
 		controllerAs: 'register'
 	})
 	.state('register-step2', {
 		url: '/register/step2',
 		templateUrl: 'register/step2.html',
-		controller: 'registerCtrl',
+		controller: 'registerStep2Ctrl',
 		controllerAs: 'register'
 	})
 	.state('register-complete', {
 		url: '/register/complete',
 		templateUrl: 'register/complete.html',
-		controller: 'registerCtrl',
+		controller: 'registerCompleteCtrl',
 		controllerAs: 'register'
 	})
 	.state('analyzer', {
@@ -106,7 +106,7 @@ angular.module('placekoob.config', [])
 		controllerAs: 'analyzer'
 	});
 
-	$urlRouterProvider.otherwise('/home');
+	$urlRouterProvider.otherwise('/register');
 })
 .config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({
