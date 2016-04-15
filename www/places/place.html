@@ -33,6 +33,9 @@
 			<a class="button pk-accent button-icon ion-image" ng-click="place.addPhoto()"> 사진 추가</a>
 			<a class="button pk-accent button-icon ion-link" ng-click="place.addUrl()"> URL 추가</a>
 		</div>
+		<div class="button-bar" ng-show="place.post.placePost.name" style="margin-top:5px;">
+			<a class="button button-balanced" ng-click="place.searchPlace()">이 장소 관련 블로그</a>
+		</div>
 
 		<!-- userPost 영역 -->
 		<article class="user-post-container">
