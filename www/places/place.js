@@ -213,5 +213,9 @@ angular.module('placekoob.controllers')
     });
   }
 
+  place.openLink = function(url) {
+    window.open(url, '_system');
+  }
+
   place.loadPlaceInfo();
 }]);
