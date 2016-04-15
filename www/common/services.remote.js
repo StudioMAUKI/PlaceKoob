@@ -159,7 +159,7 @@ angular.module('placekoob.services')
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
-      deferred.reject(err);
+      deferred.reject(JSON.parse(err));
     });
     return deferred.promise;
   }

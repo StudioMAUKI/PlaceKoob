@@ -6,6 +6,10 @@ angular.module('placekoob.controllers')
 	saveModal.attatchedImage = '';
 	saveModal.URL = '';
 
+	saveModal.showAlert = function(title, msg) {
+		return $ionicPopup.alert({ title: title, template: msg });
+	}
+
 	saveModal.savePosition = function() {
 		PhotoService.getPhotoWithCamera()
 		.then(function(imageURI) {
@@ -19,10 +23,7 @@ angular.module('placekoob.controllers')
 				saveModal.saveDlg.show();
 			});
 		}, function(err) {
-			$ionicPopup.alert({
-				title: '어이쿠',
-				template: '저장을 위해, 현재 위치에서 사진을 찍어주세요.'
-			});
+			saveModal.showAlert('어이쿠', '저장을 위해, 현재 위치에서 사진을 찍어주세요.');
 		});
 	};
 
@@ -63,6 +64,7 @@ angular.module('placekoob.controllers')
 		var curPos = CacheService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
 
+		//	브라우저의 경우 테스트를 위해 분기함
 		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
 			saveModal.attatchedImage = saveModal.browserFile;
 		}
@@ -107,44 +109,30 @@ angular.module('placekoob.controllers')
 				})
 				.then(function(result) {
 					//console.dir(result);
-
 					CacheService.set('last_place_id', result.data.place_id);
 					CacheService.set('last_lon', curPos.longitude);
 					CacheService.set('last_lat', curPos.latitude);
 
-					console.log("Sending user post successed.");
-					$ionicPopup.alert({
-		        title: 'SUCCESS',
-		        template: '현재 위치를 저장했습니다.'
-		      })
-					.then(function(result){
+					saveModal.showAlert('성공', '현재 위치를 저장했습니다.')
+					.then(function(){
 						saveModal.closeSaveDlg();
 						$scope.$emit('post.created');
 					});
 				}, function(err) {
 					console.error("Sending user post failed.");
-					$ionicPopup.alert({
-		        title: 'ERROR: Create UPost',
-		        template: JSON.stringify(err)
-		      })
+					saveModal.showAlert('오류: 장소 저장', err)
 					.then(function(){
 						saveModal.closeSaveDlg();
 					});
 				});
 			}, function(err) {
-				$ionicPopup.alert({
-	        title: 'ERROR: 주소 얻기 실패',
-	        template: err
-	      })
+				saveModal.showAlert('오류: 주소 얻기 실패', err)
 				.then(function(){
 					saveModal.closeSaveDlg();
 				});
 			});
 		}, function(err) {
-			$ionicPopup.alert({
-        title: 'ERROR: Upload Image',
-        template: JSON.stringify(err)
-      })
+			saveModal.showAlert('오류: 이미지 업로드', err)
 			.then(function(){
 				saveModal.closeSaveDlg();
 			});
@@ -161,21 +149,14 @@ angular.module('placekoob.controllers')
 			}]
 		})
 		.then(function(result) {
-			console.log("Sending user post successed.");
-			$ionicPopup.alert({
-        title: 'SUCCESS',
-        template: '웹문서를 저장했습니다.'
-      })
+			saveModal.showAlert('성공', '웹문서를 저장했습니다.')
 			.then(function(){
 				saveModal.closeSaveDlg();
 				$scope.$emit('post.created');
 			});
 		}, function(err) {
 			console.error("Sending user post failed.");
-			$ionicPopup.alert({
-        title: 'ERROR: Create UPost',
-        template: JSON.stringify(err)
-      })
+			saveModal.showAlert('오류: URL 저장', err)
 			.then(function(){
 				saveModal.closeSaveDlg();
 			});
