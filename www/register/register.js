@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('registerCtrl', ['$state', '$ionicPopup', 'RemoteAPIService', function($state, $ionicPopup, RemoteAPIService) {
+.controller('registerCtrl', ['$scope', '$state', '$ionicPopup', 'RemoteAPIService', function($scope, $state, $ionicPopup, RemoteAPIService) {
 	console.log('registerCtrl is called.');
 	var register = this;
 	register.needToRegister = false;
@@ -70,5 +70,8 @@ angular.module('placekoob.controllers')
 		$state.go('register-step1');
 	};
 
-	register.init();
+	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('After entering Register View..');
+		register.init();
+	});
 }]);

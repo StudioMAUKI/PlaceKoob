@@ -30,6 +30,7 @@ angular.module('placekoob.controllers')
 			register.sendEmail(register.email)
 			.then(function(result) {
 				console.log('Send email : ' + result);
+				register.email = '';
 				$state.go('register-step2');
 			}, function(err) {
 				console.error(err);

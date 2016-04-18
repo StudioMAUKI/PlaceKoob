@@ -38,7 +38,7 @@ angular.module('placekoob.services')
   }
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus, PostHelper){
-  var ServerUrl = RESTServer.getURL();
+  var getServerUrl = RESTServer.getURL;
   var cachedMyPosts = [];
   var cachedPostionedPosts = [];
 
@@ -56,7 +56,7 @@ angular.module('placekoob.services')
 
       $http({
         method: 'POST',
-        url: ServerUrl + '/users/register/',
+        url: getServerUrl() + '/users/register/',
         country:StorageService.getData('country'),
         language:StorageService.getData('lang'),
         timezone:''
@@ -78,7 +78,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/users/login/',
+      url: getServerUrl() + '/users/login/',
       data: JSON.stringify({ auth_user_token: token })
     })
     .then(function(result) {
@@ -94,6 +94,7 @@ angular.module('placekoob.services')
   function logoutUser() {
     StorageService.removeData('auth_user_token');
     StorageService.removeData('auth_vd_token');
+    StorageService.removeData('email');
     AppStatus.setUserLogined(false);
   }
 
@@ -108,7 +109,7 @@ angular.module('placekoob.services')
     } else {
       $http({
         method: 'POST',
-        url: ServerUrl + '/vds/register/',
+        url: getServerUrl() + '/vds/register/',
         data: JSON.stringify({ email: email })
       })
       .then(function(result) {
@@ -128,7 +129,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/vds/login/',
+      url: getServerUrl() + '/vds/login/',
       data: JSON.stringify({ auth_vd_token: token })
     })
     .then(function(result) {
@@ -151,7 +152,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/uplaces/',
+      url: getServerUrl() + '/uplaces/',
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
@@ -173,7 +174,7 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(ServerUrl + '/rfs/', fileURI, options)
+      $cordovaFileTransfer.upload(getServerUrl() + '/rfs/', fileURI, options)
       .then(function(result) {
         console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
@@ -184,7 +185,7 @@ angular.module('placekoob.services')
     } else {
       var fd = new FormData();
       fd.append('file', fileURI);
-      $http.post(ServerUrl + '/rfs/', fd, {
+      $http.post(getServerUrl() + '/rfs/', fd, {
         transformRequest: angular.identity,
         headers: { 'Content-Type': undefined }
       })
@@ -200,26 +201,22 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function needToRefresh(posts, force) {
+    if (force) {
+      return true;
+    } else {
+      return (posts.length === 0);
+    }
+  }
+
   function getPostsOfMine(limit, offset, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
 
-    //  캐쉬가 비어있지 않다면
-    if (cachedMyPosts.length != 0) {
-      if (force) {
-        needToUpdate = true;
-      } else {
-        needToUpdate = false;
-      }
-    } else {
-      needToUpdate = true;
-    }
-
-    if (needToUpdate) {
+    if (needToRefresh(cachedMyPosts, force)) {
       console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출')
       $http({
         method: 'GET',
-        url: ServerUrl + '/uplaces/',
+        url: getServerUrl() + '/uplaces/',
         params: {
           ru: 'myself',
           limit: limit,
@@ -245,24 +242,12 @@ angular.module('placekoob.services')
 
   function getPostsWithPlace(lat, lon, radius, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
 
-    //  캐쉬가 비어있지 않다면
-    if (cachedPostionedPosts.length != 0) {
-      if (force) {
-        needToUpdate = true;
-      } else {
-        needToUpdate = false;
-      }
-    } else {
-      needToUpdate = true;
-    }
-
-    if (needToUpdate) {
+    if (needToRefresh(cachedPostionedPosts, force)) {
       console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출');
       $http({
         method: 'GET',
-        url: ServerUrl + '/uplaces/',
+        url: getServerUrl() + '/uplaces/',
         params: {
           lon: lon,
           lat: lat,
@@ -308,7 +293,6 @@ angular.module('placekoob.services')
 
   function getPost(place_id, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
     var foundPost = null;
 
     getPostsOfMine(100, 0, force)
