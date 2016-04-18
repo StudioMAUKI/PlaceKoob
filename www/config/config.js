@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', 'SocialService', 'StorageService', 'RemoteAPIService', function($scope, $http, $cordovaOauth, $ionicPopup, SocialService, StorageService, RemoteAPIService) {
+.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', 'SocialService', 'StorageService', 'RemoteAPIService', function($scope, $http, $cordovaOauth, $ionicPopup, $state, SocialService, StorageService, RemoteAPIService) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
@@ -62,12 +62,13 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.logoutUser();
 		$ionicPopup.alert({
 			title: '로그아웃',
-			template: '로그아웃했습니다. 앱을 종료합니다. (아이폰 기기의 경우 직접 종료하셔야 합니다.)'
+			template: '로그아웃했습니다. 앱을 다시 로딩합니다.'
 		})
 		.then(function(res) {
-			console.log('앱을 종료할려는데..');
-			$scope.$emit('user.logouted');
-			ionic.Platform.exitApp();
+			// console.log('앱을 종료할려는데..');
+			// $scope.$emit('user.logouted');
+			// ionic.Platform.exitApp();
+			$state.go('register');
 		});
 	}
 

@@ -38,7 +38,7 @@ angular.module('placekoob.services')
   }
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus, PostHelper){
-  var ServerUrl = RESTServer.getURL();
+  var getServerUrl = RESTServer.getURL;
   var cachedMyPosts = [];
   var cachedPostionedPosts = [];
 
@@ -56,7 +56,7 @@ angular.module('placekoob.services')
 
       $http({
         method: 'POST',
-        url: ServerUrl + '/users/register/',
+        url: getServerUrl() + '/users/register/',
         country:StorageService.getData('country'),
         language:StorageService.getData('lang'),
         timezone:''
@@ -78,7 +78,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/users/login/',
+      url: getServerUrl() + '/users/login/',
       data: JSON.stringify({ auth_user_token: token })
     })
     .then(function(result) {
@@ -94,6 +94,7 @@ angular.module('placekoob.services')
   function logoutUser() {
     StorageService.removeData('auth_user_token');
     StorageService.removeData('auth_vd_token');
+    StorageService.removeData('email');
     AppStatus.setUserLogined(false);
   }
 
@@ -108,7 +109,7 @@ angular.module('placekoob.services')
     } else {
       $http({
         method: 'POST',
-        url: ServerUrl + '/vds/register/',
+        url: getServerUrl() + '/vds/register/',
         data: JSON.stringify({ email: email })
       })
       .then(function(result) {
@@ -128,7 +129,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/vds/login/',
+      url: getServerUrl() + '/vds/login/',
       data: JSON.stringify({ auth_vd_token: token })
     })
     .then(function(result) {
@@ -151,7 +152,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: ServerUrl + '/uplaces/',
+      url: getServerUrl() + '/uplaces/',
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
@@ -159,7 +160,7 @@ angular.module('placekoob.services')
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
-      deferred.reject(JSON.parse(err));
+      deferred.reject(err);
     });
     return deferred.promise;
   }
@@ -173,7 +174,7 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(ServerUrl + '/rfs/', fileURI, options)
+      $cordovaFileTransfer.upload(getServerUrl() + '/rfs/', fileURI, options)
       .then(function(result) {
         console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
@@ -184,7 +185,7 @@ angular.module('placekoob.services')
     } else {
       var fd = new FormData();
       fd.append('file', fileURI);
-      $http.post(ServerUrl + '/rfs/', fd, {
+      $http.post(getServerUrl() + '/rfs/', fd, {
         transformRequest: angular.identity,
         headers: { 'Content-Type': undefined }
       })
@@ -200,26 +201,22 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function needToRefresh(posts, force) {
+    if (force) {
+      return true;
+    } else {
+      return (posts.length === 0);
+    }
+  }
+
   function getPostsOfMine(limit, offset, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
 
-    //  캐쉬가 비어있지 않다면
-    if (cachedMyPosts.length != 0) {
-      if (force) {
-        needToUpdate = true;
-      } else {
-        needToUpdate = false;
-      }
-    } else {
-      needToUpdate = true;
-    }
-
-    if (needToUpdate) {
+    if (needToRefresh(cachedMyPosts, force)) {
       console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출')
       $http({
         method: 'GET',
-        url: ServerUrl + '/uplaces/',
+        url: getServerUrl() + '/uplaces/',
         params: {
           ru: 'myself',
           limit: limit,
@@ -245,24 +242,12 @@ angular.module('placekoob.services')
 
   function getPostsWithPlace(lat, lon, radius, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
 
-    //  캐쉬가 비어있지 않다면
-    if (cachedPostionedPosts.length != 0) {
-      if (force) {
-        needToUpdate = true;
-      } else {
-        needToUpdate = false;
-      }
-    } else {
-      needToUpdate = true;
-    }
-
-    if (needToUpdate) {
+    if (needToRefresh(cachedPostionedPosts, force)) {
       console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출');
       $http({
         method: 'GET',
-        url: ServerUrl + '/uplaces/',
+        url: getServerUrl() + '/uplaces/',
         params: {
           lon: lon,
           lat: lat,
@@ -274,7 +259,7 @@ angular.module('placekoob.services')
         //  !!!Start 성능을 생각하면 이렇게 하면 안되는데, 일단 급하니까 땜빵
         var retPosts = [];
         for (var i = 0; i < response.data.results.length; i++){
-          if (response.data.results[i].userPost.lonLat || response.data.results[i].placePost.lonLat) {
+          if (response.data.results[i].lonLat) {
             retPosts.push(response.data.results[i]);
           }
         }
@@ -297,28 +282,27 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function findPost(posts, place_id) {
+  function findPost(posts, uplace_uuid) {
     for (var i = 0; i < posts.length; i++) {
-      if (posts[i].place_id === place_id) {
+      if (posts[i].uplace_uuid === uplace_uuid) {
         return posts[i];
       }
     }
     return null;
   }
 
-  function getPost(place_id, force) {
+  function getPost(uplace_uuid, force) {
     var deferred = $q.defer();
-    var needToUpdate = false;
     var foundPost = null;
 
     getPostsOfMine(100, 0, force)
     .then(function(posts) {
-      foundPost = findPost(posts, place_id);
+      foundPost = findPost(posts, uplace_uuid);
       if (foundPost) {
         deferred.resolve(foundPost);
       } else {
-        console.error(place_id + '에 해당하는 포스트를 찾을 수 없음.');
-        var err = 'Could not find the post with such place_id.';
+        console.error(uplace_uuid + '에 해당하는 포스트를 찾을 수 없음.');
+        var err = 'Could not find the post with such uplace_uuid.';
         deferred.reject(err);
       }
     }, function(err){
@@ -416,13 +400,27 @@ angular.module('placekoob.services')
 
   function getAddress(post) {
     // 주소는 공식 포스트의 주소를 우선한다.
-    if (post.placePost && post.placePost.addrs && post.placePost.addrs.length != 0 && post.placePost.addrs[0].content !== '') {
-      return post.placePost.addrs[0].content;
-    } else if (post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
-      return post.userPost.addrs[0].content;
-    } else {
-      return '';
+    if (post.placePost) {
+      if (post.placePost.addr1 && post.placePost.addr1.content !== '') {
+        return post.placePost.addr1.content;
+      } else if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
+        return post.placePost.addr2.content;
+      } else if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
+        return post.placePost.addr3.content;
+      }
     }
+
+    if (post.userPost) {
+      if (post.userPost.addr1 && post.userPost.addr1.content !== '') {
+        return post.userPost.addr1.content;
+      } else if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
+        return post.userPost.addr2.content;
+      } else if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
+        return post.userPost.addr3.content;
+      }
+    }
+
+    return '';
   }
 
   function getPhoneNo(post) {
@@ -437,12 +435,8 @@ angular.module('placekoob.services')
   }
 
   function isOrganized(post) {
-    //  공식적인 장소 이름이 규정이 되었다면, 장소화 되었다고 간주한다
-    if (!post.placePost.name || post.placePost.name === '') {
-      return false;
-    } else {
-      return true;
-    }
+    //  placePost가 NULL이 아니면 장소화 된 것으로 간주할 수있음
+    return (post.placePost !== null);
   }
 
   function getTimeString(timestamp) {

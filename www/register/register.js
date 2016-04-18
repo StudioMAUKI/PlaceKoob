@@ -1,11 +1,16 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('registerCtrl', ['$state', '$ionicPopup', 'RemoteAPIService', function($state, $ionicPopup, RemoteAPIService) {
+.controller('registerCtrl', ['$scope', '$state', '$ionicPopup', 'RemoteAPIService', function($scope, $state, $ionicPopup, RemoteAPIService) {
 	console.log('registerCtrl is called.');
 	var register = this;
 	register.needToRegister = false;
 	register.email = '';
+
+	function resetUserInfo() {
+		register.needToRegister = true;
+		RemoteAPIService.logoutUser();
+	}
 
 	function showAlert(msg) {
     $ionicPopup.alert({
@@ -14,7 +19,7 @@ angular.module('placekoob.controllers')
     })
     .then(function(res) {
       console.log('앱을 종료할려는데..');
-      ionic.Platform.exitApp();
+			ionic.Platform.exitApp();
     });
   };
 
@@ -43,24 +48,24 @@ angular.module('placekoob.controllers')
               $state.go('tab.home');
             }, function(err) {
               console.error(err);
-              register.needToRegister = true;
+              resetUserInfo();
             });
           }, function(err) {
             console.error(err);
-            register.needToRegister = true;
+            resetUserInfo();
           });
         } else {
-          register.needToRegister = true;
+          resetUserInfo();
         }
       }, function(err) {
         console.error(err);
-				register.needToRegister = false;
+				resetUserInfo();
         //showAlert('사용자 로그인 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
         showAlert(JSON.stringify(err));
       });
     }, function(err) {
       console.error('User Registration failed: ' + JSON.stringify(err));
-			register.needToRegister = false;
+			resetUserInfo();
       // showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
 			showAlert(JSON.stringify(err));
     });
@@ -70,5 +75,8 @@ angular.module('placekoob.controllers')
 		$state.go('register-step1');
 	};
 
-	register.init();
+	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('After entering Register View..');
+		register.init();
+	});
 }]);

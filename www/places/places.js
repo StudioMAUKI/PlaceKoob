@@ -74,8 +74,8 @@ angular.module('placekoob.controllers')
 		places.loadSavedPlace(true);
 	});
 
-	if ($stateParams.place_id) {
-		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.place_id);
-		$state.go('tab.place', {place_id: $stateParams.place_id});
+	if ($stateParams.uplace_uuid) {
+		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
+		$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
 	}
 }]);

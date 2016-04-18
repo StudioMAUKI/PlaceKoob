@@ -108,5 +108,10 @@ angular.module('placekoob', ['ionic', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoog
       console.log('Login process completed.');
       $rootScope.$broadcast('user.logined.after');
     });
+
+    $rootScope.$on('server.changed', function() {
+      console.log('Server changed.');
+      $rootScope.$broadcast('server.changed.after');
+    });
   });
 }]);
