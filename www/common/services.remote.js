@@ -159,7 +159,7 @@ angular.module('placekoob.services')
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
-      deferred.reject(err);
+      deferred.reject(JSON.parse(err));
     });
     return deferred.promise;
   }
@@ -410,7 +410,7 @@ angular.module('placekoob.services')
     } else if (post.userPost && post.userPost.name && post.userPost.name.content !== ''){
       return post.userPost.name.content;
     } else {
-      return '미지정 상태';
+      return '';
     }
   }
 
@@ -421,7 +421,7 @@ angular.module('placekoob.services')
     } else if (post.userPost && post.userPost.addrs && post.userPost.addrs.length != 0 && post.userPost.addrs[0].content !== '') {
       return post.userPost.addrs[0].content;
     } else {
-      return '미지정 상태';
+      return '';
     }
   }
 
@@ -432,7 +432,7 @@ angular.module('placekoob.services')
     } else if (post.userPost && post.userPost.phone && post.userPost.phone.content !== '') {
       return post.userPost.phone.content;
     } else {
-      return '미지정 상태';
+      return '';
     }
   }
 

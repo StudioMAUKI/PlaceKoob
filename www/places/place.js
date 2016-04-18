@@ -211,7 +211,26 @@ angular.module('placekoob.controllers')
         return true;
       }
     });
-  }
+  };
+
+  place.openLink = function(url) {
+    window.open(url, '_system');
+  };
+
+  place.searchPlace = function() {
+    var query = place.post.placePost.name.content;
+    if (place.post.placePost.addrs && place.post.placePost.addrs.length > 0) {
+      var regions = place.post.placePost.addrs[0].content.split(' ');
+      var loopCount = regions.length >= 3 ? 3 : regions.length;
+      for (var i = 0; i < loopCount; i++) {
+        query += '+' + regions[i];
+      }
+      console.log('Calculated query : ', query);
+      query = encodeURI(query);
+      console.log('URL encoded query : ', query);
+    }
+    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+  };
 
   place.loadPlaceInfo();
 }]);
