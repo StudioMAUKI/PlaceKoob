@@ -18,8 +18,8 @@ angular.module('placekoob.controllers')
 			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
 			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
-			main.map.center.latitude = main.posts[index - 1].userPost.lonLat.lat;
-			main.map.center.longitude = main.posts[index - 1].userPost.lonLat.lon;
+			main.map.center.latitude = main.posts[index - 1].lonLat.lat;
+			main.map.center.longitude = main.posts[index - 1].lonLat.lon;
 		}
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
@@ -116,17 +116,17 @@ angular.module('placekoob.controllers')
 					icon: 'img/icon/pin_base_small.png'
 				};
 				main.posts[i].coords = {
-					latitude: main.posts[i].userPost.lonLat.lat,
-					longitude: main.posts[i].userPost.lonLat.lon
+					latitude: main.posts[i].lonLat.lat,
+					longitude: main.posts[i].lonLat.lon
 				}
 			}
 			$ionicSlideBoxDelegate.update();
 		});
 	};
 
-	main.goPlace = function(place_id) {
-		console.log('goPlace : ' + place_id);
-		$state.go('tab.places', {place_id: place_id});
+	main.goPlace = function(uplace_uuid) {
+		console.log('goPlace : ' + uplace_uuid);
+		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
 
 	$scope.$on('post.created', function() {

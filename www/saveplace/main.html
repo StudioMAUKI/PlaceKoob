@@ -31,9 +31,9 @@
 			</ion-slide>
 			<ion-slide  ng-repeat="post in main.posts">
 				<div class="slide-on-map">
-					<a ng-click="main.goPlace(post.place_id)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
+					<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
 					<section>
-						<a ng-click="main.goPlace(post.place_id)" href="#"><h5>{{post.name}}</h5></a>
+						<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><h5>{{post.name}}</h5></a>
 						<span class="place-desc">{{post.address}}, {{post.phoneNo}}</span><br>
 						<span class="place-note">
 							<strong>{{post.desc}}</strong>

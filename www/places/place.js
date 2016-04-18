@@ -3,18 +3,18 @@
 angular.module('placekoob.controllers')
 .controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, RemoteAPIService, PostHelper, PhotoService) {
   var place = this
-  place.place_id = parseInt($stateParams.place_id);
-  console.log('Place ID : ' + place.place_id);
+  place.uplace_uuid = $stateParams.uplace_uuid;
+  console.log('Place ID : ' + place.uplace_uuid);
   place.postHelper = PostHelper;
   place.zoomMin = 1;
   place.ImagesForSlide = [];
 
   place.loadPlaceInfo = function(force) {
-    RemoteAPIService.getPost(place.place_id, force)
+    RemoteAPIService.getPost(place.uplace_uuid, force)
     .then(function(post) {
         place.post = post;
-        if (place.post.placePost) {
-          place.post.tags = PostHelper.getTagsWithContent(place.post.placePost.notes[0].content);
+        if (place.post.userPost) {
+          place.post.tags = PostHelper.getTagsWithContent(place.post.userPost.notes[0].content);
         }
         if (place.post.userPost.images) {
           place.ImagesForSlide = [];
@@ -101,7 +101,7 @@ angular.module('placekoob.controllers')
           urls: [{
             content: Url
           }],
-          place_id: place.place_id
+          uplace_uuid: place.uplace_uuid
         })
         .then(function(result) {
           console.log('Adding URL to the post is successed.');
@@ -143,7 +143,7 @@ angular.module('placekoob.controllers')
       					images: [{
       						content: response.file
       					}],
-      					place_id: place.place_id
+      					uplace_uuid: place.uplace_uuid
       				})
       				.then(function(result) {
       					console.log('Adding image to the post is successed.');
@@ -180,7 +180,7 @@ angular.module('placekoob.controllers')
         					images: [{
         						content: response.file
         					}],
-        					place_id: place.place_id
+        					uplace_uuid: place.uplace_uuid
         				})
         				.then(function(result) {
         					console.log('Adding image to the post is successed.');

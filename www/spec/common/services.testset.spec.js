@@ -6,13 +6,13 @@ describe('placekoob.services', function() {
     var DummyRemoteAPIService;
     var PostHelper;
     var place = {
+      uplace_uuid: 14,
       userPost: {
         name: '마우키스튜디오',
         notes: [{
           content: '사무실 #진도는안나가고 #스트레스받고 #개발을관두지말걸그랬어 미쵸미쵸',
           uuid: '3AD38881EC6AE1DA6D172FB111714339.stxt'
         }],
-        place_id: 14,
         lps: [],
         lonLat: null,
         urls: [{
@@ -32,7 +32,6 @@ describe('placekoob.services', function() {
           content: '울회사',
           uuid: '3AD38881EC6AE1DA6D172FB111714339.stxt'
         }],
-        place_id: 14,
         lps: [],
         lonLat: null,
         urls: [{

@@ -84,13 +84,14 @@ angular.module('placekoob.controllers')
 					resultAddrs.push({content: addrs.jibunAddress.name});
 				}
 
-				//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 place_id를 써서 올림
+				//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
 				var last_lon = parseFloat(CacheService.get('last_lon'));
 				var last_lat = parseFloat(CacheService.get('last_lat'));
-				var prev_place_id = null;
+				var prev_uplace_uuid = null;
 				if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
-					prev_place_id = parseInt(CacheService.get('last_place_id'));
-					console.log('prev_place_id: ' + prev_place_id);
+					prev_uplace_uuid = CacheService.get('last_uplace_uuid');
+					prev_uplace_uuid = prev_uplace_uuid === '' ? null : prev_uplace_uuid;
+					console.log('prev_uplace_uuid: ' + prev_uplace_uuid);
 				}
 
 				RemoteAPIService.sendUserPost({
@@ -104,12 +105,14 @@ angular.module('placekoob.controllers')
 					images: [{
 						content: response.file
 					}],
-					addrs: resultAddrs,
-					place_id: prev_place_id
+					addr1: { content: addrs.roadAddress.name !== '' ? addrs.roadAddress.name : null },
+					addr2: { content: addrs.jibunAddress.name !== '' ? addrs.jibunAddress.name : null },
+					addr3: { content: addrs.region !== '' ? addrs.region : null },
+					uplace_uuid: prev_uplace_uuid
 				})
 				.then(function(result) {
 					//console.dir(result);
-					CacheService.set('last_place_id', result.data.place_id);
+					CacheService.set('last_uplace_uuid', result.data.uplace_uuid);
 					CacheService.set('last_lon', curPos.longitude);
 					CacheService.set('last_lat', curPos.latitude);
 
