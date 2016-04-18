@@ -29,6 +29,13 @@ angular.module('placekoob.controllers')
 		main.prevIndex = index;
 	}
 
+	main.getCurrentRegion = function(latitude, longitude) {
+		MapService.getCurrentAddress(latitude, longitude)
+		.then(function(addrs) {
+			main.address = addrs.region !== '' ? addrs.region : null;
+		});
+	};
+
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	main.divToFit = function() {
 		var divMap = $(document);
@@ -41,7 +48,8 @@ angular.module('placekoob.controllers')
 	uiGmapGoogleMapApi.then(function(maps) {
 		MapService.getCurrentPosition().
     then(function(pos){
-			//	임시코드
+			main.getCurrentRegion(pos.latitude, pos.longitude);
+
 			pos.latitude = 37.4003292;
 			pos.longitude = 127.1032845;
 			CacheService.set('curPos', pos);
@@ -89,6 +97,7 @@ angular.module('placekoob.controllers')
           dragend: function (currentPosMarker, eventName, args) {
             main.map.center.latitude = main.currentPosMarker.coords.latitude;
 						main.map.center.longitude = main.currentPosMarker.coords.longitude;
+						main.getCurrentRegion(main.currentPosMarker.coords.latitude, main.currentPosMarker.coords.longitude);
           }
         }
       };

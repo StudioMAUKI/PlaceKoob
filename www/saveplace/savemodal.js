@@ -75,16 +75,7 @@ angular.module('placekoob.controllers')
 
 			MapService.getCurrentAddress(curPos.latitude, curPos.longitude)
 			.then(function(addrs) {
-				//	주소 프로퍼티에 대입할 주소 배열 생성
-				var resultAddrs = [];
-				if (addrs.roadAddress.name !== '') {
-					resultAddrs.push({content: addrs.roadAddress.name});
-				}
-				if (addrs.jibunAddress.name !== '') {
-					resultAddrs.push({content: addrs.jibunAddress.name});
-				}
-
-				//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
+					//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
 				var last_lon = parseFloat(CacheService.get('last_lon'));
 				var last_lat = parseFloat(CacheService.get('last_lat'));
 				var prev_uplace_uuid = null;
