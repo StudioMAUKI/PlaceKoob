@@ -50,8 +50,8 @@ angular.module('placekoob.controllers')
     then(function(pos){
 			main.getCurrentRegion(pos.latitude, pos.longitude);
 
-			pos.latitude = 37.4003292;
-			pos.longitude = 127.1032845;
+			// pos.latitude = 37.4003292;
+			// pos.longitude = 127.1032845;
 			CacheService.set('curPos', pos);
       main.map = {
 				center: {
