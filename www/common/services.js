@@ -164,8 +164,8 @@ angular.module('placekoob.services', [])
     geocoder.coord2detailaddr(
       new daum.maps.LatLng(latitude, longitude),
       function(status, result) {
-        console.dir(status);
-        console.dir(result);
+        // console.dir(status);
+        // console.dir(result);
         if (status === daum.maps.services.Status.OK) {
           if (result[0]) {
             console.info('Current Address is ' + result[0].jibunAddress.name + '.');

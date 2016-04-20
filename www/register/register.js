@@ -12,9 +12,9 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.logoutUser();
 	}
 
-	function showAlert(msg) {
+	function showAlert(msg, title) {
     $ionicPopup.alert({
-      title: '오류가 발생했습니다',
+      title: title || '오류가 발생했습니다',
       template: msg
     })
     .then(function(res) {
@@ -61,13 +61,13 @@ angular.module('placekoob.controllers')
         console.error(err);
 				resetUserInfo();
         //showAlert('사용자 로그인 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
-        showAlert(JSON.stringify(err));
+        showAlert(JSON.stringify(err), '사용자 로그인 오류');
       });
     }, function(err) {
       console.error('User Registration failed: ' + JSON.stringify(err));
 			resetUserInfo();
       // showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
-			showAlert(JSON.stringify(err));
+			showAlert(JSON.stringify(err), '사용자 등록 오류');
     });
 	};
 

@@ -144,6 +144,10 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('$ionicView.afterEnter', function() {
 		console.log('After entering main View..');
-		main.loadSavedPlace(true);
+		//main.loadSavedPlace(true);
 	});
+
+	$scope.$on('$ionicView.beforeLeave', function() {
+		console.log('Before leaving main View..');
+	})
 }]);

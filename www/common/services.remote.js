@@ -95,6 +95,7 @@ angular.module('placekoob.services')
     StorageService.removeData('auth_user_token');
     StorageService.removeData('auth_vd_token');
     StorageService.removeData('email');
+    StorageService.removeData('devmode');
     AppStatus.setUserLogined(false);
   }
 
