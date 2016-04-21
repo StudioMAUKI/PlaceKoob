@@ -14,19 +14,21 @@
     -->
 
     <!-- ionic/angularjs js -->
-    <scrupt src="lib/md5.js"></script>
+    <scrupt src="lib/md5.js">
     <script src="lib/jquery/dist/jquery.js"></script>
     <script src="lib/ionic/js/ionic.bundle.js"></script>
+<script src="lib/ionic-platform-web-client/dist/ionic.io.bundle.min.js"></script>
     <script src="lib/ng-cordova-oauth/dist/ng-cordova-oauth.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="lib/ngCordova/dist/ng-cordova.js"></script>
-    <script src="cordova.js"></script>
+    <!-- Cordova is bootstrapped by ionic-platform-web-client, uncomment this if you remove ionic-platform-web-client... -->
+<!-- <script src="cordova.js"></script> -->
 
     <!-- 지도 API -->
-    <script src='lib/lodash/dist/lodash.js'></script>
-    <script src='lib/angular-simple-logger/dist/angular-simple-logger.js'></script>
-    <script src='lib/angular-google-maps/dist/angular-google-maps.js'></script>
+    <script src="lib/lodash/dist/lodash.js"></script>
+    <script src="lib/angular-simple-logger/dist/angular-simple-logger.js"></script>
+    <script src="lib/angular-google-maps/dist/angular-google-maps.js"></script>
 
     <!-- your app's js -->
     <script type="text/javascript" src="common/app.js"></script>
@@ -47,8 +49,8 @@
     <script type="text/javascript" src="register/step2.js"></script>
     <script type="text/javascript" src="register/complete.js"></script>
     <script type="text/javascript" src="album/analyzer.js"></script>
-    <script type="text/javascript" src="http://apis.daum.net/maps/maps3.js?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&libraries=services"></script>
-  </head>
+    <script type="text/javascript" src="http://apis.daum.net/maps/maps3.js?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&amp;libraries=services"></script>
+  </scrupt></head>
   <body ng-app="placekoob">
     <ion-nav-view></ion-nav-view>
   </body>

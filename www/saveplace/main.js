@@ -6,6 +6,18 @@ angular.module('placekoob.controllers')
 	var main = this;
 	main.prevIndex = -1;
 	main.needToUpdateCurMarker = false;
+	main.map = { center: { latitude: 37.5666103, longitude: 126.9783882 }, zoom: 15 };
+	main.currentPosMarker = {
+		id: 'currentPosMarker',
+		coords: {
+			latitude: 37.5666103,
+			longitude: 126.9783882
+		},
+		options: {
+			draggable: true,
+			icon: 'img/icon/main_pin_small.png'
+		}
+	};
 
 	main.slidehasChanged = function(index) {
 		//	여기서 미묘한 문제는..
@@ -32,7 +44,7 @@ angular.module('placekoob.controllers')
 	main.getCurrentRegion = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
-			main.address = addrs.region !== '' ? addrs.region : null;
+			main.address = addrs.region || '';
 		});
 	};
 
@@ -46,8 +58,8 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
-		MapService.getCurrentPosition().
-    then(function(pos){
+		MapService.getCurrentPosition()
+    .then(function(pos){
 			main.getCurrentRegion(pos.latitude, pos.longitude);
 
 			// pos.latitude = 37.4003292;
@@ -75,7 +87,7 @@ angular.module('placekoob.controllers')
 						}
 					}
 				},
-				zoom: 14,
+				zoom: 15,
 				options: {
 					zoomControl: false,
 					mapTypeControl: false,
