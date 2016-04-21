@@ -34,7 +34,20 @@ angular.module('placekoob.controllers')
   }
 
   place.deletePlace = function() {
-    console.warn('Post delte : Not yet implemented.');
+    var uplace_uuid = place.uplace_uuid.split('.')[0];
+    console.log('uplace_uuid:' + uplace_uuid);
+    RemoteAPIService.deleteUserPost(uplace_uuid)
+    .then(function() {
+      $ionicPopup.alert({
+        title: '성공',
+        template: '삭제되었습니다'
+      })
+      .then(function() {
+        $ionicHistory.goBack();
+      });
+    }, function(err) {
+      console.error(err);
+    });
   }
 
   place.goBack = function() {
