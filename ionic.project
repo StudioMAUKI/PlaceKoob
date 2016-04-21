@@ -1,7 +1,7 @@
 {
   "name": "PlaceKoob",
-  "app_id": "",
-  "proxies":[
+  "app_id": "412a90c0",
+  "proxies": [
     {
       "path": "/naver",
       "proxyUrl": "http://blog.naver.com"

@@ -26,7 +26,7 @@ angular.module('placekoob.controllers')
 				return;
 			});
 		}else {
-			StorageService.addData('email', register.email);
+			StorageService.set('email', register.email);
 			register.sendEmail(register.email)
 			.then(function(result) {
 				console.log('Send email : ' + result);

@@ -1,11 +1,21 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
 	main.needToUpdateCurMarker = false;
+	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
+	main.map = { center: main.last_coords, zoom: 15 };
+	main.currentPosMarker = {
+		id: 'currentPosMarker',
+		coords: main.last_coords,
+		options: {
+			draggable: false,
+			icon: 'img/icon/main_pin_small.png'
+		}
+	};
 
 	main.slidehasChanged = function(index) {
 		//	여기서 미묘한 문제는..
@@ -29,6 +39,13 @@ angular.module('placekoob.controllers')
 		main.prevIndex = index;
 	}
 
+	main.getCurrentRegion = function(latitude, longitude) {
+		MapService.getCurrentAddress(latitude, longitude)
+		.then(function(addrs) {
+			main.address = addrs.region || '';
+		});
+	};
+
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	main.divToFit = function() {
 		var divMap = $(document);
@@ -39,12 +56,13 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
-		MapService.getCurrentPosition().
-    then(function(pos){
-			//	임시코드
-			pos.latitude = 37.4003292;
-			pos.longitude = 127.1032845;
-			CacheService.set('curPos', pos);
+		MapService.getCurrentPosition()
+    .then(function(pos){
+			main.getCurrentRegion(pos.latitude, pos.longitude);
+
+			// pos.latitude = 37.4003292;
+			// pos.longitude = 127.1032845;
+			StorageService.set('curPos', pos);
       main.map = {
 				center: {
 					latitude: pos.latitude,
@@ -55,7 +73,7 @@ angular.module('placekoob.controllers')
 						main.needToUpdateCurMarker = true;
 					},
 					center_changed: function(map, event, args) {
-						CacheService.set('curPos', main.map.center);
+						StorageService.set('curPos', main.map.center);
 
 						//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
 						if (main.needToUpdateCurMarker) {
@@ -67,7 +85,7 @@ angular.module('placekoob.controllers')
 						}
 					}
 				},
-				zoom: 14,
+				zoom: 15,
 				options: {
 					zoomControl: false,
 					mapTypeControl: false,
@@ -76,19 +94,15 @@ angular.module('placekoob.controllers')
 			};
 			// marker for current position
       main.currentPosMarker = {
-        id: 'currentPosMarker',
         coords: {
           latitude: pos.latitude,
           longitude: pos.longitude
         },
-        options: {
-					draggable: true,
-					icon: 'img/icon/main_pin_small.png'
-				},
         events: {
           dragend: function (currentPosMarker, eventName, args) {
             main.map.center.latitude = main.currentPosMarker.coords.latitude;
 						main.map.center.longitude = main.currentPosMarker.coords.longitude;
+						main.getCurrentRegion(main.currentPosMarker.coords.latitude, main.currentPosMarker.coords.longitude);
           }
         }
       };
@@ -100,7 +114,7 @@ angular.module('placekoob.controllers')
   });
 
 	main.loadSavedPlace = function(force) {
-		var pos = CacheService.get('curPos');
+		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
 			var limit = posts.length > 10 ? 10 : posts.length;
@@ -135,6 +149,10 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('$ionicView.afterEnter', function() {
 		console.log('After entering main View..');
-		main.loadSavedPlace(true);
+		//main.loadSavedPlace(true);
 	});
+
+	$scope.$on('$ionicView.beforeLeave', function() {
+		console.log('Before leaving main View..');
+	})
 }]);
