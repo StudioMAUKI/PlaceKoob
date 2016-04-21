@@ -31,12 +31,9 @@ angular.module('placekoob.controllers')
 		// VD 등록
 		RemoteAPIService.registerVD()
 		.then(function(result) {
-			console.log('auth_vd_token: ' + result);
-
 			// VD 로그인
 			RemoteAPIService.loginVD(result)
 			.then(function(result) {
-				console.log('VD Login successed : ' + result);
 				$state.go('register-complete');
 			}, function(err) {
 				console.error(err);

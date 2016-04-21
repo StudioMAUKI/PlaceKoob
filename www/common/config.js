@@ -2,6 +2,7 @@
 
 angular.module('placekoob.config', [])
 .config(function($ionicConfigProvider, $stateProvider, $urlRouterProvider, $httpProvider) {
+	console.log('config called');
 	// CSRF token 설정을 위함 (꼭 들어가야 함!!)
 	$httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -108,6 +109,7 @@ angular.module('placekoob.config', [])
 	});
 
 	$urlRouterProvider.otherwise('/register');
+	console.log('config call endid');
 })
 .config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({

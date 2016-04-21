@@ -20,9 +20,9 @@
         <i class="icon ion-person-stalker"></i> Contacts
       </ion-toggle>
       <button class="button button-outline button-balanced button-full" ng-click="config.requestUserInfo()">사용자 정보 얻기</button>
-			<ion-toggle  ng-model="config.devmode" ng-change="config.setDevMode()">
+			<!-- <ion-toggle  ng-model="config.devmode" ng-change="config.setDevMode()">
         <i class="icon ion-hammer"></i> 개발서버접속(회사 내부 망에 있어야 함)
-      </ion-toggle>
+      </ion-toggle> -->
 			<div>
 				<table style="border:1px solid grey">
 					<tr><td style="border:1px solid grey">auth_user_token</td><td>{{config.auth_user_token}}</td></tr>
