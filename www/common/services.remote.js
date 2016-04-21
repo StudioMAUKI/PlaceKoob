@@ -19,7 +19,7 @@ angular.module('placekoob.services')
 .factory('RESTServer', ['StorageService', function(StorageService) {
   return {
     getURL: function() {
-      var devmode = StorageService.getData('devmode') === "true" ? true : false;
+      var devmode = StorageService.get('devmode') === "true" ? true : false;
 
       if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
         if (devmode) {
@@ -45,25 +45,25 @@ angular.module('placekoob.services')
   function registerUser() {
     var deferred = $q.defer();
 
-    var auth_user_token = StorageService.getData('auth_user_token');
+    var auth_user_token = StorageService.get('auth_user_token');
     if (auth_user_token) {
       console.log('User Registration already successed.');
       deferred.resolve(auth_user_token);
     } else {
       // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
-      StorageService.removeData('auth_vd_token');
-      //StorageService.removeData('email'); //  원래 이메일도 날렸는데, 로그아웃 개념을 생각하면 안날려도 될듯
+      StorageService.remove('auth_vd_token');
+      //StorageService.remove('email'); //  원래 이메일도 날렸는데, 로그아웃 개념을 생각하면 안날려도 될듯
 
       $http({
         method: 'POST',
         url: getServerUrl() + '/users/register/',
-        country:StorageService.getData('country'),
-        language:StorageService.getData('lang'),
+        country:StorageService.get('country'),
+        language:StorageService.get('lang'),
         timezone:''
       })
       .then(function(result) {
         console.log('User Registration successed.');
-        StorageService.addData('auth_user_token', result.data.auth_user_token);
+        StorageService.set('auth_user_token', result.data.auth_user_token);
         AppStatus.setUserRegisterd(true);
         deferred.resolve(result.data.auth_user_token);
       }, function(err) {
@@ -92,17 +92,17 @@ angular.module('placekoob.services')
   }
 
   function logoutUser() {
-    StorageService.removeData('auth_user_token');
-    StorageService.removeData('auth_vd_token');
-    StorageService.removeData('email');
-    StorageService.removeData('devmode');
+    StorageService.remove('auth_user_token');
+    StorageService.remove('auth_vd_token');
+    StorageService.remove('email');
+    StorageService.remove('devmode');
     AppStatus.setUserLogined(false);
   }
 
   function registerVD() {
     var deferred = $q.defer();
-    var auth_vd_token = StorageService.getData('auth_vd_token');
-    var email = StorageService.getData('email');
+    var auth_vd_token = StorageService.get('auth_vd_token');
+    var email = StorageService.get('email');
 
     if (auth_vd_token) {
       console.log('VD Registration already successed.');
@@ -115,7 +115,7 @@ angular.module('placekoob.services')
       })
       .then(function(result) {
         console.log('VD Registration successed.');
-        StorageService.addData('auth_vd_token', result.data.auth_vd_token);
+        StorageService.set('auth_vd_token', result.data.auth_vd_token);
         AppStatus.setVDRegisterd(true);
         deferred.resolve(result.data.auth_vd_token);
       }, function(err) {
@@ -135,7 +135,7 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       AppStatus.setVDLogined(true);
-      StorageService.addData('auth_vd_token', result.data.auth_vd_token);
+      StorageService.set('auth_vd_token', result.data.auth_vd_token);
       deferred.resolve(result.data.auth_vd_token);
     }, function(err) {
       AppStatus.setVDLogined(false);
@@ -145,7 +145,7 @@ angular.module('placekoob.services')
   }
 
   function hasEmail() {
-    var email = StorageService.getData('email');
+    var email = StorageService.get('email');
     return (email !== null);
   }
 

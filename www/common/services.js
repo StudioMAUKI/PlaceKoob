@@ -212,22 +212,22 @@ angular.module('placekoob.services', [])
   }
 }])
 .factory('StorageService', [function() {
-  function getData(key) {
-    return window.localStorage.getItem(key);
+  function get(key) {
+    return JSON.parse(window.localStorage.getItem(key));
   }
 
-  function addData(key, value) {
-    window.localStorage.setItem(key, value);
+  function set(key, value) {
+    window.localStorage.setItem(key, JSON.stringify(value));
   }
 
-  function removeData(key) {
+  function remove(key) {
     window.localStorage.removeItem(key);
   }
 
   return {
-    getData: getData,
-    addData: addData,
-    removeData: removeData
+    get: get,
+    set: set,
+    remove: remove
   };
 }])
 .factory('UtilService', [function() {

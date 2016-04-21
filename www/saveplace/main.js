@@ -1,20 +1,18 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'CacheService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, CacheService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
 	main.needToUpdateCurMarker = false;
-	main.map = { center: { latitude: 37.5666103, longitude: 126.9783882 }, zoom: 15 };
+	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
+	main.map = { center: main.last_coords, zoom: 15 };
 	main.currentPosMarker = {
 		id: 'currentPosMarker',
-		coords: {
-			latitude: 37.5666103,
-			longitude: 126.9783882
-		},
+		coords: main.last_coords,
 		options: {
-			draggable: true,
+			draggable: false,
 			icon: 'img/icon/main_pin_small.png'
 		}
 	};
@@ -64,7 +62,7 @@ angular.module('placekoob.controllers')
 
 			// pos.latitude = 37.4003292;
 			// pos.longitude = 127.1032845;
-			CacheService.set('curPos', pos);
+			StorageService.set('curPos', pos);
       main.map = {
 				center: {
 					latitude: pos.latitude,
@@ -75,7 +73,7 @@ angular.module('placekoob.controllers')
 						main.needToUpdateCurMarker = true;
 					},
 					center_changed: function(map, event, args) {
-						CacheService.set('curPos', main.map.center);
+						StorageService.set('curPos', main.map.center);
 
 						//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
 						if (main.needToUpdateCurMarker) {
@@ -96,15 +94,10 @@ angular.module('placekoob.controllers')
 			};
 			// marker for current position
       main.currentPosMarker = {
-        id: 'currentPosMarker',
         coords: {
           latitude: pos.latitude,
           longitude: pos.longitude
         },
-        options: {
-					draggable: true,
-					icon: 'img/icon/main_pin_small.png'
-				},
         events: {
           dragend: function (currentPosMarker, eventName, args) {
             main.map.center.latitude = main.currentPosMarker.coords.latitude;
@@ -121,7 +114,7 @@ angular.module('placekoob.controllers')
   });
 
 	main.loadSavedPlace = function(force) {
-		var pos = CacheService.get('curPos');
+		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
 		.then(function(posts) {
 			var limit = posts.length > 10 ? 10 : posts.length;

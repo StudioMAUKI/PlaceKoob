@@ -8,13 +8,13 @@ angular.module('placekoob.controllers')
 	config.naver = false;
 	config.libraries = false;
 	config.contacts = false;
-	config.devmode = StorageService.getData('devmode') === "true" ? true : false;
+	config.devmode = StorageService.get('devmode') === "true" ? true : false;
 
-	config.auth_user_token = StorageService.getData('auth_user_token');
-	config.auth_vd_token = StorageService.getData('auth_vd_token');
-	config.email = StorageService.getData('email');
-	config.lang = StorageService.getData('lang');
-	config.country = StorageService.getData('country');
+	config.auth_user_token = StorageService.get('auth_user_token');
+	config.auth_vd_token = StorageService.get('auth_vd_token');
+	config.email = StorageService.get('email');
+	config.lang = StorageService.get('lang');
+	config.country = StorageService.get('country');
 
 	if (SocialService.foursquare.token === '') {
     config.foursquare = false;
@@ -73,7 +73,7 @@ angular.module('placekoob.controllers')
 	}
 
 	config.setDevMode = function (){
-		StorageService.addData('devmode', config.devmode);
+		StorageService.set('devmode', config.devmode);
 		// 환경 바뀌면 로그아웃 해야 함
 		config.logout();
 	}

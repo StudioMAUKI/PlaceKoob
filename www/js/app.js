@@ -37,15 +37,15 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
       navigator.globalization.getPreferredLanguage(function(result) {
           var arr = result.value.split('-');
-          StorageService.addData('lang', arr[0]);
-          StorageService.addData('country', arr[1]);
+          StorageService.set('lang', arr[0]);
+          StorageService.set('country', arr[1]);
         },
         function(error) {
           console.error(error);
       });
     } else {
-      StorageService.addData('lang', 'ko');
-      StorageService.addData('country', 'KR');
+      StorageService.set('lang', 'ko');
+      StorageService.set('country', 'KR');
     }
 
     // // 유저 등록

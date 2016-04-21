@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'CacheService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, CacheService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'StorageService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, StorageService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
 	var saveModal = this;
 	saveModal.attatchedImage = '';
 	saveModal.URL = '';
@@ -61,7 +61,7 @@ angular.module('placekoob.controllers')
 	};
 
 	saveModal.confirmSave = function() {
-		var curPos = CacheService.get('curPos');
+		var curPos = StorageService.get('curPos');
 		console.log('Current Corrds : ' + JSON.stringify(curPos));
 
 		//	브라우저의 경우 테스트를 위해 분기함
@@ -76,11 +76,11 @@ angular.module('placekoob.controllers')
 			MapService.getCurrentAddress(curPos.latitude, curPos.longitude)
 			.then(function(addrs) {
 					//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
-				var last_lon = parseFloat(CacheService.get('last_lon'));
-				var last_lat = parseFloat(CacheService.get('last_lat'));
+				var last_lon = parseFloat(StorageService.get('last_lon'));
+				var last_lat = parseFloat(StorageService.get('last_lat'));
 				var prev_uplace_uuid = null;
 				if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
-					prev_uplace_uuid = CacheService.get('last_uplace_uuid');
+					prev_uplace_uuid = StorageService.get('last_uplace_uuid');
 					prev_uplace_uuid = prev_uplace_uuid === '' ? null : prev_uplace_uuid;
 					console.log('prev_uplace_uuid: ' + prev_uplace_uuid);
 				}
@@ -103,9 +103,9 @@ angular.module('placekoob.controllers')
 				})
 				.then(function(result) {
 					//console.dir(result);
-					CacheService.set('last_uplace_uuid', result.data.uplace_uuid);
-					CacheService.set('last_lon', curPos.longitude);
-					CacheService.set('last_lat', curPos.latitude);
+					StorageService.set('last_uplace_uuid', result.data.uplace_uuid);
+					StorageService.set('last_lon', curPos.longitude);
+					StorageService.set('last_lat', curPos.latitude);
 
 					saveModal.showAlert('성공', '현재 위치를 저장했습니다.')
 					.then(function(){
