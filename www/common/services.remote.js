@@ -37,7 +37,7 @@ angular.module('placekoob.services')
     }
   }
 }])
-.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'AppStatus', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, AppStatus, PostHelper){
+.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
   var getServerUrl = RESTServer.getURL;
   var cachedMyPosts = [];
   var cachedPostionedPosts = [];
@@ -64,10 +64,8 @@ angular.module('placekoob.services')
       .then(function(result) {
         console.log('User Registration successed: ' + result.data.auth_user_token);
         StorageService.set('auth_user_token', result.data.auth_user_token);
-        AppStatus.setUserRegisterd(true);
         deferred.resolve(result.data.auth_user_token);
       }, function(err) {
-        AppStatus.setUserRegisterd(false);
         deferred.reject(err);
       });
     }
@@ -82,10 +80,8 @@ angular.module('placekoob.services')
       data: JSON.stringify({ auth_user_token: token })
     })
     .then(function(result) {
-      AppStatus.setUserLogined(true);
       deferred.resolve(result.data.result);
     }, function(err) {
-      AppStatus.setUserLogined(false);
       deferred.reject(err);
     });
     return deferred.promise;
@@ -102,8 +98,6 @@ angular.module('placekoob.services')
       StorageService.remove('email');
       StorageService.remove('auth_vd_token');
     }
-
-    AppStatus.setUserLogined(false);
   }
 
   function registerVD() {
@@ -123,10 +117,8 @@ angular.module('placekoob.services')
       .then(function(result) {
         console.log('VD Registration successed: ' + result.data.auth_vd_token);
         StorageService.set('auth_vd_token', result.data.auth_vd_token);
-        AppStatus.setVDRegisterd(true);
         deferred.resolve(result.data.auth_vd_token);
       }, function(err) {
-        AppStatus.setVDRegisterd(false);
         deferred.reject(err);
       });
     }
@@ -142,11 +134,9 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       console.log('VD Login successed: ' + result.data.auth_vd_token);
-      AppStatus.setVDLogined(true);
       StorageService.set('auth_vd_token', result.data.auth_vd_token);
       deferred.resolve(result.data.auth_vd_token);
     }, function(err) {
-      AppStatus.setVDLogined(false);
       deferred.reject(err);
     });
     return deferred.promise;
