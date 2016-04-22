@@ -229,13 +229,16 @@ angular.module('placekoob.controllers')
   };
 
   place.searchPlace = function() {
-    var query = place.post.placePost.name.content;
-    if (place.post.placePost.addrs && place.post.placePost.addrs.length > 0) {
-      var regions = place.post.placePost.addrs[0].content.split(' ');
-      var loopCount = regions.length >= 3 ? 3 : regions.length;
-      for (var i = 0; i < loopCount; i++) {
-        query += '+' + regions[i];
+    var query = '';
+    var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
+    console.log('Region : ' + region);
+    if (region) {
+      var region_items = region.content.split(' ');
+      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+      for (var i = 1; i < loopCount; i++) {
+        query += region_items[i] + '+';
       }
+      query += place.post.placePost.name.content;
       console.log('Calculated query : ', query);
       query = encodeURI(query);
       console.log('URL encoded query : ', query);
