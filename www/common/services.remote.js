@@ -91,10 +91,18 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function logoutUser() {
-    StorageService.remove('auth_user_token');
-    StorageService.remove('auth_vd_token');
-    StorageService.remove('email');
+  function logoutUser(step) {
+    console.log('Login Step: ' + step);
+    step = step || 0;
+    if (step <= 2){
+      StorageService.remove('auth_user_token');
+    }
+
+    if (step <= 4) {
+      StorageService.remove('email');
+      StorageService.remove('auth_vd_token');
+    }
+
     AppStatus.setUserLogined(false);
   }
 
