@@ -168,9 +168,10 @@ angular.module('placekoob.services')
 
   function deleteUserPost(uplace_uuid) {
     var deferred = $q.defer();
+    var ret_uplace_uuid = uplace_uuid.split('.')[0];
     $http({
       method: 'DELETE',
-      url: getServerUrl() + '/uplaces/' + uplace_uuid + '/'
+      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(result) {
       console.dir(result);

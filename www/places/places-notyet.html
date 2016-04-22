@@ -22,10 +22,10 @@
 				<span class="place-item-tag" ng-repeat="tag in post.tags track by $index">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="plNotYet.onItemDelete(post)">
       	</ion-delete-button>
-      	<ion-option-button class="pk-accent" ng-click="plNotYet.edit(post)">
-        	Edit
+				<ion-option-button class="button-assertive" ng-click="plNotYet.delete(post)">
+        	Delete
       	</ion-option-button>
-      	<ion-option-button class="button-calm" ng-click="plNotYet.share(post)">
+      	<ion-option-button class="button-energized" ng-click="plNotYet.share(post)">
         	Share
       	</ion-option-button>
 			</ion-item>

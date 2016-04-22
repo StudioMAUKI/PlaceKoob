@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$state', '$q', '$ionicHistory', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $state, $q, $ionicHistory, RemoteAPIService, PostHelper) {
+.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$q', '$ionicHistory', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $q, $ionicHistory, RemoteAPIService, PostHelper) {
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
@@ -40,6 +40,21 @@ angular.module('placekoob.controllers')
 
 	plNotYet.edit = function(post) {
 		console.log('edit is invoked');
+	};
+
+	plNotYet.delete = function(post) {
+		RemoteAPIService.deleteUserPost(post.uplace_uuid)
+    .then(function() {
+      $ionicPopup.alert({
+        title: '성공',
+        template: '삭제되었습니다'
+      })
+      .then(function() {
+        plNotYet.loadSavedPlace(true);
+      });
+    }, function(err) {
+      console.error(err);
+    });
 	};
 
 	plNotYet.share = function(post) {

@@ -34,9 +34,7 @@ angular.module('placekoob.controllers')
   }
 
   place.deletePlace = function() {
-    var uplace_uuid = place.uplace_uuid.split('.')[0];
-    console.log('uplace_uuid:' + uplace_uuid);
-    RemoteAPIService.deleteUserPost(uplace_uuid)
+    RemoteAPIService.deleteUserPost(place.uplace_uuid)
     .then(function() {
       $ionicPopup.alert({
         title: '성공',
