@@ -27,24 +27,17 @@ angular.module('placekoob.controllers')
 		// 유저 등록
     RemoteAPIService.registerUser()
     .then(function(result) {
-      console.log('auth_user_token: ' + result);
-
       // 유저 로그인
       RemoteAPIService.loginUser(result)
       .then(function(result) {
-        console.log('User Login successed : ' + result);
-
         // 이메일 정보를 가지고 있는가?
         if (RemoteAPIService.hasEmail()) {
           // VD 등록
           RemoteAPIService.registerVD()
           .then(function(result) {
-            console.log('auth_vd_token: ' + result);
-
             // VD 로그인
             RemoteAPIService.loginVD(result)
             .then(function(result) {
-              console.log('VD Login successed : ' + result);
               $state.go('tab.home');
             }, function(err) {
               console.error(err);
@@ -75,8 +68,5 @@ angular.module('placekoob.controllers')
 		$state.go('register-step1');
 	};
 
-	$scope.$on('$ionicView.afterEnter', function() {
-		console.log('After entering Register View..');
-		register.init();
-	});
+	register.init();
 }]);

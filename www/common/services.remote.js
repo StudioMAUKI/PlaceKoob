@@ -47,7 +47,7 @@ angular.module('placekoob.services')
 
     var auth_user_token = StorageService.get('auth_user_token');
     if (auth_user_token) {
-      console.log('User Registration already successed.');
+      console.log('User Registration already successed: ' + auth_user_token);
       deferred.resolve(auth_user_token);
     } else {
       // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
@@ -62,7 +62,7 @@ angular.module('placekoob.services')
         timezone:''
       })
       .then(function(result) {
-        console.log('User Registration successed.');
+        console.log('User Registration successed: ' + result.data.auth_user_token);
         StorageService.set('auth_user_token', result.data.auth_user_token);
         AppStatus.setUserRegisterd(true);
         deferred.resolve(result.data.auth_user_token);
@@ -95,7 +95,6 @@ angular.module('placekoob.services')
     StorageService.remove('auth_user_token');
     StorageService.remove('auth_vd_token');
     StorageService.remove('email');
-    StorageService.remove('devmode');
     AppStatus.setUserLogined(false);
   }
 
@@ -105,7 +104,7 @@ angular.module('placekoob.services')
     var email = StorageService.get('email');
 
     if (auth_vd_token) {
-      console.log('VD Registration already successed.');
+      console.log('VD Registration already successed: ' + auth_vd_token);
       deferred.resolve(auth_vd_token);
     } else {
       $http({
@@ -114,7 +113,7 @@ angular.module('placekoob.services')
         data: JSON.stringify({ email: email })
       })
       .then(function(result) {
-        console.log('VD Registration successed.');
+        console.log('VD Registration successed: ' + result.data.auth_vd_token);
         StorageService.set('auth_vd_token', result.data.auth_vd_token);
         AppStatus.setVDRegisterd(true);
         deferred.resolve(result.data.auth_vd_token);
@@ -134,6 +133,7 @@ angular.module('placekoob.services')
       data: JSON.stringify({ auth_vd_token: token })
     })
     .then(function(result) {
+      console.log('VD Login successed: ' + result.data.auth_vd_token);
       AppStatus.setVDLogined(true);
       StorageService.set('auth_vd_token', result.data.auth_vd_token);
       deferred.resolve(result.data.auth_vd_token);

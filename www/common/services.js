@@ -199,7 +199,11 @@ angular.module('placekoob.services', [])
     },
     get: function(key) {
       // return data[key];
-      return JSON.parse(window.sessionStorage.getItem(key));
+      try {
+        return JSON.parse(window.sessionStorage.getItem(key));
+      } catch (err) {
+        return null;
+      }      
     },
     has: function(key) {
       // return !(data[key] === undefined);
@@ -213,7 +217,11 @@ angular.module('placekoob.services', [])
 }])
 .factory('StorageService', [function() {
   function get(key) {
-    return JSON.parse(window.localStorage.getItem(key));
+    try {
+      return JSON.parse(window.localStorage.getItem(key));
+    } catch (err) {
+      return null;
+    }
   }
 
   function set(key, value) {
