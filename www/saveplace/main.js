@@ -122,8 +122,6 @@ angular.module('placekoob.controllers')
 		.then(function(posts) {
 			var max = 20;
 			var limit = posts.length > max ? max : posts.length;
-			// var underBound = posts.length > max ? posts.length - max : 0;
-			// main.posts = posts.slice(underBound).reverse();
 			main.posts = posts.slice(0, posts.length > max ? max : posts.length);
 
 			// markers for saved positions
