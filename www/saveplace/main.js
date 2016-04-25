@@ -12,7 +12,7 @@ angular.module('placekoob.controllers')
 		id: 'currentPosMarker',
 		coords: main.last_coords,
 		options: {
-			draggable: false,
+			draggable: true,
 			icon: 'img/icon/main_pin_small.png'
 		}
 	};
@@ -68,23 +68,23 @@ angular.module('placekoob.controllers')
 					latitude: pos.latitude,
 					longitude: pos.longitude
 				},
-				events: {
-					dragend: function(map, event, args) {
-						main.needToUpdateCurMarker = true;
-					},
-					center_changed: function(map, event, args) {
-						StorageService.set('curPos', main.map.center);
-
-						//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
-						if (main.needToUpdateCurMarker) {
-							//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
-							//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
-							main.currentPosMarker.coords.latitude = main.map.center.latitude;
-							main.currentPosMarker.coords.longitude = main.map.center.longitude;
-							main.needToUpdateCurMarker = false;
-						}
-					}
-				},
+				// events: {
+				// 	dragend: function(map, event, args) {
+				// 		main.needToUpdateCurMarker = true;
+				// 	},
+				// 	center_changed: function(map, event, args) {
+				// 		StorageService.set('curPos', main.map.center);
+				//
+				// 		//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
+				// 		if (main.needToUpdateCurMarker) {
+				// 			//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+				// 			//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
+				// 			main.currentPosMarker.coords.latitude = main.map.center.latitude;
+				// 			main.currentPosMarker.coords.longitude = main.map.center.longitude;
+				// 			main.needToUpdateCurMarker = false;
+				// 		}
+				// 	}
+				// },
 				zoom: 15,
 				options: {
 					zoomControl: false,
@@ -103,7 +103,10 @@ angular.module('placekoob.controllers')
             main.map.center.latitude = main.currentPosMarker.coords.latitude;
 						main.map.center.longitude = main.currentPosMarker.coords.longitude;
 						main.getCurrentRegion(main.currentPosMarker.coords.latitude, main.currentPosMarker.coords.longitude);
-          }
+          },
+					click: function(currentPosMarker, eventName, args) {
+						$ionicSlideBoxDelegate.slide(0);
+					}
         }
       };
 
@@ -115,19 +118,25 @@ angular.module('placekoob.controllers')
 
 	main.loadSavedPlace = function(force) {
 		var pos = StorageService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 2000, force)
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
 		.then(function(posts) {
-			var limit = posts.length > 10 ? 10 : posts.length;
-			var underBound = posts.length > 10 ? posts.length - 10 : 0;
-			main.posts = posts.slice(underBound).reverse();
-			//console.dir(posts);
+			var max = 20;
+			var limit = posts.length > max ? max : posts.length;
+			// var underBound = posts.length > max ? posts.length - max : 0;
+			// main.posts = posts.slice(underBound).reverse();
+			main.posts = posts.slice(0, posts.length > max ? max : posts.length);
 
 			// markers for saved positions
 			for(var i = 0; i < limit; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
-					icon: 'img/icon/pin_base_small.png'
+					icon: 'img/icon/pin_base_small.png',
+					events: {
+	          click: function(marker, eventName, args) {
+							$ionicSlideBoxDelegate.slide(marker.key + 1);
+						}
+	        }
 				};
 				main.posts[i].coords = {
 					latitude: main.posts[i].lonLat.lat,

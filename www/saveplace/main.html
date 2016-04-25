@@ -5,7 +5,7 @@
 		<!-- <a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a> -->
 	</ion-header-bar>
 	<ion-content scroll="false">
-		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl" data-tap-disabled="true">
 			<script type="text/ng-template" id="save-dlg.tpl.html">
 				<div class="button-bar button-bar-on-map">
 					<a class="button pk-accent button-icon ion-pinpoint" ng-click="saveModal.savePosition()"> 현재 위치 저장</a>
@@ -15,7 +15,7 @@
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
       <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="main.currentPosMarker.id">
       </ui-gmap-marker>
-			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id">
+			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="post.id" events="post.options.events">
       </ui-gmap-marker>
     </ui-gmap-google-map>
 		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
