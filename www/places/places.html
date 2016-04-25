@@ -39,10 +39,10 @@
 				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="places.onItemDelete(post)">
       	</ion-delete-button>
-      	<ion-option-button class="pk-accent" ng-click="places.edit(post)">
-        	Edit
+      	<ion-option-button class="button-assertive" ng-click="places.delete(post)">
+        	Delete
       	</ion-option-button>
-      	<ion-option-button class="button-calm" ng-click="places.share(post)">
+      	<ion-option-button class="button-energized" ng-click="places.share(post)">
         	Share
       	</ion-option-button>
 			</ion-item>

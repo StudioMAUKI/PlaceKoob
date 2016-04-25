@@ -7,9 +7,9 @@ angular.module('placekoob.controllers')
 	register.needToRegister = false;
 	register.email = '';
 
-	function resetUserInfo() {
+	function resetUserInfo(step) {
 		register.needToRegister = true;
-		RemoteAPIService.logoutUser();
+		RemoteAPIService.logoutUser(step);
 	}
 
 	function showAlert(msg, title) {
@@ -41,24 +41,24 @@ angular.module('placekoob.controllers')
               $state.go('tab.home');
             }, function(err) {
               console.error(err);
-              resetUserInfo();
+              resetUserInfo(4);
             });
           }, function(err) {
             console.error(err);
-            resetUserInfo();
+            resetUserInfo(3);
           });
         } else {
-          resetUserInfo();
+          resetUserInfo(3);
         }
       }, function(err) {
         console.error(err);
-				resetUserInfo();
+				resetUserInfo(2);
         //showAlert('사용자 로그인 과정에서 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ');
         showAlert(JSON.stringify(err), '사용자 로그인 오류');
       });
     }, function(err) {
       console.error('User Registration failed: ' + JSON.stringify(err));
-			resetUserInfo();
+			resetUserInfo(1);
       // showAlert('사용자 등록 과정에서 오류가 발생했습니다. 앱을 종료해주세요.ㅠㅠ');
 			showAlert(JSON.stringify(err), '사용자 등록 오류');
     });
