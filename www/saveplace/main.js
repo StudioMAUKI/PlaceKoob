@@ -27,9 +27,9 @@ angular.module('placekoob.controllers')
 			main.map.center.latitude = main.currentPosMarker.coords.latitude;
 			main.map.center.longitude = main.currentPosMarker.coords.longitude;
 		} else {
-			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
-			main.map.center.latitude = main.posts[index - 1].lonLat.lat;
-			main.map.center.longitude = main.posts[index - 1].lonLat.lon;
+			main.posts[index].options.icon = 'img/icon/pin_active_small.png';
+			main.map.center.latitude = main.posts[index].lonLat.lat;
+			main.map.center.longitude = main.posts[index].lonLat.lon;
 			// main.map.setCenter({
 			// 	lat: main.posts[index - 1].lonLat.lat,
 			// 	lng: main.posts[index - 1].lonLat.lon
@@ -37,7 +37,7 @@ angular.module('placekoob.controllers')
 		}
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.posts[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_base_small.png';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
@@ -127,10 +127,17 @@ angular.module('placekoob.controllers')
 		.then(function(posts) {
 			var max = posts.length;
 			var limit = posts.length > max ? max : posts.length;
-			main.posts = posts.slice(0, posts.length > max ? max : posts.length);
+			main.posts = [{
+				uplace_uuid: '',
+				thumbnailUrl: 'img/icon/gps.png',
+				name: '현재 위치',
+				phoneNo: '',
+				address: main.address,
+				desc: '왼쪽으로 밀어 저장된 곳을 둘러보세요.'				
+			}].concat(posts.slice(0, posts.length > max ? max : posts.length));
 
 			// markers for saved positions
-			for(var i = 0; i < limit; i++) {
+			for(var i = 1; i <= limit; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
@@ -155,7 +162,7 @@ angular.module('placekoob.controllers')
 					if (main.last_marker_index !== index) {
 						main.last_marker_index = index;
 						window.setTimeout(function() {
-							main.slidehasChanged(index + 1);
+							main.slidehasChanged(index);
 						}, 200);
 					}
 		    }
@@ -164,6 +171,8 @@ angular.module('placekoob.controllers')
 	};
 
 	main.goPlace = function(uplace_uuid) {
+		if (uplace_uuid === '')
+			return;
 		console.log('goPlace : ' + uplace_uuid);
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
