@@ -13,13 +13,12 @@
 				</div>
       </script>
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
-      <!-- <ui-gmap-marker coords="main.currentPosMarker.coords" options="main.currentPosMarker.options" events="main.currentPosMarker.events" idkey="'currentPosMarker'"> -->
-			<ui-gmap-marker coords="main.currentPosMarker.coords" options="{draggable: true, icon:'img/icon/main_pin_small.png'}" events="main.currentPosMarker.events" idkey="'currentPosMarker'">
+      <ui-gmap-marker coords="main.currentPosMarker.coords" options="{draggable: true, icon:'img/icon/main_pin_small.png'}" events="main.currentPosMarker.events" idkey="'currentPosMarker'">
       </ui-gmap-marker>
 			<ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="$index" events="post.options.events">
       </ui-gmap-marker>
     </ui-gmap-google-map>
-		<ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
+		<!-- <ion-slide-box class="slide-box-on-map" show-pager="false" does-continue="true" on-slide-changed="main.slidehasChanged($index)">
 			<ion-slide>
 				<div class="slide-on-map">
 					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
@@ -42,7 +41,12 @@
 					</section>
 				</div>
 			</ion-slide>
-		</ion-slide-box>
+		</ion-slide-box> -->
+		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true">
+			<div ng-style="{width: main.getFullWidth()}">
+				<div collection-repeat="item in main.list" class="page {{item.color}}" ng-style="{width: main.getWidth(), height: main.getHeight()}">Page {{item.id}}</div>
+      </div>
+		</ion-scroll>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->
 		<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 	</ion-content>

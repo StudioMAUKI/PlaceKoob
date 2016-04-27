@@ -52,6 +52,11 @@ angular.module('placekoob.controllers')
 		$('.angular-google-map-container').css({
 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
 		});
+
+		$('.slide-scroll-on-map').css({
+			width: window.innerWidth,
+			height: 90
+		});
 	};
 	main.divToFit();
 
@@ -161,5 +166,29 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('$ionicView.beforeLeave', function() {
 		console.log('Before leaving main View..');
-	})
+	});
+
+	main.list = [];
+	var color_array = ['bg-red', 'bg-blue', 'bg-green'];
+	for (var i = 0; i < 100; i++) {
+      main.list.push({
+        id: i,
+        color: (function(i) {
+          return color_array[i%3];
+        })(i)
+      });
+    }
+
+	main.getWidth = function () {
+		console.log('get Width :' + window.innerWidth + 'px');
+    return window.innerWidth + 'px';
+  };
+  main.getFullWidth = function () {
+    console.log('page length : ' + document.getElementsByClassName('page').length);
+    return parseInt(window.innerWidth * document.getElementsByClassName('page').length) + 'px';
+  };
+  main.getHeight = function () {
+    // return parseInt(document.getElementById('scroller').clientHeight - document.getElementById('header').clientHeight) + 'px';
+    return '90px';
+  }
 }]);

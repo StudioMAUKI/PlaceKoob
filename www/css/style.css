@@ -133,6 +133,12 @@ div.pk-dark-primary{
   min-height: 47px;
 }
 
+.slide-scroll-on-map {
+  position: relative;
+  overflow-x:scroll;
+  margin: auto;
+}
+
 div.image-container {
   /*overflow: scroll;*/
   white-space: nowrap;
@@ -317,6 +323,24 @@ span.place-item-tag {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
+}
+
+.slider-scroll-on-map {
+  position: relative;
+  top: -115px;
+}
+.page {
+  float: left;
+  display: inline-block;
+}
+.bg-red {
+  background: red;
+}
+.bg-blue {
+  background: blue;
+}
+.bg-green {
+  background: green;
 }
 
 /* ionic component customizing area*/
