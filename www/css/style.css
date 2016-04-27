@@ -332,15 +332,26 @@ span.place-item-tag {
 .page {
   float: left;
   display: inline-block;
+  border: 1px solid #B6B6B6;
+  padding: 5px;
+  background-color: white;
+  color: #727272;
+  opacity: 0.85;
 }
-.bg-red {
-  background: red;
+
+.slider-scroll-on-map h5 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
 }
-.bg-blue {
-  background: blue;
+
+.slider-scroll-on-map .place-desc {
+  font-size: 80%;
+  color: #727272;
 }
-.bg-green {
-  background: green;
+
+.slider-scroll-on-map .place-note {
+  font-size: 90%;
 }
 
 /* ionic component customizing area*/

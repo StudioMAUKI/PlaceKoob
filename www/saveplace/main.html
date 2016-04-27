@@ -44,7 +44,25 @@
 		</ion-slide-box> -->
 		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true">
 			<div ng-style="{width: main.getFullWidth()}">
-				<div collection-repeat="item in main.list" class="page {{item.color}}" ng-style="{width: main.getWidth(), height: main.getHeight()}">Page {{item.id}}</div>
+				<!-- <div class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">
+					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
+					<section>
+						<h5>현재 위치</h5>
+						<span class="place-desc">{{main.address}}</span><br>
+						<span class="place-note">왼쪽으로 밀어 저장된 곳을 둘러보세요.</span>
+					</section>
+				</div> -->
+				<!-- <div collection-repeat="item in main.list" class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">Page {{item.id}}</div> -->
+				<div collection-repeat="post in main.posts" class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">
+					<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
+					<section>
+						<div><a ng-click="main.goPlace(post.uplace_uuid)" href="#"><h5>{{post.name}}</h5></a>&nbsp;&nbsp;<span class="place-desc"><a href="tel:{{post.phoneNo}}">{{post.phoneNo}}</a></span></div>
+						<span class="place-desc">{{post.address}}</span><br>
+						<span class="place-note">
+							<strong>{{post.desc}}</strong>
+						</span>
+					</section>
+				</div>
       </div>
 		</ion-scroll>
 		<!-- 아이콘을 제공해 주신 은혜로운 서비스 -->

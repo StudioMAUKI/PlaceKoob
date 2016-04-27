@@ -125,7 +125,7 @@ angular.module('placekoob.controllers')
 		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
 		.then(function(posts) {
-			var max = 20;
+			var max = posts.length;
 			var limit = posts.length > max ? max : posts.length;
 			main.posts = posts.slice(0, posts.length > max ? max : posts.length);
 
@@ -168,23 +168,10 @@ angular.module('placekoob.controllers')
 		console.log('Before leaving main View..');
 	});
 
-	main.list = [];
-	var color_array = ['bg-red', 'bg-blue', 'bg-green'];
-	for (var i = 0; i < 100; i++) {
-      main.list.push({
-        id: i,
-        color: (function(i) {
-          return color_array[i%3];
-        })(i)
-      });
-    }
-
 	main.getWidth = function () {
-		console.log('get Width :' + window.innerWidth + 'px');
-    return window.innerWidth + 'px';
+		return window.innerWidth + 'px';
   };
   main.getFullWidth = function () {
-    console.log('page length : ' + document.getElementsByClassName('page').length);
     return parseInt(window.innerWidth * document.getElementsByClassName('page').length) + 'px';
   };
   main.getHeight = function () {
