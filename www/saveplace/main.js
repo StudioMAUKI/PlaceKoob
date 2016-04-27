@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', '$ionicScrollDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, $ionicScrollDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
@@ -30,6 +30,10 @@ angular.module('placekoob.controllers')
 			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
 			main.map.center.latitude = main.posts[index - 1].lonLat.lat;
 			main.map.center.longitude = main.posts[index - 1].lonLat.lon;
+			// main.map.setCenter({
+			// 	lat: main.posts[index - 1].lonLat.lat,
+			// 	lng: main.posts[index - 1].lonLat.lon
+			// });
 		}
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
@@ -37,6 +41,7 @@ angular.module('placekoob.controllers')
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
+		$scope.$digest();
 	}
 
 	main.getCurrentRegion = function(latitude, longitude) {
@@ -51,11 +56,6 @@ angular.module('placekoob.controllers')
 		var divMap = $(document);
 		$('.angular-google-map-container').css({
 			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
-		});
-
-		$('.slide-scroll-on-map').css({
-			width: window.innerWidth,
-			height: 90
 		});
 	};
 	main.divToFit();
@@ -146,7 +146,20 @@ angular.module('placekoob.controllers')
 					longitude: main.posts[i].lonLat.lon
 				}
 			}
-			$ionicSlideBoxDelegate.update();
+			//$ionicSlideBoxDelegate.update();
+			main.scrollToMarker = function() {
+				var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
+				if (scrolled_pos % window.innerWidth === 0) {
+					//	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
+					var index = scrolled_pos / window.innerWidth;
+					if (main.last_marker_index !== index) {
+						main.last_marker_index = index;
+						window.setTimeout(function() {
+							main.slidehasChanged(index + 1);
+						}, 200);
+					}
+		    }
+			};
 		});
 	};
 
@@ -177,5 +190,8 @@ angular.module('placekoob.controllers')
   main.getHeight = function () {
     // return parseInt(document.getElementById('scroller').clientHeight - document.getElementById('header').clientHeight) + 'px';
     return '90px';
-  }
+  };
+
+	main.last_marker_index = -1;
+
 }]);

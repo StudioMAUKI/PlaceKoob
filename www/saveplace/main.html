@@ -42,7 +42,7 @@
 				</div>
 			</ion-slide>
 		</ion-slide-box> -->
-		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true">
+		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true" on-scroll="main.scrollToMarker()" delegate-handle="mapScroll">
 			<div ng-style="{width: main.getFullWidth()}">
 				<!-- <div class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">
 					<img class="list-thumbnail" ng-src="img/icon/gps.png" alt="현재 위치">
