@@ -9,7 +9,7 @@
 	<ion-content>
 		<ion-refresher pulling-text="Pull to refresh..." on-refresh="places.doRefresh()">
   	</ion-refresher>
-		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;background-color:#CFD8DC;padding-right:10px;" ng-href="#/places-not-yet">{{places.notYetCount}}개의 저장한 장소가 정보화 대기중입니다. <i class="ion-arrow-right-c"></i></a>
+		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;background-color:#CFD8DC;padding-right:10px;" ng-href="#/places-not-yet" ng-show="places.notYetCount > 0">{{places.notYetCount}}개의 저장한 장소가 정보화 대기중입니다. <i class="ion-arrow-right-c"></i></a>
 		<ion-list show-delete="places.showDelete">
 			<div class="item item-divider">
 		    내 장소 {{places.posts.length}} 곳
