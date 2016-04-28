@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
@@ -65,6 +65,10 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
 		MapService.getCurrentPosition()
     .then(function(pos){
 			main.getCurrentRegion(pos.latitude, pos.longitude);
@@ -172,6 +176,10 @@ angular.module('placekoob.controllers')
 					}
 		    }
 			};
+			$ionicLoading.hide();
+		}, function(err) {
+			console.error(err);
+			$ionicLoading.hide();
 		});
 	};
 
