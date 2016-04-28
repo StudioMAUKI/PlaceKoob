@@ -56,15 +56,20 @@ angular.module('placekoob.controllers')
 	main.getCurrentRegion = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
-			main.address = addrs.region || '';
+			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	main.divToFit = function() {
-		var divMap = $(document);
+		var documentHeight = $(document).height();
+		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight;
+		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight;
+		console.log('Document Height : ' + documentHeight);
+		console.log('Bar Height : ' + barHeight);
+		console.log('Tab Height : ' + tabHeight);
 		$('.angular-google-map-container').css({
-			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
+			height: documentHeight - barHeight - tabHeight	// 137 : height = document - bar - tab_bar
 		});
 	};
 	main.divToFit();
