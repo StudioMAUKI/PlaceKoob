@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, RemoteAPIService, PostHelper, PhotoService) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, RemoteAPIService, PostHelper, PhotoService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   console.log('Place ID : ' + place.uplace_uuid);
@@ -147,6 +147,10 @@ angular.module('placekoob.controllers')
         if (index == 0) {
           PhotoService.getPhotoWithCamera()
       		.then(function(imageURI) {
+            $ionicLoading.show({
+        			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
+        			duration: 60000
+        		});
             RemoteAPIService.uploadImage(imageURI)
         		.then(function(response) {
         			console.log('Image UUID: ' + response.uuid);
@@ -157,22 +161,17 @@ angular.module('placekoob.controllers')
       					uplace_uuid: place.uplace_uuid
       				})
       				.then(function(result) {
-      					console.log('Adding image to the post is successed.');
-      					$ionicPopup.alert({
-      		        title: 'SUCCESS',
-      		        template: '이미지가 추가되었습니다.'
-      		      })
-                .then(function() {
-                  place.loadPlaceInfo(true);
-                });
+      					$ionicLoading.hide();
+                place.loadPlaceInfo(true);
       				}, function(err) {
-      					console.error('Adding image to the post is failed.');
+                $ionicLoading.hide();
       					$ionicPopup.alert({
-      		        title: 'ERROR: Add Image',
+      		        title: 'ERROR: Send user post',
       		        template: JSON.stringify(err)
       		      });
       				});
         		}, function(err) {
+              $ionicLoading.hide();
         			$ionicPopup.alert({
                 title: 'ERROR: Upload Image',
                 template: JSON.stringify(err)
@@ -180,10 +179,14 @@ angular.module('placekoob.controllers')
         		});
       		});
         } else {
-          PhotoService.getPhotoWithPhotoLibrary(1)
+          PhotoService.getPhotoWithPhotoLibrary(5)
       		.then(function(imageURIs) {
             console.dir(imageURIs);
             for (var i = 0; i < imageURIs.length; i++){
+              $ionicLoading.show({
+          			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
+          			duration: 60000
+          		});
               RemoteAPIService.uploadImage(imageURIs[i])
           		.then(function(response) {
           			console.log('Image UUID: ' + response.uuid);
@@ -194,22 +197,17 @@ angular.module('placekoob.controllers')
         					uplace_uuid: place.uplace_uuid
         				})
         				.then(function(result) {
-        					console.log('Adding image to the post is successed.');
-        					$ionicPopup.alert({
-        		        title: 'SUCCESS',
-        		        template: '이미지가 추가되었습니다.'
-        		      })
-                  .then(function() {
-                    place.loadPlaceInfo(true);
-                  });
+                  place.loadPlaceInfo(true);
+                  $ionicLoading.hide();
         				}, function(err) {
-        					console.error('Adding image to the post is failed.');
+                  $ionicLoading.hide();
         					$ionicPopup.alert({
-        		        title: 'ERROR: Add Image',
+        		        title: 'ERROR: Send user post',
         		        template: JSON.stringify(err)
         		      });
         				});
           		}, function(err) {
+                $ionicLoading.hide();
           			$ionicPopup.alert({
                   title: 'ERROR: Upload Image',
                   template: JSON.stringify(err)
