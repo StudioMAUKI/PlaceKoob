@@ -51,6 +51,10 @@ angular.module('placekoob.controllers')
 		})
 	};
 
+	saveModal.goToCurrentPosition = function() {
+		$scope.$emit('map.request.gotocurrent');
+	};
+
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();
@@ -76,14 +80,14 @@ angular.module('placekoob.controllers')
 			MapService.getCurrentAddress(curPos.latitude, curPos.longitude)
 			.then(function(addrs) {
 					//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
-				var last_lon = parseFloat(StorageService.get('last_lon'));
-				var last_lat = parseFloat(StorageService.get('last_lat'));
+				// var last_lon = parseFloat(StorageService.get('last_lon'));
+				// var last_lat = parseFloat(StorageService.get('last_lat'));
 				var prev_uplace_uuid = null;
-				if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
-					prev_uplace_uuid = StorageService.get('last_uplace_uuid');
-					prev_uplace_uuid = prev_uplace_uuid === '' ? null : prev_uplace_uuid;
-					console.log('prev_uplace_uuid: ' + prev_uplace_uuid);
-				}
+				// if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
+				// 	prev_uplace_uuid = StorageService.get('last_uplace_uuid');
+				// 	prev_uplace_uuid = prev_uplace_uuid === '' ? null : prev_uplace_uuid;
+				// 	console.log('prev_uplace_uuid: ' + prev_uplace_uuid);
+				// }
 
 				RemoteAPIService.sendUserPost({
 					lonLat: {

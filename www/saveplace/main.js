@@ -32,6 +32,11 @@ angular.module('placekoob.controllers')
 		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index,0, true);
 	};
 
+	main.goToCurrentPosition = function() {
+		console.log('goToCurrentPosition');
+		main.jumpToSlide(0);
+	};
+
 	main.slidehasChanged = function(index) {
 		if (index !== 0) {
 			main.posts[index].options.icon = 'img/icon/pin_active_small.png';
@@ -131,6 +136,7 @@ angular.module('placekoob.controllers')
 							main.map.center.latitude = marker.position.lat();
 							main.map.center.longitude = marker.position.lng();
 							main.getCurrentRegion(main.map.center.latitude, main.map.center.longitude);
+							StorageService.set('curPos', main.map.center);
 						},
 						click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
@@ -202,4 +208,8 @@ angular.module('placekoob.controllers')
 	$scope.$on('$ionicView.beforeLeave', function() {
 		console.log('Before leaving main View..');
 	});
+
+	$scope.$on('map.request.gotocurrent.after', function() {
+		main.goToCurrentPosition();
+	})
 }]);
