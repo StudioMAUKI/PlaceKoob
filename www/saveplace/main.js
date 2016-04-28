@@ -1,10 +1,11 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$ionicSlideBoxDelegate', '$state', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicSlideBoxDelegate, $state, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
+	main.last_marker_index = -1;
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.map = { center: main.last_coords, zoom: 15 };
@@ -17,26 +18,34 @@ angular.module('placekoob.controllers')
 		}
 	};
 
-	main.slidehasChanged = function(index) {
-		//	여기서 미묘한 문제는..
-		//	슬라이드는 [0][1] ... [N]로  인데,
-		//	마커는	[cur][0][1] ... [N-1]인 형태로 매핑이 되는 것을 감안하여 처리해야 함
+	main.getWidth = function () {
+		return window.innerWidth + 'px';
+  };
+  main.getFullWidth = function () {
+    return parseInt(window.innerWidth * document.getElementsByClassName('page').length) + 'px';
+  };
+  main.getHeight = function () {
+    // return parseInt(document.getElementById('scroller').clientHeight - document.getElementById('header').clientHeight) + 'px';
+    return '90px';
+  };
+	main.jumpToSlide = function(index) {
+		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index,0, true);
+	};
 
-		//	선택된 슬라이드의 위치로 지도를 이동시키고, 관련 마커를 활성화된 상태로 바꿔주고
-		if (index == 0) {
-			main.map.center.latitude = main.currentPosMarker.coords.latitude;
-			main.map.center.longitude = main.currentPosMarker.coords.longitude;
-		} else {
-			main.posts[index - 1].options.icon = 'img/icon/pin_active_small.png';
-			main.map.center.latitude = main.posts[index - 1].lonLat.lat;
-			main.map.center.longitude = main.posts[index - 1].lonLat.lon;
+	main.slidehasChanged = function(index) {
+		if (index !== 0) {
+			main.posts[index].options.icon = 'img/icon/pin_active_small.png';
 		}
+		main.map.center.latitude = main.posts[index].coords.latitude;
+		main.map.center.longitude = main.posts[index].coords.longitude;
+
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.posts[main.prevIndex - 1].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_base_small.png';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
+		$scope.$digest();
 	}
 
 	main.getCurrentRegion = function(latitude, longitude) {
@@ -56,6 +65,10 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	uiGmapGoogleMapApi.then(function(maps) {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
 		MapService.getCurrentPosition()
     .then(function(pos){
 			main.getCurrentRegion(pos.latitude, pos.longitude);
@@ -92,23 +105,6 @@ angular.module('placekoob.controllers')
 					streetViewControl: false
 				}
 			};
-			// marker for current position
-      main.currentPosMarker = {
-        coords: {
-          latitude: pos.latitude,
-          longitude: pos.longitude
-        },
-        events: {
-          dragend: function (currentPosMarker, eventName, args) {
-            main.map.center.latitude = main.currentPosMarker.coords.latitude;
-						main.map.center.longitude = main.currentPosMarker.coords.longitude;
-						main.getCurrentRegion(main.currentPosMarker.coords.latitude, main.currentPosMarker.coords.longitude);
-          },
-					click: function(currentPosMarker, eventName, args) {
-						$ionicSlideBoxDelegate.slide(0);
-					}
-        }
-      };
 
 			main.loadSavedPlace();
     }, function(err){
@@ -120,21 +116,44 @@ angular.module('placekoob.controllers')
 		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
 		.then(function(posts) {
-			var max = 20;
-			var limit = posts.length > max ? max : posts.length;
-			// var underBound = posts.length > max ? posts.length - max : 0;
-			// main.posts = posts.slice(underBound).reverse();
-			main.posts = posts.slice(0, posts.length > max ? max : posts.length);
+			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
+			main.posts = [{
+				id: 0,
+				coords: {
+					latitude: pos.latitude,
+					longitude: pos.longitude
+				},
+				options: {
+					draggable: true,
+					icon: 'img/icon/main_pin_small.png',
+					events: {
+						dragend: function (marker, eventName, args) {
+							main.map.center.latitude = marker.position.lat();
+							main.map.center.longitude = marker.position.lng();
+							main.getCurrentRegion(main.map.center.latitude, main.map.center.longitude);
+						},
+						click: function(marker, eventName, args) {
+							main.jumpToSlide(marker.key);
+						}
+					}
+				},
+				uplace_uuid: '',
+				thumbnailUrl: 'img/icon/gps.png',
+				name: '현재 위치',
+				phoneNo: '',
+				address: main.address,
+				desc: '왼쪽으로 밀어 저장된 곳을 둘러보세요.'
+			}].concat(posts);
 
 			// markers for saved positions
-			for(var i = 0; i < limit; i++) {
+			for(var i = 1; i <= posts.length; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
 					icon: 'img/icon/pin_base_small.png',
 					events: {
 	          click: function(marker, eventName, args) {
-							$ionicSlideBoxDelegate.slide(marker.key + 1);
+							main.jumpToSlide(marker.key);
 						}
 	        }
 				};
@@ -143,11 +162,30 @@ angular.module('placekoob.controllers')
 					longitude: main.posts[i].lonLat.lon
 				}
 			}
-			$ionicSlideBoxDelegate.update();
+
+			main.scrollToMarker = function() {
+				var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
+				if (scrolled_pos % window.innerWidth === 0) {
+					//	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
+					var index = scrolled_pos / window.innerWidth;
+					if (main.last_marker_index !== index) {
+						main.last_marker_index = index;
+						window.setTimeout(function() {
+							main.slidehasChanged(index);
+						}, 200);
+					}
+		    }
+			};
+			$ionicLoading.hide();
+		}, function(err) {
+			console.error(err);
+			$ionicLoading.hide();
 		});
 	};
 
 	main.goPlace = function(uplace_uuid) {
+		if (uplace_uuid === '')
+			return;
 		console.log('goPlace : ' + uplace_uuid);
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
@@ -163,5 +201,5 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('$ionicView.beforeLeave', function() {
 		console.log('Before leaving main View..');
-	})
+	});
 }]);

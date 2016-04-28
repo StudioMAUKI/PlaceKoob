@@ -13,7 +13,7 @@
 			<div class="item item-divider">
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
-			<ion-item ng-repeat="post in plNotYet.posts" href="#/places/{{post.uplace_uuid}}">
+			<ion-item collection-repeat="post in plNotYet.posts" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span>
 				&nbsp;-&nbsp;<span class="place-item-addr">{{post.datetime}}</span><br>

@@ -62,13 +62,13 @@ angular.module('placekoob.controllers')
 		RemoteAPIService.logoutUser();
 		$ionicPopup.alert({
 			title: '로그아웃',
-			template: '로그아웃했습니다. 앱을 다시 로딩합니다.'
+			template: '로그아웃했습니다. 아이폰은 앱을 껐다가 켜주세요.'
 		})
 		.then(function(res) {
 			// console.log('앱을 종료할려는데..');
 			// $scope.$emit('user.logouted');
-			// ionic.Platform.exitApp();
-			$state.go('register');
+			ionic.Platform.exitApp();
+			//$state.go('register');
 		});
 	}
 
