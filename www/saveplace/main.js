@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
@@ -56,6 +56,12 @@ angular.module('placekoob.controllers')
 	main.getCurrentRegion = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
+			StorageService.set('addr1', addrs.roadAddress.name);
+			StorageService.set('addr2', addrs.jibunAddress.name);
+			StorageService.set('addr3', addrs.region);
+			console.log('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			console.log('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			console.log('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
 			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
@@ -79,12 +85,15 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines"></ion-spinner>',
 			duration: 60000
 		});
+
+		StorageService.set('addr1', '');
+		StorageService.set('addr2', '');
+		StorageService.set('addr3', '');
+
 		MapService.getCurrentPosition()
     .then(function(pos){
 			main.getCurrentRegion(pos.latitude, pos.longitude);
 
-			// pos.latitude = 37.4003292;
-			// pos.longitude = 127.1032845;
 			StorageService.set('curPos', pos);
       main.map = {
 				center: {
@@ -116,13 +125,19 @@ angular.module('placekoob.controllers')
 				}
 			};
 
-			main.loadSavedPlace();
+			main.loadSavedPlace()
+			.then(function() {
+				$ionicLoading.hide();
+			}, function(err){
+				$ionicLoading.hide();
+			});
     }, function(err){
       $ionicPopup.alert({ title: 'Warning!', template: err });
     });
   });
 
 	main.loadSavedPlace = function(force) {
+		var deferred = $q.defer();
 		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
 		.then(function(posts) {
@@ -187,11 +202,13 @@ angular.module('placekoob.controllers')
 					}
 		    }
 			};
-			$ionicLoading.hide();
+			deferred.resolve(true);
 		}, function(err) {
 			console.error(err);
-			$ionicLoading.hide();
+			deferred.reject(err);
 		});
+
+		return deferred.promise;
 	};
 
 	main.goPlace = function(uplace_uuid) {

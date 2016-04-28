@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', 'StorageService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, StorageService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', '$ionicLoading', 'StorageService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, $ionicLoading, StorageService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
 	var saveModal = this;
 	saveModal.attatchedImage = '';
 	saveModal.URL = '';
@@ -73,63 +73,42 @@ angular.module('placekoob.controllers')
 			saveModal.attatchedImage = saveModal.browserFile;
 		}
 
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
+			duration: 60000
+		});
 		RemoteAPIService.uploadImage(saveModal.attatchedImage)
 		.then(function(response) {
-			console.log('Image UUID: ' + response.uuid);
+			// console.log('Image UUID: ' + response.uuid);
 
-			MapService.getCurrentAddress(curPos.latitude, curPos.longitude)
-			.then(function(addrs) {
-					//	직전에 저장한 장소와 같은 곳인지 비교해서, 같으면 같은 uplace_uuid를 써서 올림
-				// var last_lon = parseFloat(StorageService.get('last_lon'));
-				// var last_lat = parseFloat(StorageService.get('last_lat'));
-				var prev_uplace_uuid = null;
-				// if (curPos.longitude === last_lon && curPos.latitude === last_lat) {
-				// 	prev_uplace_uuid = StorageService.get('last_uplace_uuid');
-				// 	prev_uplace_uuid = prev_uplace_uuid === '' ? null : prev_uplace_uuid;
-				// 	console.log('prev_uplace_uuid: ' + prev_uplace_uuid);
-				// }
-
-				RemoteAPIService.sendUserPost({
-					lonLat: {
-						lon: curPos.longitude,
-						lat: curPos.latitude
-					},
-					notes: [{
-						content: saveModal.note
-					}],
-					images: [{
-						content: response.file
-					}],
-					addr1: { content: addrs.roadAddress.name !== '' ? addrs.roadAddress.name : null },
-					addr2: { content: addrs.jibunAddress.name !== '' ? addrs.jibunAddress.name : null },
-					addr3: { content: addrs.region !== '' ? addrs.region : null },
-					uplace_uuid: prev_uplace_uuid
-				})
-				.then(function(result) {
-					//console.dir(result);
-					StorageService.set('last_uplace_uuid', result.data.uplace_uuid);
-					StorageService.set('last_lon', curPos.longitude);
-					StorageService.set('last_lat', curPos.latitude);
-
-					saveModal.showAlert('성공', '현재 위치를 저장했습니다.')
-					.then(function(){
-						saveModal.closeSaveDlg();
-						$scope.$emit('post.created');
-					});
-				}, function(err) {
-					console.error("Sending user post failed.");
-					saveModal.showAlert('오류: 장소 저장', err)
-					.then(function(){
-						saveModal.closeSaveDlg();
-					});
-				});
+			RemoteAPIService.sendUserPost({
+				lonLat: {
+					lon: curPos.longitude,
+					lat: curPos.latitude
+				},
+				notes: [{
+					content: saveModal.note
+				}],
+				images: [{
+					content: response.file
+				}],
+				addr1: { content: StorageService.get('addr1') || null },
+				addr2: { content: StorageService.get('addr2') || null },
+				addr3: { content: StorageService.get('addr3') || null },
+			})
+			.then(function(result) {
+				$ionicLoading.hide();
+				saveModal.closeSaveDlg();
+				$scope.$emit('post.created');
 			}, function(err) {
-				saveModal.showAlert('오류: 주소 얻기 실패', err)
+				$ionicLoading.hide();
+				saveModal.showAlert('오류: 장소 저장', err)
 				.then(function(){
 					saveModal.closeSaveDlg();
 				});
 			});
 		}, function(err) {
+			$ionicLoading.hide();
 			saveModal.showAlert('오류: 이미지 업로드', err)
 			.then(function(){
 				saveModal.closeSaveDlg();
@@ -138,6 +117,10 @@ angular.module('placekoob.controllers')
 	};
 
 	saveModal.confirmSaveURL = function() {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
+			duration: 60000
+		});
 		RemoteAPIService.sendUserPost({
 			notes: [{
 				content: saveModal.note
@@ -147,13 +130,11 @@ angular.module('placekoob.controllers')
 			}]
 		})
 		.then(function(result) {
-			saveModal.showAlert('성공', '웹문서를 저장했습니다.')
-			.then(function(){
-				saveModal.closeSaveDlg();
-				$scope.$emit('post.created');
-			});
+			$ionicLoading.hide();
+			saveModal.closeSaveDlg();
+			$scope.$emit('post.created');
 		}, function(err) {
-			console.error("Sending user post failed.");
+			$ionicLoading.hide();
 			saveModal.showAlert('오류: URL 저장', err)
 			.then(function(){
 				saveModal.closeSaveDlg();
