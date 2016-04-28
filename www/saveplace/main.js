@@ -39,14 +39,14 @@ angular.module('placekoob.controllers')
 
 	main.slidehasChanged = function(index) {
 		if (index !== 0) {
-			main.posts[index].options.icon = 'img/icon/pin_active_small.png';
+			main.posts[index].options.icon = 'img/icon/pin_active2.svg';
 		}
 		main.map.center.latitude = main.posts[index].coords.latitude;
 		main.map.center.longitude = main.posts[index].coords.longitude;
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.posts[main.prevIndex].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal2.svg';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
@@ -160,7 +160,7 @@ angular.module('placekoob.controllers')
 				},
 				options: {
 					draggable: true,
-					icon: 'img/icon/main_pin_small.png',
+					icon: 'img/icon/pin_current2.svg',
 					events: {
 						dragend: function (marker, eventName, args) {
 							main.map.center.latitude = marker.position.lat();
@@ -174,7 +174,7 @@ angular.module('placekoob.controllers')
 					}
 				},
 				uplace_uuid: '',
-				thumbnailUrl: 'img/icon/gps.png',
+				thumbnailUrl: 'img/icon/pin_current2.svg',
 				name: '현재 위치',
 				phoneNo: '',
 				address: main.address,
@@ -186,7 +186,7 @@ angular.module('placekoob.controllers')
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
-					icon: 'img/icon/pin_base_small.png',
+					icon: 'img/icon/pin_normal2.svg',
 					events: {
 	          click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
