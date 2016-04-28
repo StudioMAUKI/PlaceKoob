@@ -117,6 +117,11 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
     $rootScope.$on('map.request.gotocurrent', function() {
       console.log('Go to current position.');
       $rootScope.$broadcast('map.request.gotocurrent.after');
-    })
+    });
+
+    $rootScope.$on('map.request.refresh', function() {
+      console.log('Refresh current position.');
+      $rootScope.$broadcast('map.request.refresh.after');
+    });
   });
 }]);

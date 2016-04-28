@@ -55,6 +55,10 @@ angular.module('placekoob.controllers')
 		$scope.$emit('map.request.gotocurrent');
 	};
 
+	saveModal.refresh = function() {
+		$scope.$emit('map.request.refresh');
+	};
+
 	saveModal.closeSaveDlg = function() {
 		saveModal.saveDlg.hide();
 		saveModal.saveDlg.remove();

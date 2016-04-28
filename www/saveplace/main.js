@@ -53,7 +53,20 @@ angular.module('placekoob.controllers')
 		$scope.$digest();
 	}
 
+	main.getCurrentPosition = function() {
+		var deferred = $q.defer();
+		MapService.getCurrentPosition()
+		.then(function(pos){
+			StorageService.set('curPos', pos);
+			main.getCurrentRegion(pos.latitude, pos.longitude);
+			deferred.resolve(pos);
+		}, function(err) {
+			deferred.reject(err);
+		});
+		return deferred.promise;
+	};
 	main.getCurrentRegion = function(latitude, longitude) {
+
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
 			StorageService.set('addr1', addrs.roadAddress.name);
@@ -69,8 +82,8 @@ angular.module('placekoob.controllers')
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	main.divToFit = function() {
 		var documentHeight = $(document).height();
-		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight;
-		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight;
+		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
+		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
 		console.log('Document Height : ' + documentHeight);
 		console.log('Bar Height : ' + barHeight);
 		console.log('Tab Height : ' + tabHeight);
@@ -90,11 +103,8 @@ angular.module('placekoob.controllers')
 		StorageService.set('addr2', '');
 		StorageService.set('addr3', '');
 
-		MapService.getCurrentPosition()
+		main.getCurrentPosition()
     .then(function(pos){
-			main.getCurrentRegion(pos.latitude, pos.longitude);
-
-			StorageService.set('curPos', pos);
       main.map = {
 				center: {
 					latitude: pos.latitude,
@@ -233,5 +243,21 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('map.request.gotocurrent.after', function() {
 		main.goToCurrentPosition();
-	})
+	});
+
+	$scope.$on('map.request.refresh.after', function() {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
+		main.getCurrentPosition()
+    .then(function(pos){
+			console.log(pos);
+			main.map.center.latitude = pos.latitude;
+			main.map.center.longitude = pos.longitude;
+			main.posts[0].coords.latitude = pos.latitude;
+			main.posts[0].coords.longitude = pos.longitude;
+			$ionicLoading.hide();
+    });
+	});
 }]);
