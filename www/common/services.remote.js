@@ -297,7 +297,6 @@ angular.module('placekoob.services')
         deferred.reject(err);
       });
     } else {
-      console.log('캐시된 것 반환');
       deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
     }
 
@@ -334,7 +333,6 @@ angular.module('placekoob.services')
         deferred.reject(err);
       });
     } else {
-      console.log('캐시된 것 반환');
       deferred.resolve(cachedPlaces);
     }
 

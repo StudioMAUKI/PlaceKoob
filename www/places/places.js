@@ -67,13 +67,6 @@ angular.module('placekoob.controllers')
 		.then(function(result) {
 			places.posts = result.assined;
 			places.notYetCount = result.waiting.length;
-			// places.posts = [];
-			// for (var i = 0; i < posts.length; i++) {
-			// 	if (places.postHelper.isOrganized(posts[i])){
-			// 		places.posts.push(posts[i]);
-			// 	}
-			// }
-			// places.notYetCount = posts.length - places.posts.length;
 			deferred.resolve();
 		});
 
