@@ -86,10 +86,12 @@ angular.module('placekoob.controllers')
 		});
 	}
 
-	places.loadSavedPlace();
-	$scope.$on('posts.request.refresh.after', function() {
-		console.log('posts.request.refresh.after received.');
-		places.loadSavedPlace(true);
+	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('After entering plNotYet View..');
+		places.loadSavedPlace(true)
+		.finally(function(){
+			console.log('loadSavedPlace is completed');
+		});
 	});
 
 	if ($stateParams.uplace_uuid) {

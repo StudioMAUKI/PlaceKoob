@@ -13,8 +13,10 @@ angular.module('placekoob.controllers')
     RemoteAPIService.getPost(place.uplace_uuid, force)
     .then(function(post) {
         place.post = post;
-        if (place.post.userPost) {
+        if (place.post.userPost.note) {
           place.post.tags = PostHelper.getTagsWithContent(place.post.userPost.notes[0].content);
+        } else {
+          place.post.tags = '';
         }
         if (place.post.userPost.images) {
           place.ImagesForSlide = [];

@@ -88,17 +88,12 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	plNotYet.loadSavedPlace();
-
-	$scope.$on('posts.request.refresh.after', function() {
-		console.log('posts.request.refresh.after received.');
-		$scope.$apply(function() {
-			plNotYet.loadSavedPlace(true)
-			.finally(function(){
-				console.log('loadSavedPlace is completed');
-			});
+	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('After entering plNotYet View..');
+		plNotYet.loadSavedPlace(true)
+		.finally(function(){
+			console.log('loadSavedPlace is completed');
 		});
-
-		//$scope.$apply();
 	});
+
 }]);
