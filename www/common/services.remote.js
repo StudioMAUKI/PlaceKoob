@@ -298,30 +298,21 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function findPost(posts, uplace_uuid) {
-    for (var i = 0; i < posts.length; i++) {
-      if (posts[i].uplace_uuid === uplace_uuid) {
-        return posts[i];
-      }
-    }
-    return null;
-  }
-
   function getPost(uplace_uuid, force) {
     var deferred = $q.defer();
     var foundPost = null;
+    var ret_uplace_uuid = uplace_uuid.split('.')[0];
 
-    getPostsOfMine(100, 0, force)
-    .then(function(posts) {
-      foundPost = findPost(posts, uplace_uuid);
-      if (foundPost) {
-        deferred.resolve(foundPost);
-      } else {
-        console.error(uplace_uuid + '에 해당하는 포스트를 찾을 수 없음.');
-        var err = 'Could not find the post with such uplace_uuid.';
-        deferred.reject(err);
-      }
-    }, function(err){
+    // 직접 질의
+    $http({
+      method: 'GET',
+      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
+    })
+    .then(function(response) {
+      PostHelper.decoratePost(response.data);
+      deferred.resolve(response.data);
+    }, function(err) {
+      console.error(err);
       deferred.reject(err);
     });
 
@@ -462,17 +453,20 @@ angular.module('placekoob.services')
 
   //  ng-repeat안에서 함수가 호출되는 것을 최대한 방지하기 위해, 로딩된 포스트의 썸네일 URL, 전화번호, 주소, 태그 등을
   //  계산해서 속성으로 담아둔다.
+  function decoratePost(post) {
+    post.name = getPlaceName(post);
+    post.thumbnailUrl = getThumbnailUrlByFirstImage(post);
+    post.datetime = getTimeString(post.modified);
+    post.address = getAddress(post);
+    post.desc = getUserNote(post);
+    post.tags = getTags(post);
+    post.phoneNo = getPhoneNo(post);
+  }
+
   function decoratePosts(posts) {
     for (var i = 0; i < posts.length; i++) {
-      posts[i].name = getPlaceName(posts[i]);
-      posts[i].thumbnailUrl = getThumbnailUrlByFirstImage(posts[i]);
-      posts[i].datetime = getTimeString(posts[i].modified);
-      posts[i].address = getAddress(posts[i]);
-      posts[i].desc = getUserNote(posts[i]);
-      posts[i].tags = getTags(posts[i]);
-      posts[i].phoneNo = getPhoneNo(posts[i]);
+      decoratePost(posts[i]);
     }
-    // console.dir(posts);
   }
 
   return {
@@ -480,6 +474,7 @@ angular.module('placekoob.services')
     getImageURL: getImageURL,
     isOrganized: isOrganized,
     getTimeString: getTimeString,
+    decoratePost: decoratePost,
     decoratePosts: decoratePosts
   }
 }]);

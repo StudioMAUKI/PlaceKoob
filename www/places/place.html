@@ -13,15 +13,15 @@
 	</ion-header-bar>
 	<ion-content class="post-container">
 		<!-- placePost 영역 -->
-		<article class="place-post-container" ng-show="place.post.placePost.name">
+		<article class="place-post-container" ng-show="place.post.name">
 			<div class="place-name">
-				<strong>{{place.post.placePost.name?place.post.placePost.name.content:'등록 대기중'}}</strong>
+				<strong>{{place.post.name || '등록 대기중'}}</strong>
 			</div>
 			<div class="place-addr">
 				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.address}}
 			</div>
 			<div class="place-phone">
-				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="#">{{place.post.phoneNo === '' ? '전화번호 없음' : place.post.phoneNo}}</a>
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="#">{{place.post.phoneNo || '전화번호 없음'}}</a>
 			</div>
 			<div class="place-tags-container">
 				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
@@ -33,7 +33,7 @@
 			<a class="button pk-accent button-icon ion-image" ng-click="place.addPhoto()"> 사진 추가</a>
 			<a class="button pk-accent button-icon ion-link" ng-click="place.addUrl()"> URL 추가</a>
 		</div>
-		<div class="button-bar" ng-show="place.post.placePost.name" style="margin-top:5px;">
+		<div class="button-bar" ng-show="place.post.name" style="margin-top:5px;">
 			<a class="button button-balanced" ng-click="place.searchPlace()">이 장소 관련 블로그</a>
 		</div>
 

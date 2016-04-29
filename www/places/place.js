@@ -4,7 +4,6 @@ angular.module('placekoob.controllers')
 .controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, RemoteAPIService, PostHelper, PhotoService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
-  console.log('Place ID : ' + place.uplace_uuid);
   place.postHelper = PostHelper;
   place.zoomMin = 1;
   place.ImagesForSlide = [];
@@ -13,11 +12,6 @@ angular.module('placekoob.controllers')
     RemoteAPIService.getPost(place.uplace_uuid, force)
     .then(function(post) {
         place.post = post;
-        if (place.post.userPost.note) {
-          place.post.tags = PostHelper.getTagsWithContent(place.post.userPost.notes[0].content);
-        } else {
-          place.post.tags = '';
-        }
         if (place.post.userPost.images) {
           place.ImagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {

@@ -2,7 +2,6 @@
 
 angular.module('placekoob.controllers')
 .controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
-	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
 	main.last_marker_index = -1;
@@ -25,7 +24,6 @@ angular.module('placekoob.controllers')
 	};
 
 	main.goToCurrentPosition = function() {
-		console.log('goToCurrentPosition');
 		main.jumpToSlide(0);
 	};
 
@@ -64,9 +62,9 @@ angular.module('placekoob.controllers')
 			StorageService.set('addr1', addrs.roadAddress.name);
 			StorageService.set('addr2', addrs.jibunAddress.name);
 			StorageService.set('addr3', addrs.region);
-			console.log('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
-			console.log('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
-			console.log('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+			console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
 			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
@@ -76,9 +74,9 @@ angular.module('placekoob.controllers')
 		var documentHeight = $(document).height();
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
 		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
-		console.log('Document Height : ' + documentHeight);
-		console.log('Bar Height : ' + barHeight);
-		console.log('Tab Height : ' + tabHeight);
+		console.info('Document Height : ' + documentHeight);
+		console.info('Bar Height : ' + barHeight);
+		console.info('Tab Height : ' + tabHeight);
 		$('.angular-google-map-container').css({
 			height: documentHeight - barHeight - tabHeight	// 137 : height = document - bar - tab_bar
 		});
@@ -219,7 +217,6 @@ angular.module('placekoob.controllers')
 	}
 
 	$scope.$on('posts.request.refresh', function() {
-		console.log('MainCtrl : post.request.refresh received');
 		main.loadSavedPlace(true);
 	});
 	$scope.$on('map.request.gotocurrent.after', function() {
@@ -232,7 +229,6 @@ angular.module('placekoob.controllers')
 		});
 		main.getCurrentPosition()
     .then(function(pos){
-			console.log(pos);
 			main.map.center.latitude = pos.latitude;
 			main.map.center.longitude = pos.longitude;
 			main.posts[0].coords.latitude = pos.latitude;
