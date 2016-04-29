@@ -9,15 +9,7 @@ angular.module('placekoob.controllers')
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.map = { center: main.last_coords, zoom: 15 };
-	main.currentPosMarker = {
-		id: 'currentPosMarker',
-		coords: main.last_coords,
-		options: {
-			draggable: true,
-			icon: 'img/icon/main_pin_small.png'
-		}
-	};
-
+	
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
   };
