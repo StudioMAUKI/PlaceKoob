@@ -50,7 +50,7 @@ angular.module('placekoob.controllers')
       })
       .then(function() {
 				$ionicListDelegate.closeOptionButtons();
-        places.loadSavedPlace(true);
+        places.loadSavedPlace();
       });
     }, function(err) {
       console.error(err);
@@ -61,18 +61,19 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	places.loadSavedPlace = function(force) {
-		console.log('loadSavedPlace called');
+	places.loadSavedPlace = function() {
 		var deferred = $q.defer();
-		RemoteAPIService.getPostsOfMine(100, 0, force)
-		.then(function(posts) {
-			places.posts = [];
-			for (var i = 0; i < posts.length; i++) {
-				if (places.postHelper.isOrganized(posts[i])){
-					places.posts.push(posts[i]);
-				}
-			}
-			places.notYetCount = posts.length - places.posts.length;
+		RemoteAPIService.getPostsOfMine(100, 0)
+		.then(function(result) {
+			places.posts = result.assined;
+			places.notYetCount = result.waiting.length;
+			// places.posts = [];
+			// for (var i = 0; i < posts.length; i++) {
+			// 	if (places.postHelper.isOrganized(posts[i])){
+			// 		places.posts.push(posts[i]);
+			// 	}
+			// }
+			// places.notYetCount = posts.length - places.posts.length;
 			deferred.resolve();
 		});
 
@@ -80,18 +81,14 @@ angular.module('placekoob.controllers')
 	}
 
 	places.doRefresh = function() {
-		places.loadSavedPlace(true)
+		places.loadSavedPlace()
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});
 	}
 
 	$scope.$on('$ionicView.afterEnter', function() {
-		console.log('After entering plNotYet View..');
-		places.loadSavedPlace(true)
-		.finally(function(){
-			console.log('loadSavedPlace is completed');
-		});
+		places.loadSavedPlace();
 	});
 
 	if ($stateParams.uplace_uuid) {

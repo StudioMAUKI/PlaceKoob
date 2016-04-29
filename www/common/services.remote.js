@@ -39,8 +39,22 @@ angular.module('placekoob.services')
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
   var getServerUrl = RESTServer.getURL;
-  var cachedMyPosts = [];
-  var cachedPostionedPosts = [];
+  var cachedUplaces = [];
+  var cachedUplacesAssgined = [];
+  var cachedUplacesWaiting = [];
+  var cachedPlaces = [];
+  var cacheMng = {
+    uplaces: {
+      list: [],
+      lastUpdated: 0,
+      needToUpdate: true
+    },
+    places: {
+      list: [],
+      lastUpdated: 0,
+      needToUpdate: true
+    }
+  };
 
   function registerUser() {
     var deferred = $q.defer();
@@ -155,7 +169,11 @@ angular.module('placekoob.services')
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
-      //console.dir(result);
+      //console.log('SendObj : ' + JSON.stringify(sendObj));
+      // if (sendObj.uplace_uuid === null) {
+        cacheMng['uplaces'].needToUpdate = true;
+        cacheMng['places'].needToUpdate = true;
+      // }
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -172,7 +190,8 @@ angular.module('placekoob.services')
       url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(result) {
-      console.dir(result);
+      cacheMng['uplaces'].needToUpdate = true;
+      cacheMng['places'].needToUpdate = true;
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -217,19 +236,36 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function needToRefresh(posts, force) {
-    if (force) {
+  //  캐싱 로직은 세가지 요소 검사
+  //  1. 현재 캐싱된 리스트가 비어 있는가?
+  //  2. 마지막으로 업데이트 한 시간에서 1분이 지났는가?
+  //  3. 업데이트 태그가 설정되어 있는가?
+  function checkNeedToRefresh(key) {
+    if (cacheMng[key].list.length === 0){
+      console.log('업데이트 필요 : 리스트가 비어 있음');
       return true;
-    } else {
-      return (posts.length === 0);
     }
+    var timeNow = new Date().getTime();
+    if (timeNow - cacheMng[key].lastUpdated >= 60000) {
+      console.log('업데이트 필요 : 너무 오래 업데이트를 안 했음');
+      return true;
+    }
+    if (cacheMng[key].needToUpdate) {
+      console.log('업데이트 필요 : 업데이트 필요 태그가 세팅 됨');
+      return true;
+    }
+    return false;
   }
 
-  function getPostsOfMine(limit, offset, force) {
+  function setRefreshCompleted(key) {
+    cacheMng[key].needToUpdate = false;
+    cacheMng[key].lastUpdated = new Date().getTime();
+  }
+
+  function getPostsOfMine(limit, offset) {
     var deferred = $q.defer();
 
-    if (needToRefresh(cachedMyPosts, force)) {
-      console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출')
+    if (checkNeedToRefresh('uplaces')) {
       $http({
         method: 'GET',
         url: getServerUrl() + '/uplaces/',
@@ -241,26 +277,37 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         //console.dir(response.data);
-        PostHelper.decoratePosts(response.data.results);
-        cachedMyPosts = response.data.results;
-        deferred.resolve(response.data.results);
+        cachedUplaces = cacheMng['uplaces'].list = response.data.results;
+        PostHelper.decoratePosts(cachedUplaces);
+
+        cachedUplacesAssgined = [];
+        cachedUplacesWaiting = [];
+        for (var i = 0; i < cachedUplaces.length; i++) {
+          if (PostHelper.isOrganized(cachedUplaces[i])) {
+            cachedUplacesAssgined.push(cachedUplaces[i]);
+          } else {
+            cachedUplacesWaiting.push(cachedUplaces[i]);
+          }
+        }
+
+        setRefreshCompleted('uplaces');
+        deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
       });
     } else {
       console.log('캐시된 것 반환');
-      deferred.resolve(cachedMyPosts);
+      deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
     }
 
     return deferred.promise;
   }
 
-  function getPostsWithPlace(lat, lon, radius, force) {
+  function getPostsWithPlace(lat, lon, radius) {
     var deferred = $q.defer();
 
-    if (needToRefresh(cachedPostionedPosts, force)) {
-      console.log('캐시가 비어있거나, force=true 지정으로 인해 서버 호출');
+    if (checkNeedToRefresh('places')) {
       $http({
         method: 'GET',
         url: getServerUrl() + '/uplaces/',
@@ -271,34 +318,30 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        //console.dir(response.data);
-        //  !!!Start 성능을 생각하면 이렇게 하면 안되는데, 일단 급하니까 땜빵
-        var retPosts = [];
+        cacheMng['places'].list = response.data.results;
+        cachedPlaces = [];
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
-            retPosts.push(response.data.results[i]);
+            cachedPlaces.push(response.data.results[i]);
           }
         }
-        PostHelper.decoratePosts(retPosts);
-        cachedPostionedPosts = retPosts;
-        deferred.resolve(retPosts);
-        //  !!!End
+        PostHelper.decoratePosts(cachedPlaces);
+        setRefreshCompleted('places');
 
-        // 요기서부터가 정식
-        //deferred.resolve(response.data.results);
+        deferred.resolve(cachedPlaces);
       }, function(err) {
         console.error(err);
         deferred.reject(err);
       });
     } else {
       console.log('캐시된 것 반환');
-      deferred.resolve(cachedPostionedPosts);
+      deferred.resolve(cachedPlaces);
     }
 
     return deferred.promise;
   }
 
-  function getPost(uplace_uuid, force) {
+  function getPost(uplace_uuid) {
     var deferred = $q.defer();
     var foundPost = null;
     var ret_uplace_uuid = uplace_uuid.split('.')[0];

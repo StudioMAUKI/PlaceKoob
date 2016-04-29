@@ -8,8 +8,8 @@ angular.module('placekoob.controllers')
   place.zoomMin = 1;
   place.ImagesForSlide = [];
 
-  place.loadPlaceInfo = function(force) {
-    RemoteAPIService.getPost(place.uplace_uuid, force)
+  place.loadPlaceInfo = function() {
+    RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
         place.post = post;
         if (place.post.userPost.images) {
@@ -91,7 +91,6 @@ angular.module('placekoob.controllers')
           type: 'pk-accent',
           onTap: function(e) {
             if (!$scope.place.Url) {
-              //don't allow the user to close unless he enters wifi password
               e.preventDefault();
             } else {
               return $scope.place.Url;
@@ -117,7 +116,7 @@ angular.module('placekoob.controllers')
             template: 'URL이 추가되었습니다.'
           })
           .then(function(result){
-            place.loadPlaceInfo(true);
+            place.loadPlaceInfo();
           });
         }, function(err) {
           console.error('Adding URL to the post is failed.');
@@ -158,7 +157,7 @@ angular.module('placekoob.controllers')
       				})
       				.then(function(result) {
       					$ionicLoading.hide();
-                place.loadPlaceInfo(true);
+                place.loadPlaceInfo();
       				}, function(err) {
                 $ionicLoading.hide();
       					$ionicPopup.alert({
@@ -193,7 +192,7 @@ angular.module('placekoob.controllers')
         					uplace_uuid: place.uplace_uuid
         				})
         				.then(function(result) {
-                  place.loadPlaceInfo(true);
+                  place.loadPlaceInfo();
                   $ionicLoading.hide();
         				}, function(err) {
                   $ionicLoading.hide();

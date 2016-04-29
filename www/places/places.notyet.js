@@ -53,7 +53,7 @@ angular.module('placekoob.controllers')
       })
       .then(function() {
 				$ionicListDelegate.closeOptionButtons();
-        plNotYet.loadSavedPlace(true);
+        plNotYet.loadSavedPlace();
       });
     }, function(err) {
       console.error(err);
@@ -64,17 +64,11 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	plNotYet.loadSavedPlace = function(force) {
-		console.log('loadSavedPlace called');
+	plNotYet.loadSavedPlace = function() {
 		var deferred = $q.defer();
-		RemoteAPIService.getPostsOfMine(100, 0, force)
-		.then(function(posts) {
-			plNotYet.posts = [];
-			for (var i = 0; i < posts.length; i++) {
-				if (!plNotYet.postHelper.isOrganized(posts[i])){
-					plNotYet.posts.push(posts[i]);
-				}
-			}
+		RemoteAPIService.getPostsOfMine(100, 0)
+		.then(function(result) {
+			plNotYet.posts = result.waiting;
 			deferred.resolve();
 		});
 
@@ -82,18 +76,13 @@ angular.module('placekoob.controllers')
 	};
 
 	plNotYet.doRefresh = function() {
-		plNotYet.loadSavedPlace(true)
+		plNotYet.loadSavedPlace()
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});
 	};
 
 	$scope.$on('$ionicView.afterEnter', function() {
-		console.log('After entering plNotYet View..');
-		plNotYet.loadSavedPlace(true)
-		.finally(function(){
-			console.log('loadSavedPlace is completed');
-		});
+		plNotYet.loadSavedPlace();
 	});
-
 }]);

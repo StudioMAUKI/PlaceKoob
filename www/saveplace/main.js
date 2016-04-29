@@ -35,7 +35,7 @@ angular.module('placekoob.controllers')
 		main.map.center.longitude = main.posts[index].coords.longitude;
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
-		if (main.prevIndex != 0 && main.prevIndex != -1) {
+		if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
 				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
@@ -134,10 +134,10 @@ angular.module('placekoob.controllers')
     });
   });
 
-	main.loadSavedPlace = function(force) {
+	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
 		var pos = StorageService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0)
 		.then(function(posts) {
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
 			main.posts = [{
@@ -217,7 +217,7 @@ angular.module('placekoob.controllers')
 	}
 
 	$scope.$on('posts.request.refresh', function() {
-		main.loadSavedPlace(true);
+		main.loadSavedPlace();
 	});
 	$scope.$on('map.request.gotocurrent.after', function() {
 		main.goToCurrentPosition();
@@ -235,5 +235,8 @@ angular.module('placekoob.controllers')
 			main.posts[0].coords.longitude = pos.longitude;
 			$ionicLoading.hide();
     });
+	});
+	$scope.$on('$ionicView.afterEnter', function() {
+		main.loadSavedPlace();
 	});
 }]);
