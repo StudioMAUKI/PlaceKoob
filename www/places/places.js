@@ -7,6 +7,8 @@ angular.module('placekoob.controllers')
 	places.orderingType = "최신순";
 	places.showDelete = false;
 	places.notYetCount = 0;
+	places.itemHeight = '99px';
+	places.itemWidth = window.innerWidth + 'px';
 
 	places.toggleLeft = function() {
 		$ionicSideMenuDelegate.toggleLeft();
@@ -60,6 +62,7 @@ angular.module('placekoob.controllers')
 	};
 
 	places.loadSavedPlace = function(force) {
+		console.log('loadSavedPlace called');
 		var deferred = $q.defer();
 		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
@@ -85,6 +88,7 @@ angular.module('placekoob.controllers')
 
 	places.loadSavedPlace();
 	$scope.$on('posts.request.refresh.after', function() {
+		console.log('posts.request.refresh.after received.');
 		places.loadSavedPlace(true);
 	});
 

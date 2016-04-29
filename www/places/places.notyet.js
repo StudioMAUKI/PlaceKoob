@@ -5,6 +5,8 @@ angular.module('placekoob.controllers')
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
+	plNotYet.itemHeight = '99px';
+	plNotYet.itemWidth = window.innerWidth + 'px';
 
 	plNotYet.goBack = function() {
 		// $state.go('tab.places');
@@ -63,6 +65,7 @@ angular.module('placekoob.controllers')
 	};
 
 	plNotYet.loadSavedPlace = function(force) {
+		console.log('loadSavedPlace called');
 		var deferred = $q.defer();
 		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
@@ -87,5 +90,15 @@ angular.module('placekoob.controllers')
 
 	plNotYet.loadSavedPlace();
 
-	$scope.$on('posts.request.refresh.after', plNotYet.loadSavedPlace);
+	$scope.$on('posts.request.refresh.after', function() {
+		console.log('posts.request.refresh.after received.');
+		$scope.$apply(function() {
+			plNotYet.loadSavedPlace(true)
+			.finally(function(){
+				console.log('loadSavedPlace is completed');
+			});
+		});
+
+		//$scope.$apply();
+	});
 }]);

@@ -31,7 +31,7 @@
       	</ion-option-button>
 			</ion-item> -->
 			<!-- 기준 end -->
-			<ion-item collection-repeat="post in places.posts" href="#/places/{{post.uplace_uuid}}">
+			<ion-item collection-repeat="post in places.posts" item-width="places.itemWidth" item-height="places.itemHeight" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span><br>
 				<span class="place-item-addr">{{post.address}}</span><br>
