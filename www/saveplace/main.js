@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
 	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
@@ -32,34 +32,63 @@ angular.module('placekoob.controllers')
 		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index,0, true);
 	};
 
+	main.goToCurrentPosition = function() {
+		console.log('goToCurrentPosition');
+		main.jumpToSlide(0);
+	};
+
 	main.slidehasChanged = function(index) {
 		if (index !== 0) {
-			main.posts[index].options.icon = 'img/icon/pin_active_small.png';
+			main.posts[index].options.icon = 'img/icon/pin_active2.svg';
 		}
 		main.map.center.latitude = main.posts[index].coords.latitude;
 		main.map.center.longitude = main.posts[index].coords.longitude;
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.posts[main.prevIndex].options.icon = 'img/icon/pin_base_small.png';
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal2.svg';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
 		$scope.$digest();
 	}
 
+	main.getCurrentPosition = function() {
+		var deferred = $q.defer();
+		MapService.getCurrentPosition()
+		.then(function(pos){
+			StorageService.set('curPos', pos);
+			main.getCurrentRegion(pos.latitude, pos.longitude);
+			deferred.resolve(pos);
+		}, function(err) {
+			deferred.reject(err);
+		});
+		return deferred.promise;
+	};
 	main.getCurrentRegion = function(latitude, longitude) {
+
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
-			main.address = addrs.region || '';
+			StorageService.set('addr1', addrs.roadAddress.name);
+			StorageService.set('addr2', addrs.jibunAddress.name);
+			StorageService.set('addr3', addrs.region);
+			console.log('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			console.log('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			console.log('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
 
 	// 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	main.divToFit = function() {
-		var divMap = $(document);
+		var documentHeight = $(document).height();
+		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
+		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
+		console.log('Document Height : ' + documentHeight);
+		console.log('Bar Height : ' + barHeight);
+		console.log('Tab Height : ' + tabHeight);
 		$('.angular-google-map-container').css({
-			height: divMap.height() - 91	// 137 : height = document - bar - tab_bar
+			height: documentHeight - barHeight - tabHeight	// 137 : height = document - bar - tab_bar
 		});
 	};
 	main.divToFit();
@@ -69,13 +98,13 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines"></ion-spinner>',
 			duration: 60000
 		});
-		MapService.getCurrentPosition()
-    .then(function(pos){
-			main.getCurrentRegion(pos.latitude, pos.longitude);
 
-			// pos.latitude = 37.4003292;
-			// pos.longitude = 127.1032845;
-			StorageService.set('curPos', pos);
+		StorageService.set('addr1', '');
+		StorageService.set('addr2', '');
+		StorageService.set('addr3', '');
+
+		main.getCurrentPosition()
+    .then(function(pos){
       main.map = {
 				center: {
 					latitude: pos.latitude,
@@ -106,13 +135,17 @@ angular.module('placekoob.controllers')
 				}
 			};
 
-			main.loadSavedPlace();
+			main.loadSavedPlace()
+			.finally(function(){
+				$ionicLoading.hide();
+			});
     }, function(err){
       $ionicPopup.alert({ title: 'Warning!', template: err });
     });
   });
 
 	main.loadSavedPlace = function(force) {
+		var deferred = $q.defer();
 		var pos = StorageService.get('curPos');
 		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
 		.then(function(posts) {
@@ -125,12 +158,13 @@ angular.module('placekoob.controllers')
 				},
 				options: {
 					draggable: true,
-					icon: 'img/icon/main_pin_small.png',
+					icon: 'img/icon/pin_current2.svg',
 					events: {
 						dragend: function (marker, eventName, args) {
 							main.map.center.latitude = marker.position.lat();
 							main.map.center.longitude = marker.position.lng();
 							main.getCurrentRegion(main.map.center.latitude, main.map.center.longitude);
+							StorageService.set('curPos', main.map.center);
 						},
 						click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
@@ -138,7 +172,7 @@ angular.module('placekoob.controllers')
 					}
 				},
 				uplace_uuid: '',
-				thumbnailUrl: 'img/icon/gps.png',
+				thumbnailUrl: 'img/icon/pin_current2.svg',
 				name: '현재 위치',
 				phoneNo: '',
 				address: main.address,
@@ -150,7 +184,7 @@ angular.module('placekoob.controllers')
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
-					icon: 'img/icon/pin_base_small.png',
+					icon: 'img/icon/pin_normal2.svg',
 					events: {
 	          click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
@@ -176,11 +210,13 @@ angular.module('placekoob.controllers')
 					}
 		    }
 			};
-			$ionicLoading.hide();
+			deferred.resolve(true);
 		}, function(err) {
 			console.error(err);
-			$ionicLoading.hide();
+			deferred.reject(err);
 		});
+
+		return deferred.promise;
 	};
 
 	main.goPlace = function(uplace_uuid) {
@@ -201,5 +237,25 @@ angular.module('placekoob.controllers')
 
 	$scope.$on('$ionicView.beforeLeave', function() {
 		console.log('Before leaving main View..');
+	});
+
+	$scope.$on('map.request.gotocurrent.after', function() {
+		main.goToCurrentPosition();
+	});
+
+	$scope.$on('map.request.refresh.after', function() {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
+		main.getCurrentPosition()
+    .then(function(pos){
+			console.log(pos);
+			main.map.center.latitude = pos.latitude;
+			main.map.center.longitude = pos.longitude;
+			main.posts[0].coords.latitude = pos.latitude;
+			main.posts[0].coords.longitude = pos.longitude;
+			$ionicLoading.hide();
+    });
 	});
 }]);

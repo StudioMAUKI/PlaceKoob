@@ -95,12 +95,12 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
     //  새로운 장소가 저장되었다는 이벤트를 감지하면, 다른 뷰의 목록도 갱신하도록 전달
     //  현재는 개별 저장에 대해서만 작동하도록 되어 있음
     $rootScope.$on('post.created', function() {
-      console.log("RootScope received the event of post.created.");
+      console.log('RootScope received the event of post.created.');
       $rootScope.$broadcast('post.list.update');
     });
 
     $rootScope.$on('user.logouted', function() {
-      console.log("RootScope received the event of user.logouted.");
+      console.log('RootScope received the event of user.logouted.');
       $rootScope.$broadcast('post.list.update');
     });
 
@@ -112,6 +112,16 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
     $rootScope.$on('server.changed', function() {
       console.log('Server changed.');
       $rootScope.$broadcast('server.changed.after');
+    });
+
+    $rootScope.$on('map.request.gotocurrent', function() {
+      console.log('Go to current position.');
+      $rootScope.$broadcast('map.request.gotocurrent.after');
+    });
+
+    $rootScope.$on('map.request.refresh', function() {
+      console.log('Refresh current position.');
+      $rootScope.$broadcast('map.request.refresh.after');
     });
   });
 }]);
