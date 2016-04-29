@@ -219,6 +219,7 @@ angular.module('placekoob.controllers')
 	}
 
 	$scope.$on('posts.request.refresh', function() {
+		console.log('MainCtrl : post.request.refresh received');
 		main.loadSavedPlace(true);
 	});
 	$scope.$on('map.request.gotocurrent.after', function() {
