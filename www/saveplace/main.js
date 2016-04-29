@@ -136,9 +136,7 @@ angular.module('placekoob.controllers')
 			};
 
 			main.loadSavedPlace()
-			.then(function() {
-				$ionicLoading.hide();
-			}, function(err){
+			.finally(function(){
 				$ionicLoading.hide();
 			});
     }, function(err){
