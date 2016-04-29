@@ -65,10 +65,7 @@ angular.module('placekoob.controllers')
 			template: '로그아웃했습니다. 아이폰은 앱을 껐다가 켜주세요.'
 		})
 		.then(function(res) {
-			// console.log('앱을 종료할려는데..');
-			// $scope.$emit('user.logouted');
 			ionic.Platform.exitApp();
-			//$state.go('register');
 		});
 	}
 

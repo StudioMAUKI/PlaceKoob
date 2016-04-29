@@ -103,7 +103,7 @@ angular.module('placekoob.controllers')
 			.then(function(result) {
 				$ionicLoading.hide();
 				saveModal.closeSaveDlg();
-				$scope.$emit('post.created');
+				$scope.$emit('posts.request.refresh');
 			}, function(err) {
 				$ionicLoading.hide();
 				saveModal.showAlert('오류: 장소 저장', err)
@@ -136,7 +136,7 @@ angular.module('placekoob.controllers')
 		.then(function(result) {
 			$ionicLoading.hide();
 			saveModal.closeSaveDlg();
-			$scope.$emit('post.created');
+			$scope.$emit('posts.request.refresh');
 		}, function(err) {
 			$ionicLoading.hide();
 			saveModal.showAlert('오류: URL 저장', err)

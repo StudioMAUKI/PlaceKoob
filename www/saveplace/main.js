@@ -2,21 +2,12 @@
 
 angular.module('placekoob.controllers')
 .controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
-	console.log('mainCtrl is called.');
 	var main = this;
 	main.prevIndex = -1;
 	main.last_marker_index = -1;
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.map = { center: main.last_coords, zoom: 15 };
-	main.currentPosMarker = {
-		id: 'currentPosMarker',
-		coords: main.last_coords,
-		options: {
-			draggable: true,
-			icon: 'img/icon/main_pin_small.png'
-		}
-	};
 
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
@@ -33,20 +24,19 @@ angular.module('placekoob.controllers')
 	};
 
 	main.goToCurrentPosition = function() {
-		console.log('goToCurrentPosition');
 		main.jumpToSlide(0);
 	};
 
 	main.slidehasChanged = function(index) {
 		if (index !== 0) {
-			main.posts[index].options.icon = 'img/icon/pin_active2.svg';
+			main.posts[index].options.icon = 'img/icon/pin_active.svg';
 		}
 		main.map.center.latitude = main.posts[index].coords.latitude;
 		main.map.center.longitude = main.posts[index].coords.longitude;
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
-		if (main.prevIndex != 0 && main.prevIndex != -1) {
-				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal2.svg';
+		if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		main.prevIndex = index;
@@ -72,9 +62,9 @@ angular.module('placekoob.controllers')
 			StorageService.set('addr1', addrs.roadAddress.name);
 			StorageService.set('addr2', addrs.jibunAddress.name);
 			StorageService.set('addr3', addrs.region);
-			console.log('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
-			console.log('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
-			console.log('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+			console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
 			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
@@ -84,9 +74,9 @@ angular.module('placekoob.controllers')
 		var documentHeight = $(document).height();
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
 		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
-		console.log('Document Height : ' + documentHeight);
-		console.log('Bar Height : ' + barHeight);
-		console.log('Tab Height : ' + tabHeight);
+		console.info('Document Height : ' + documentHeight);
+		console.info('Bar Height : ' + barHeight);
+		console.info('Tab Height : ' + tabHeight);
 		$('.angular-google-map-container').css({
 			height: documentHeight - barHeight - tabHeight	// 137 : height = document - bar - tab_bar
 		});
@@ -144,10 +134,10 @@ angular.module('placekoob.controllers')
     });
   });
 
-	main.loadSavedPlace = function(force) {
+	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
 		var pos = StorageService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0, force)
+		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0)
 		.then(function(posts) {
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
 			main.posts = [{
@@ -158,7 +148,7 @@ angular.module('placekoob.controllers')
 				},
 				options: {
 					draggable: true,
-					icon: 'img/icon/pin_current2.svg',
+					icon: 'img/icon/pin_current.svg',
 					events: {
 						dragend: function (marker, eventName, args) {
 							main.map.center.latitude = marker.position.lat();
@@ -172,7 +162,7 @@ angular.module('placekoob.controllers')
 					}
 				},
 				uplace_uuid: '',
-				thumbnailUrl: 'img/icon/pin_current2.svg',
+				thumbnailUrl: 'img/icon/pin_current.svg',
 				name: '현재 위치',
 				phoneNo: '',
 				address: main.address,
@@ -184,7 +174,7 @@ angular.module('placekoob.controllers')
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
-					icon: 'img/icon/pin_normal2.svg',
+					icon: 'img/icon/pin_normal.svg',
 					events: {
 	          click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
@@ -226,23 +216,12 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
 
-	$scope.$on('post.created', function() {
-		main.loadSavedPlace(true);
+	$scope.$on('posts.request.refresh', function() {
+		main.loadSavedPlace();
 	});
-
-	$scope.$on('$ionicView.afterEnter', function() {
-		console.log('After entering main View..');
-		//main.loadSavedPlace(true);
-	});
-
-	$scope.$on('$ionicView.beforeLeave', function() {
-		console.log('Before leaving main View..');
-	});
-
 	$scope.$on('map.request.gotocurrent.after', function() {
 		main.goToCurrentPosition();
 	});
-
 	$scope.$on('map.request.refresh.after', function() {
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
@@ -250,12 +229,14 @@ angular.module('placekoob.controllers')
 		});
 		main.getCurrentPosition()
     .then(function(pos){
-			console.log(pos);
 			main.map.center.latitude = pos.latitude;
 			main.map.center.longitude = pos.longitude;
 			main.posts[0].coords.latitude = pos.latitude;
 			main.posts[0].coords.longitude = pos.longitude;
 			$ionicLoading.hide();
     });
+	});
+	$scope.$on('$ionicView.afterEnter', function() {
+		main.loadSavedPlace();
 	});
 }]);
