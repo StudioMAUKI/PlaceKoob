@@ -9,7 +9,7 @@ angular.module('placekoob.controllers')
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.map = { center: main.last_coords, zoom: 15 };
-	
+
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
   };
@@ -218,23 +218,12 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
 
-	$scope.$on('post.created', function() {
+	$scope.$on('posts.request.refresh', function() {
 		main.loadSavedPlace(true);
 	});
-
-	$scope.$on('$ionicView.afterEnter', function() {
-		console.log('After entering main View..');
-		//main.loadSavedPlace(true);
-	});
-
-	$scope.$on('$ionicView.beforeLeave', function() {
-		console.log('Before leaving main View..');
-	});
-
 	$scope.$on('map.request.gotocurrent.after', function() {
 		main.goToCurrentPosition();
 	});
-
 	$scope.$on('map.request.refresh.after', function() {
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',

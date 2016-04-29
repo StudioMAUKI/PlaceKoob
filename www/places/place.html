@@ -5,7 +5,7 @@
 	      뒤로
 	    </button>
 		</div>
-		<h1 class="title">{{place.post.placePost.name?place.post.placePost.name.content:'등록 대기중'}}</h1>
+		<h1 class="title">상세 정보</h1>
 		<div class="buttons">
 			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
 	    <button class="button-clear button-icon ion-trash-a pk-primary" ng-click="place.deletePlace()"></button>
@@ -14,9 +14,9 @@
 	<ion-content class="post-container">
 		<!-- placePost 영역 -->
 		<article class="place-post-container" ng-show="place.post.placePost.name">
-			<!-- <div class="place-name">
-				<strong>{{place.post.placePost.name.content}}</strong>
-			</div> -->
+			<div class="place-name">
+				<strong>{{place.post.placePost.name?place.post.placePost.name.content:'등록 대기중'}}</strong>
+			</div>
 			<div class="place-addr">
 				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.address}}
 			</div>

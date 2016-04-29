@@ -64,16 +64,14 @@ angular.module('placekoob.controllers')
 
 	plNotYet.loadSavedPlace = function(force) {
 		var deferred = $q.defer();
-		console.log('placesCtrl: loadSavedPlace() called.');
 		RemoteAPIService.getPostsOfMine(100, 0, force)
 		.then(function(posts) {
-			var results = [];
+			plNotYet.posts = [];
 			for (var i = 0; i < posts.length; i++) {
 				if (!plNotYet.postHelper.isOrganized(posts[i])){
-					results.push(posts[i]);
+					plNotYet.posts.push(posts[i]);
 				}
 			}
-			plNotYet.posts = results;
 			deferred.resolve();
 		});
 
@@ -89,5 +87,5 @@ angular.module('placekoob.controllers')
 
 	plNotYet.loadSavedPlace();
 
-	$scope.$on('post.list.update', plNotYet.loadSavedPlace);
+	$scope.$on('posts.request.refresh.after', plNotYet.loadSavedPlace);
 }]);
