@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, RemoteAPIService, PostHelper, PhotoService) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -99,6 +99,18 @@ angular.module('placekoob.controllers')
         }
       ]
     });
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      $cordovaClipboard.paste()
+      .then(function(result) {
+        console.log('URL in clipboard: ' + result);
+        var pastedURL = result;
+        if (pastedURL !== '') {
+          place.Url = pastedURL;
+        }
+      }, function(err) {
+        console.error('Clipboard paste error : ' + error);
+      });
+    }
 
     myPopup.then(function(Url) {
       console.log('Tapped!', Url);
