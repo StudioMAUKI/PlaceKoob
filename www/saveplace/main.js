@@ -162,7 +162,7 @@ angular.module('placekoob.controllers')
 					}
 				},
 				uplace_uuid: '',
-				thumbnailUrl: 'img/icon/pin_current.svg',
+				thumbnailURL: 'img/icon/pin_current.svg',
 				name: '현재 위치',
 				phoneNo: '',
 				address: main.address,

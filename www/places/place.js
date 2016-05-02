@@ -54,8 +54,8 @@ angular.module('placekoob.controllers')
     place.showModal('places/image-zoomview.html');
   }
 
-  place.showModal = function(templateUrl) {
-    $ionicModal.fromTemplateUrl(templateUrl, {
+  place.showModal = function(templateURL) {
+    $ionicModal.fromTemplateUrl(templateURL, {
       scope: $scope
     }).then(function(modal) {
       place.modal = modal;
@@ -77,10 +77,10 @@ angular.module('placekoob.controllers')
     }
   };
 
-  place.addUrl = function() {
+  place.addURL= function() {
     // An elaborate, custom popup
     var myPopup = $ionicPopup.show({
-      template: '<input type="text" ng-model="place.Url">',
+      template: '<input type="text" ng-model="place.URL">',
       title: '추가할 URL을 입력하세요',
       subTitle: '붙여넣기를 하시면 편리합니다.',
       scope: $scope,
@@ -90,10 +90,10 @@ angular.module('placekoob.controllers')
           text: '<b>확인</b>',
           type: 'pk-accent',
           onTap: function(e) {
-            if (!$scope.place.Url) {
+            if (!$scope.place.URL) {
               e.preventDefault();
             } else {
-              return $scope.place.Url;
+              return $scope.place.URL;
             }
           }
         }
@@ -105,19 +105,19 @@ angular.module('placekoob.controllers')
         console.log('URL in clipboard: ' + result);
         var pastedURL = result;
         if (pastedURL !== '') {
-          place.Url = pastedURL;
+          place.URL = pastedURL;
         }
       }, function(err) {
         console.error('Clipboard paste error : ' + error);
       });
     }
 
-    myPopup.then(function(Url) {
-      console.log('Tapped!', Url);
-      if (Url !== undefined) {
+    myPopup.then(function(URL) {
+      console.log('Tapped!', URL);
+      if (URL !== undefined) {
         RemoteAPIService.sendUserPost({
           urls: [{
-            content: Url
+            content: URL
           }],
           uplace_uuid: place.uplace_uuid
         })

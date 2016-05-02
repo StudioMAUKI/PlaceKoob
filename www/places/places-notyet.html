@@ -14,7 +14,7 @@
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
 			<ion-item collection-repeat="post in plNotYet.posts" item-width="plNotYet.itemWidth" item-height="plNotYet.itemHeight" href="#/places/{{post.uplace_uuid}}">
-				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
+				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span>
 				&nbsp;-&nbsp;<span class="place-item-addr">{{post.datetime}}</span><br>
 				<span class="place-item-addr">{{post.address}}</span><br>

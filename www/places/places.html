@@ -15,7 +15,7 @@
 		    내 장소 {{places.posts.length}} 곳
 		  </div>
 			<ion-item collection-repeat="post in places.posts" item-width="places.itemWidth" item-height="places.itemHeight" href="#/places/{{post.uplace_uuid}}">
-				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
+				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span><br>
 				<span class="place-item-addr">{{post.address}}</span><br>
 				<div class="place-item-note">{{post.desc}}</div><br>

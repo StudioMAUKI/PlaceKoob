@@ -38,7 +38,7 @@ angular.module('placekoob.services')
   }
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
-  var getServerUrl = RESTServer.getURL;
+  var getServerURL = RESTServer.getURL;
   var cachedUplaces = [];
   var cachedUplacesAssgined = [];
   var cachedUplacesWaiting = [];
@@ -70,7 +70,7 @@ angular.module('placekoob.services')
 
       $http({
         method: 'POST',
-        url: getServerUrl() + '/users/register/',
+        url: getServerURL() + '/users/register/',
         country:StorageService.get('country'),
         language:StorageService.get('lang'),
         timezone:''
@@ -90,7 +90,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/users/login/',
+      url: getServerURL() + '/users/login/',
       data: JSON.stringify({ auth_user_token: token })
     })
     .then(function(result) {
@@ -125,7 +125,7 @@ angular.module('placekoob.services')
     } else {
       $http({
         method: 'POST',
-        url: getServerUrl() + '/vds/register/',
+        url: getServerURL() + '/vds/register/',
         data: JSON.stringify({ email: email })
       })
       .then(function(result) {
@@ -143,7 +143,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/vds/login/',
+      url: getServerURL() + '/vds/login/',
       data: JSON.stringify({ auth_vd_token: token })
     })
     .then(function(result) {
@@ -165,7 +165,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/uplaces/',
+      url: getServerURL() + '/uplaces/',
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
@@ -187,7 +187,7 @@ angular.module('placekoob.services')
     var ret_uplace_uuid = uplace_uuid.split('.')[0];
     $http({
       method: 'DELETE',
-      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
+      url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(result) {
       cacheMng['uplaces'].needToUpdate = true;
@@ -209,7 +209,7 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(getServerUrl() + '/rfs/', fileURI, options)
+      $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
         console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
@@ -220,7 +220,7 @@ angular.module('placekoob.services')
     } else {
       var fd = new FormData();
       fd.append('file', fileURI);
-      $http.post(getServerUrl() + '/rfs/', fd, {
+      $http.post(getServerURL() + '/rfs/', fd, {
         transformRequest: angular.identity,
         headers: { 'Content-Type': undefined }
       })
@@ -268,7 +268,7 @@ angular.module('placekoob.services')
     if (checkNeedToRefresh('uplaces')) {
       $http({
         method: 'GET',
-        url: getServerUrl() + '/uplaces/',
+        url: getServerURL() + '/uplaces/',
         params: {
           ru: 'myself',
           limit: limit,
@@ -309,7 +309,7 @@ angular.module('placekoob.services')
     if (checkNeedToRefresh('places')) {
       $http({
         method: 'GET',
-        url: getServerUrl() + '/uplaces/',
+        url: getServerURL() + '/uplaces/',
         params: {
           lon: lon,
           lat: lat,
@@ -347,7 +347,7 @@ angular.module('placekoob.services')
     // 직접 질의
     $http({
       method: 'GET',
-      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
+      url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(response) {
       PostHelper.decoratePost(response.data);
@@ -417,7 +417,7 @@ angular.module('placekoob.services')
     return content.replace(/#/g, '');
   }
 
-  function getThumbnailUrlByFirstImage(post) {
+  function getThumbnailURLByFirstImage(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
       return 'img/icon/404.png';
     }
@@ -496,7 +496,7 @@ angular.module('placekoob.services')
   //  계산해서 속성으로 담아둔다.
   function decoratePost(post) {
     post.name = getPlaceName(post);
-    post.thumbnailUrl = getThumbnailUrlByFirstImage(post);
+    post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
     post.address = getAddress(post);
     post.desc = getUserNote(post);
