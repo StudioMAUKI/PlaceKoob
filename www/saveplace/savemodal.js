@@ -101,6 +101,9 @@ angular.module('placekoob.controllers')
 				addr3: { content: StorageService.get('addr3') || null },
 			})
 			.then(function(result) {
+				console.log('Post sended:');
+				console.dir(result);
+				StorageService.set('last_uplace_id', result.data.uplace_uuid);
 				$ionicLoading.hide();
 				saveModal.closeSaveDlg();
 				$scope.$emit('posts.request.refresh');
