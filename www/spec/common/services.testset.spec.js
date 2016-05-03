@@ -56,7 +56,7 @@ describe('placekoob.services', function() {
     }));
 
     it('tests to get post list', function() {
-      DummyRemoteAPIService.getPostsOfMine()
+      DummyRemoteAPIService.getPostsOfMine('top')
       .then(function(posts) {
         expect(posts.count).toEqual(15);
         expect(posts.results.length).toEqual(15);

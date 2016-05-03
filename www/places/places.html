@@ -7,7 +7,7 @@
 		" ng-click="places.popOverOrdering($event)"></button>
 	</ion-header-bar>
 	<ion-content>
-		<ion-refresher pulling-text="Pull to refresh..." on-refresh="places.doRefresh()">
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="places.doRefresh('top')">
   	</ion-refresher>
 		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;background-color:#CFD8DC;padding-right:10px;" ng-href="#/places-not-yet" ng-show="places.notYetCount > 0">{{places.notYetCount}}개의 저장한 장소가 정보화 대기중입니다. <i class="ion-arrow-right-c"></i></a>
 		<ion-list show-delete="places.showDelete">
@@ -16,7 +16,7 @@
 		  </div>
 			<ion-item collection-repeat="post in places.posts" item-width="places.itemWidth" item-height="places.itemHeight" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
-				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span><br>
+				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
 				<span class="place-item-addr">{{post.address}}</span><br>
 				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
@@ -30,6 +30,8 @@
       	</ion-option-button> -->
 			</ion-item>
 		</ion-list>
+		<ion-infinite-scroll ng-if="!places.endoflist" on-infinite="places.doRefresh('bottom')" distance="1%">
+	  </ion-infinite-scroll>
 	</ion-content>
 </ion-view>
 <!-- end : real contents area -->
