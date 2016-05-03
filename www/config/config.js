@@ -42,8 +42,8 @@ angular.module('placekoob.controllers')
   }
 
   config.requestUserInfo = function() {
-    console.log("The request URL is " + SocialService.foursquare.getUserInfoUrl('lists'));
-    $http.get(SocialService.foursquare.getUserInfoUrl('lists'))
+    console.log("The request URL is " + SocialService.foursquare.getUserInfoURL('lists'));
+    $http.get(SocialService.foursquare.getUserInfoURL('lists'))
     .then(function(result) {
       console.log("Response Object -> " + JSON.stringify(result));
     }, function(error) {

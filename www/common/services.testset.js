@@ -523,7 +523,7 @@ angular.module('placekoob.services')
     ]
 };
 
-  function getPostsOfMine(limit, offset) {
+  function getPostsOfMine(position) {
     var deferred = $q.defer();
     $timeout(function() {
       deferred.resolve(posts.results);

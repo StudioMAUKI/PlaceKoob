@@ -65,7 +65,7 @@ angular.module('placekoob.services', [])
       secret_key : '4VU0FLFOORV13ETKHN5UNYKGBNPZBAJ3OGGKC5E2NILYA2VD',
       version: '20160324',
       mode: 'foursquare',
-      getUserInfoUrl: function(aspect) {
+      getUserInfoURL: function(aspect) {
         return this.url_prefix + (aspect? '/' + aspect : '') + '?oauth_token=' + this.token + '&v=' + this.version + '&m=' + this.mode;
       }
     }
@@ -203,7 +203,7 @@ angular.module('placekoob.services', [])
         return JSON.parse(window.sessionStorage.getItem(key));
       } catch (err) {
         return null;
-      }      
+      }
     },
     has: function(key) {
       // return !(data[key] === undefined);
@@ -276,7 +276,7 @@ angular.module('placekoob.services', [])
 
 	    $cordovaCamera.getPicture(options)
 	    .then(function (imageURI) {
-	      console.log('imageUrl: ' + imageURI);
+	      console.log('imageURI: ' + imageURI);
         deferred.resolve(imageURI);
 	    }, function (err) {
 	      console.error('Camera capture failed : ' + err);

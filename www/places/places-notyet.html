@@ -7,14 +7,14 @@
 		" ng-click="plNotYet.popOverOrdering($event)"></button>
 	</ion-header-bar>
 	<ion-content>
-		<ion-refresher pulling-text="Pull to refresh..." on-refresh="plNotYet.doRefresh()">
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="plNotYet.doRefresh('top')">
   	</ion-refresher>
 		<ion-list show-delete="plNotYet.showDelete">
 			<div class="item item-divider">
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
 			<ion-item collection-repeat="post in plNotYet.posts" item-width="plNotYet.itemWidth" item-height="plNotYet.itemHeight" href="#/places/{{post.uplace_uuid}}">
-				<img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}" alt="{{post.name}}">
+				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}({{0}})</strong></span>
 				&nbsp;-&nbsp;<span class="place-item-addr">{{post.datetime}}</span><br>
 				<span class="place-item-addr">{{post.address}}</span><br>
@@ -30,6 +30,8 @@
       	</ion-option-button> -->
 			</ion-item>
 		</ion-list>
+		<!-- <ion-infinite-scroll ng-if="!plNotYet.endoflist" on-infinite="plNotYet.doRefresh('bottom')" distance="1%">
+	  </ion-infinite-scroll> -->
 	</ion-content>
 </ion-view>
 <!-- end : real contents area -->

@@ -38,7 +38,7 @@ angular.module('placekoob.services')
   }
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
-  var getServerUrl = RESTServer.getURL;
+  var getServerURL = RESTServer.getURL;
   var cachedUplaces = [];
   var cachedUplacesAssgined = [];
   var cachedUplacesWaiting = [];
@@ -46,11 +46,15 @@ angular.module('placekoob.services')
   var cacheMng = {
     uplaces: {
       list: [],
+      count: 0,
+      endoflist: false,
       lastUpdated: 0,
       needToUpdate: true
     },
     places: {
       list: [],
+      count: 0,
+      endoflist: false,
       lastUpdated: 0,
       needToUpdate: true
     }
@@ -70,7 +74,7 @@ angular.module('placekoob.services')
 
       $http({
         method: 'POST',
-        url: getServerUrl() + '/users/register/',
+        url: getServerURL() + '/users/register/',
         country:StorageService.get('country'),
         language:StorageService.get('lang'),
         timezone:''
@@ -90,7 +94,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/users/login/',
+      url: getServerURL() + '/users/login/',
       data: JSON.stringify({ auth_user_token: token })
     })
     .then(function(result) {
@@ -125,7 +129,7 @@ angular.module('placekoob.services')
     } else {
       $http({
         method: 'POST',
-        url: getServerUrl() + '/vds/register/',
+        url: getServerURL() + '/vds/register/',
         data: JSON.stringify({ email: email })
       })
       .then(function(result) {
@@ -143,7 +147,7 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/vds/login/',
+      url: getServerURL() + '/vds/login/',
       data: JSON.stringify({ auth_vd_token: token })
     })
     .then(function(result) {
@@ -165,14 +169,14 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     $http({
       method: 'POST',
-      url: getServerUrl() + '/uplaces/',
+      url: getServerURL() + '/uplaces/',
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
       //console.log('SendObj : ' + JSON.stringify(sendObj));
       // if (sendObj.uplace_uuid === null) {
-        cacheMng['uplaces'].needToUpdate = true;
-        cacheMng['places'].needToUpdate = true;
+        cacheMng.uplaces.needToUpdate = true;
+        cacheMng.places.needToUpdate = true;
       // }
       deferred.resolve(result);
     }, function(err) {
@@ -187,11 +191,27 @@ angular.module('placekoob.services')
     var ret_uplace_uuid = uplace_uuid.split('.')[0];
     $http({
       method: 'DELETE',
-      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
+      url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(result) {
-      cacheMng['uplaces'].needToUpdate = true;
-      cacheMng['places'].needToUpdate = true;
+      var idOrganized = -1, idUnorganized = -1;
+      for (var i = 0; i < cachedUplaces.length; i++) {
+        if (PostHelper.isOrganized(cachedUplaces[i])) {
+          idOrganized++;
+        } else {
+          idUnorganized++;
+        }
+        if (uplace_uuid === cachedUplaces[i].uplace_uuid) {
+          if (PostHelper.isOrganized(cachedUplaces[i])) {
+            cachedUplacesAssgined.splice(idOrganized, 1);
+          } else {
+            cachedUplacesWaiting.splice(idUnorganized, 1);
+          }
+          cachedUplaces.splice(i, 1);
+        }
+      }
+      cacheMng.uplaces.needToUpdate = true;
+      cacheMng.places.needToUpdate = true;
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -209,7 +229,7 @@ angular.module('placekoob.services')
         fileKey: 'file',
         httpMethod: 'POST'
       };
-      $cordovaFileTransfer.upload(getServerUrl() + '/rfs/', fileURI, options)
+      $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
         console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
@@ -220,7 +240,7 @@ angular.module('placekoob.services')
     } else {
       var fd = new FormData();
       fd.append('file', fileURI);
-      $http.post(getServerUrl() + '/rfs/', fd, {
+      $http.post(getServerURL() + '/rfs/', fd, {
         transformRequest: angular.identity,
         headers: { 'Content-Type': undefined }
       })
@@ -241,10 +261,22 @@ angular.module('placekoob.services')
   //  2. 마지막으로 업데이트 한 시간에서 1분이 지났는가?
   //  3. 업데이트 태그가 설정되어 있는가?
   function checkNeedToRefresh(key) {
-    if (cacheMng[key].list.length === 0){
-      console.log('업데이트 필요 : 리스트가 비어 있음');
+    if (key === 'uplaces') {
+      if (cachedUplaces.length === 0){
+        console.log('업데이트 필요 : 리스트가 비어 있음');
+        return true;
+      }
+    } else if (key === 'places'){
+      if (cachedPlaces.length === 0){
+        console.log('업데이트 필요 : 리스트가 비어 있음');
+        return true;
+      }
+    } else {
+      console.warn('등록되지 않은 키(' + key + ')로 업데이트 여부를 체크했음')
       return true;
     }
+
+
     var timeNow = new Date().getTime();
     if (timeNow - cacheMng[key].lastUpdated >= 60000) {
       console.log('업데이트 필요 : 너무 오래 업데이트를 안 했음');
@@ -254,6 +286,7 @@ angular.module('placekoob.services')
       console.log('업데이트 필요 : 업데이트 필요 태그가 세팅 됨');
       return true;
     }
+    console.log('업데이트 필요 없음');
     return false;
   }
 
@@ -262,13 +295,32 @@ angular.module('placekoob.services')
     cacheMng[key].lastUpdated = new Date().getTime();
   }
 
-  function getPostsOfMine(limit, offset) {
+  function getPostsOfMine(position) {
     var deferred = $q.defer();
+    var pos = position || 'top';
+    var offset, limit;
+    if (pos === 'top') {
+      offset = 0;
+      limit = 20;
+    } else if (pos === 'bottom') {
+      offset = cachedUplaces.length;
+      limit = 20;
+      cacheMng.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
+      if (cacheMng.uplaces.endoflist) {
+        console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
+        deferred.reject('endoflist');
+        cacheMng.uplaces.needToUpdate = false;
+        return deferred.promise;
+      }
+    } else {
+      deferred.reject('Wrong parameter.');
+      return deferred.promise;
+    }
 
     if (checkNeedToRefresh('uplaces')) {
       $http({
         method: 'GET',
-        url: getServerUrl() + '/uplaces/',
+        url: getServerURL() + '/uplaces/',
         params: {
           ru: 'myself',
           limit: limit,
@@ -276,12 +328,46 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        //console.dir(response.data);
-        cachedUplaces = cacheMng['uplaces'].list = response.data.results;
-        PostHelper.decoratePosts(cachedUplaces);
+        // console.dir(response.data);
+
+        if (pos === 'top') {
+          var newElements = [];
+          var found = false;
+          for (var i = 0; i < response.data.results.length; i++) {
+            found = false;
+            for (var j = 0; j < cachedUplaces.length; j++) {
+              // console.log(j);
+              if (response.data.results[i].uplace_uuid === cachedUplaces[j].uplace_uuid) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              newElements.push(response.data.results[i]);
+            }
+          }
+          cachedUplaces = newElements.concat(cachedUplaces);
+          // if (response.data.count > cacheMng.uplaces.count) {
+          //   console.log('Uplaces count is ' + response.data.count + ', prev count was ' + cacheMng.uplaces.count);
+          //   cachedUplaces = response.data.results.splice(0, response.data.count - cacheMng.uplaces.count).concat(cachedUplaces);
+          //   cacheMng.uplaces.count = response.data.count;
+          // } else if (response.data.count < cacheMng.uplaces.count) {  //  삭제에 대한 처리가 애매한데..(임시로직)
+          //   console.log('삭제로 인해 리스트의 사이즈가 줄어들었음.');
+          //   cachedUplaces = response.data.results;
+          // } else {
+          //   console.info('리스트를 받았지만, 새로운 것은 없었음.');
+          // }
+        } else {  //  position === 'bottom'
+          if (response.data.results.length === 0) {
+            cacheMng.uplaces.endoflist = true;
+          } else {
+            cachedUplaces = cachedUplaces.concat(response.data.results);
+          }
+        }
 
         cachedUplacesAssgined = [];
         cachedUplacesWaiting = [];
+        PostHelper.decoratePosts(cachedUplaces);
         for (var i = 0; i < cachedUplaces.length; i++) {
           if (PostHelper.isOrganized(cachedUplaces[i])) {
             cachedUplacesAssgined.push(cachedUplaces[i]);
@@ -290,11 +376,13 @@ angular.module('placekoob.services')
           }
         }
 
-        setRefreshCompleted('uplaces');
         deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
+      })
+      .finally(function() {
+        setRefreshCompleted('uplaces');
       });
     } else {
       deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
@@ -309,7 +397,7 @@ angular.module('placekoob.services')
     if (checkNeedToRefresh('places')) {
       $http({
         method: 'GET',
-        url: getServerUrl() + '/uplaces/',
+        url: getServerURL() + '/uplaces/',
         params: {
           lon: lon,
           lat: lat,
@@ -317,7 +405,7 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        cacheMng['places'].list = response.data.results;
+        cacheMng.places.list = response.data.results;
         cachedPlaces = [];
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
@@ -325,12 +413,13 @@ angular.module('placekoob.services')
           }
         }
         PostHelper.decoratePosts(cachedPlaces);
-        setRefreshCompleted('places');
-
         deferred.resolve(cachedPlaces);
       }, function(err) {
         console.error(err);
         deferred.reject(err);
+      })
+      .finally(function() {
+        setRefreshCompleted('places');
       });
     } else {
       deferred.resolve(cachedPlaces);
@@ -347,7 +436,7 @@ angular.module('placekoob.services')
     // 직접 질의
     $http({
       method: 'GET',
-      url: getServerUrl() + '/uplaces/' + ret_uplace_uuid + '/'
+      url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(response) {
       PostHelper.decoratePost(response.data);
@@ -417,7 +506,7 @@ angular.module('placekoob.services')
     return content.replace(/#/g, '');
   }
 
-  function getThumbnailUrlByFirstImage(post) {
+  function getThumbnailURLByFirstImage(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
       return 'img/icon/404.png';
     }
@@ -496,7 +585,7 @@ angular.module('placekoob.services')
   //  계산해서 속성으로 담아둔다.
   function decoratePost(post) {
     post.name = getPlaceName(post);
-    post.thumbnailUrl = getThumbnailUrlByFirstImage(post);
+    post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
     post.address = getAddress(post);
     post.desc = getUserNote(post);

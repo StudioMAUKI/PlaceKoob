@@ -21,7 +21,7 @@
 		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true" on-scroll="main.scrollToMarker()" delegate-handle="mapScroll" overflow-scroll="false">
 			<div ng-style="{width: main.getFullWidth()}">
 				<div collection-repeat="post in main.posts" class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">
-					<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailUrl}}"></a>
+					<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailURL}}"></a>
 					<section>
 						<div>
 							<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>

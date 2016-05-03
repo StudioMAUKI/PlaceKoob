@@ -162,7 +162,7 @@ angular.module('placekoob.controllers')
 					}
 				},
 				uplace_uuid: '',
-				thumbnailUrl: 'img/icon/pin_current.svg',
+				thumbnailURL: 'img/icon/pin_current.svg',
 				name: '현재 위치',
 				phoneNo: '',
 				address: main.address,
@@ -217,7 +217,19 @@ angular.module('placekoob.controllers')
 	}
 
 	$scope.$on('posts.request.refresh', function() {
-		main.loadSavedPlace();
+		main.loadSavedPlace()
+		.then(function() {
+			//	방금 저장한 장소로 핀과 슬라이드를 이동 시킴
+			var last_uplace_id = StorageService.get('last_uplace_id') || '';
+			if (last_uplace_id) {
+				for (var i = 0; i < main.posts.length; i++) {
+					if (last_uplace_id === main.posts[i].uplace_uuid) {
+						main.jumpToSlide(i);
+						break;
+					}
+				}
+			}
+		});
 	});
 	$scope.$on('map.request.gotocurrent.after', function() {
 		main.goToCurrentPosition();

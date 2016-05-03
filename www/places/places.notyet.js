@@ -7,6 +7,7 @@ angular.module('placekoob.controllers')
 	plNotYet.orderingType = "최신순";
 	plNotYet.itemHeight = '99px';
 	plNotYet.itemWidth = window.innerWidth + 'px';
+	plNotYet.endoflist = false;
 
 	plNotYet.goBack = function() {
 		// $state.go('tab.places');
@@ -53,7 +54,7 @@ angular.module('placekoob.controllers')
       })
       .then(function() {
 				$ionicListDelegate.closeOptionButtons();
-        plNotYet.loadSavedPlace();
+        plNotYet.loadSavedPlace('top');
       });
     }, function(err) {
       console.error(err);
@@ -64,22 +65,37 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	plNotYet.loadSavedPlace = function() {
+	plNotYet.loadSavedPlace = function(position) {
 		var deferred = $q.defer();
-		RemoteAPIService.getPostsOfMine(100, 0)
+		var pos = position || 'top';
+		RemoteAPIService.getPostsOfMine(pos)
 		.then(function(result) {
 			plNotYet.posts = result.waiting;
 			deferred.resolve();
+		}, function(err) {
+			if (err === 'endoflist') {
+				console.log('endoflist');
+				plNotYet.endoflist = true;
+			} else {
+				console.err(err);
+			}
 		});
 
 		return deferred.promise;
 	};
 
-	plNotYet.doRefresh = function() {
-		plNotYet.loadSavedPlace()
-		.finally(function(){
-			$scope.$broadcast('scroll.refreshComplete');
-		});
+	plNotYet.doRefresh = function(direction) {
+		if (direction === 'top') {
+			plNotYet.loadSavedPlace()
+			.finally(function(){
+				$scope.$broadcast('scroll.refreshComplete');
+			});
+		} else if (direction === 'bottom') {
+			plNotYet.loadSavedPlace('bottom')
+			.finally(function(){
+				$scope.$broadcast('scroll.infiniteScrollComplete');
+			});
+		}
 	};
 
 	$scope.$on('$ionicView.afterEnter', function() {

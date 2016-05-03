@@ -9,6 +9,8 @@ angular.module('placekoob.controllers')
 	places.notYetCount = 0;
 	places.itemHeight = '99px';
 	places.itemWidth = window.innerWidth + 'px';
+	places.endoflist = false;
+	places.completedFirstLoading = false;
 
 	places.toggleLeft = function() {
 		$ionicSideMenuDelegate.toggleLeft();
@@ -61,27 +63,55 @@ angular.module('placekoob.controllers')
 		console.log('share is invoked');
 	};
 
-	places.loadSavedPlace = function() {
+	places.loadSavedPlace = function(position) {
+		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
-		RemoteAPIService.getPostsOfMine(100, 0)
+		var pos = position || 'top';
+		RemoteAPIService.getPostsOfMine(pos)
 		.then(function(result) {
 			places.posts = result.assined;
 			places.notYetCount = result.waiting.length;
 			deferred.resolve();
+		}, function(err) {
+			if (err === 'endoflist') {
+				console.log('endoflist');
+				places.endoflist = true;
+			} else {
+				console.err(err);
+			}
 		});
 
 		return deferred.promise;
 	}
 
-	places.doRefresh = function() {
-		places.loadSavedPlace()
-		.finally(function(){
-			$scope.$broadcast('scroll.refreshComplete');
-		});
+	places.doRefresh = function(direction) {
+		console.log('doRefersh');
+		if (places.completedFirstLoading){
+			if (direction === 'top') {
+				places.loadSavedPlace()
+				.finally(function(){
+					$scope.$broadcast('scroll.refreshComplete');
+				});
+			} else if (direction === 'bottom') {
+				places.loadSavedPlace('bottom')
+				.finally(function(){
+					$scope.$broadcast('scroll.infiniteScrollComplete');
+				});
+			}
+		} else {
+			if (direction === 'top') {
+				$scope.$broadcast('scroll.refreshComplete');
+			} else if (direction === 'bottom') {
+				$scope.$broadcast('scroll.infiniteScrollComplete');
+			}
+		}
 	}
 
 	$scope.$on('$ionicView.afterEnter', function() {
-		places.loadSavedPlace();
+		places.loadSavedPlace('top')
+		.then(function(){
+			places.completedFirstLoading = true;
+		});
 	});
 
 	if ($stateParams.uplace_uuid) {
