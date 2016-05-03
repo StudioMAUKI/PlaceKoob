@@ -243,11 +243,13 @@ angular.module('placekoob.controllers')
       for (var i = 1; i < loopCount; i++) {
         query += region_items[i] + '+';
       }
-      query += place.post.placePost.name.content;
-      console.log('Calculated query : ', query);
-      query = encodeURI(query);
-      console.log('URL encoded query : ', query);
     }
+
+    query += (place.post.placePost.name.content || place.post.userPost.name.content);
+    console.log('Calculated query : ', query);
+    query = encodeURI(query);
+    console.log('URL encoded query : ', query);
+    
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
   };
 
