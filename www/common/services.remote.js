@@ -376,7 +376,7 @@ angular.module('placekoob.services')
           }
         }
 
-        deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
+        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -385,7 +385,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('uplaces');
       });
     } else {
-      deferred.resolve({assined : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
+      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
     }
 
     return deferred.promise;

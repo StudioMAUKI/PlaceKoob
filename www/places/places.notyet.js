@@ -24,17 +24,19 @@ angular.module('placekoob.controllers')
 			scope: $scope,
 		})
 		.then(function(popover){
-			plNotYet.popOverOrdering = popover;
-			plNotYet.popOverOrdering.show($event);
+			plNotYet.popOver = popover;
+			plNotYet.popOver.show($event);
 		});
 	};
 
 	plNotYet.orderByDate = function() {
 		console.log("plNotYet.orderByData is invoked.");
+		plNotYet.popOver.hide();
 	};
 
 	plNotYet.orderByDistance = function() {
 		console.log('plNotYet.orderByDistance is invoked.');
+		plNotYet.popOver.hide();
 	};
 
 	plNotYet.onItemDelete = function(post) {

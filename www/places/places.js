@@ -1,10 +1,11 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper) {
+.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
 	var places = this;
 	places.postHelper = PostHelper;
-	places.orderingType = "최신순";
+	places.orderingTypeName = ['최근의', '오래된', '가까운', '먼'];
+	places.orderingType = 0;
 	places.showDelete = false;
 	places.notYetCount = 0;
 	places.itemHeight = '99px';
@@ -16,23 +17,72 @@ angular.module('placekoob.controllers')
 		$ionicSideMenuDelegate.toggleLeft();
 	};
 
-	places.popOverOrdering = function($event) {
-		console.log('popOverOrdering invoked.');
+	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
 			scope: $scope,
 		})
 		.then(function(popover){
-			places.popOverOrdering = popover;
-			places.popOverOrdering.show($event);
+			places.popOver = popover;
+			places.popOver.show(event);
 		});
 	};
 
-	places.orderByDate = function() {
-		console.log("places.orderByData is invoked.");
+	places.isActiveMenu = function(menuName) {
+		return places.orderingTypeName[places.orderingType] == menuName;
+	}
+
+	function calcDistance(lat1, lon1, lat2, lon2)
+	{
+	  var theta = lon1 - lon2;
+	  var dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+	  dist = Math.acos(dist);
+	  dist = rad2deg(dist);
+	  dist = dist * 60 * 1.1515;
+	  dist = dist * 1.609344;
+	  return Number(dist*1000).toFixed(2);
+	}
+	function deg2rad(deg) {
+	  return (deg * Math.PI / 180);
+	}
+	function rad2deg(rad) {
+	  return (rad * 180 / Math.PI);
+	}
+
+	function sortByDate(a, b) {
+		return a.created - b.created;
+	}
+	function sortByDistance(a, b) {
+		var curPos = StorageService.get('curPos');
+		var d1 = calcDistance(curPos.latitude, curPos.longitude, a.lonLat.lat, a.lonLat.lon);
+		var d2 = calcDistance(curPos.latitude, curPos.longitude, a.lonLat.lat, b.lonLat.lon);
+		console.log('d1 : ' + d1);
+		console.log('d2 : ' + d2);
+		return d1 - d2;
+	}
+
+	function sortPosts(type, isAsc, preventDuple, delegationFunc) {
+		if (preventDuple) {
+			if (places.orderingType == type) {
+				return;
+			}
+		}
+		places.orderingType = type;
+		var ascFactor = isAsc ? 1 : -1;
+		places.posts.sort(function(a, b) {
+			return delegationFunc(a, b) * ascFactor;
+		})
+	}
+
+	places.orderByDate = function(isRecent) {
+		console.log("places.orderByDate(" + isRecent + ") is invoked.");
+		places.popOver.hide();
+		sortPosts(0 + (isRecent ? 0 : 1), !isRecent, true, sortByDate);
 	};
 
-	places.orderByDistance = function() {
+	places.orderByDistance = function(isNear) {
 		console.log('places.orderByDistance is invoked.');
+		places.popOver.hide();
+		sortPosts(2 + (isNear? 0: 1), isNear, true, sortByDistance);
 	};
 
 	places.onItemDelete = function(post) {
@@ -69,9 +119,23 @@ angular.module('placekoob.controllers')
 		var pos = position || 'top';
 		RemoteAPIService.getPostsOfMine(pos)
 		.then(function(result) {
-			places.posts = result.assined;
+			//	정렬 기능 구현을 위해 배열을 shallow copy로 바꿔봄
+			// places.posts = result.assigned;
+			places.posts = result.assigned.slice();
 			places.notYetCount = result.waiting.length;
+			switch (places.orderingType) {
+				case 1:
+				sortPosts(1, true, false, sortByDate);
+				break;
+				case 2:
+				sortPosts(2, true, false, sortByDistance);
+				break;
+				case 3:
+				sortPosts(3, false, false, sortByDistance);
+				break;
+			}
 			deferred.resolve();
+			console.dir(places.posts);
 		}, function(err) {
 			if (err === 'endoflist') {
 				console.log('endoflist');

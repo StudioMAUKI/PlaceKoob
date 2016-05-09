@@ -39,10 +39,12 @@
 <script id="popover-ordering.html" type="text/ng-template">
 	<ion-popover-view>
 		<ion-content>
-			<ion-list>
-				<button class="button button-clear button-full" ng-click="places.orderByDate()">최신순</button>
-				<button class="button button-clear button-full" ng-click="places.orderByDistance()">거리순</button>
-			</ion-list>
+			<div class="list">
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('최근의')}" ng-click="places.orderByDate(true)">최근의</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('오래된')}" ng-click="places.orderByDate(false)">오래된</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('가까운')}" ng-click="places.orderByDistance(true)">가까운</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('먼')}" ng-click="places.orderByDistance(false)">먼</button>
+			</div>
 		</ion-content>
 	</ion-popover-view>
 </script>
