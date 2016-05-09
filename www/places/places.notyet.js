@@ -74,6 +74,7 @@ angular.module('placekoob.controllers')
 		.then(function(result) {
 			plNotYet.posts = result.waiting;
 			deferred.resolve();
+			// console.dir(plNotYet.posts);
 		}, function(err) {
 			if (err === 'endoflist') {
 				console.log('endoflist');

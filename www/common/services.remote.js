@@ -604,7 +604,11 @@ angular.module('placekoob.services')
 	}
 
   function getDistance(post, curPos) {
-    return calcDistance(curPos.latitude, curPos.longitude, post.lonLat.lat, post.lonLat.lon);
+    if (post.lonLat) {
+      return calcDistance(curPos.latitude, curPos.longitude, post.lonLat.lat, post.lonLat.lon);
+    } else {
+      return null;
+    }    
   }
 
   //  ng-repeat안에서 함수가 호출되는 것을 최대한 방지하기 위해, 로딩된 포스트의 썸네일 URL, 전화번호, 주소, 태그 등을

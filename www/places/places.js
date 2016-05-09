@@ -52,12 +52,7 @@ angular.module('placekoob.controllers')
 		return a.created - b.created;
 	}
 	function sortByDistance(a, b) {
-		var curPos = StorageService.get('curPos');
-		var d1 = calcDistance(curPos.latitude, curPos.longitude, a.lonLat.lat, a.lonLat.lon);
-		var d2 = calcDistance(curPos.latitude, curPos.longitude, a.lonLat.lat, b.lonLat.lon);
-		console.log('d1 : ' + d1);
-		console.log('d2 : ' + d2);
-		return d1 - d2;
+		return a.distance - b.distance;
 	}
 
 	function sortPosts(type, isAsc, preventDuple, delegationFunc) {
