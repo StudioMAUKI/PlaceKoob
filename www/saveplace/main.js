@@ -8,6 +8,7 @@ angular.module('placekoob.controllers')
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.map = { center: main.last_coords, zoom: 15 };
+	main.mapCtrl = {};
 
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
@@ -27,12 +28,27 @@ angular.module('placekoob.controllers')
 		main.jumpToSlide(0);
 	};
 
+	function isMarkerContained(lat, lon) {
+		try{
+			var bounds = main.mapCtrl.getGMap().getBounds();
+			if (lat > bounds.O.O && lat < bounds.O.j && lon > bounds.j.j && lon < bounds.j.O) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+	}
+
 	main.slidehasChanged = function(index) {
 		if (index !== 0) {
 			main.posts[index].options.icon = 'img/icon/pin_active.svg';
 		}
-		main.map.center.latitude = main.posts[index].coords.latitude;
-		main.map.center.longitude = main.posts[index].coords.longitude;
+		if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
+			main.map.center.latitude = main.posts[index].coords.latitude;
+			main.map.center.longitude = main.posts[index].coords.longitude;
+		}
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
