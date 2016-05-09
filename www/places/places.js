@@ -33,6 +33,12 @@ angular.module('placekoob.controllers')
 
 	function calcDistance(lat1, lon1, lat2, lon2)
 	{
+		function deg2rad(deg) {
+		  return (deg * Math.PI / 180);
+		}
+		function rad2deg(rad) {
+		  return (rad * 180 / Math.PI);
+		}
 	  var theta = lon1 - lon2;
 	  var dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
 	  dist = Math.acos(dist);
@@ -40,12 +46,6 @@ angular.module('placekoob.controllers')
 	  dist = dist * 60 * 1.1515;
 	  dist = dist * 1.609344;
 	  return Number(dist*1000).toFixed(2);
-	}
-	function deg2rad(deg) {
-	  return (deg * Math.PI / 180);
-	}
-	function rad2deg(rad) {
-	  return (rad * 180 / Math.PI);
 	}
 
 	function sortByDate(a, b) {
@@ -135,7 +135,7 @@ angular.module('placekoob.controllers')
 				break;
 			}
 			deferred.resolve();
-			console.dir(places.posts);
+			// console.dir(places.posts);
 		}, function(err) {
 			if (err === 'endoflist') {
 				console.log('endoflist');

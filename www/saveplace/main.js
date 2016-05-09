@@ -49,6 +49,7 @@ angular.module('placekoob.controllers')
 		.then(function(pos){
 			StorageService.set('curPos', pos);
 			main.getCurrentRegion(pos.latitude, pos.longitude);
+			RemoteAPIService.updateCurPos(pos);
 			deferred.resolve(pos);
 		}, function(err) {
 			deferred.reject(err);

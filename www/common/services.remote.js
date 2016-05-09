@@ -276,7 +276,6 @@ angular.module('placekoob.services')
       return true;
     }
 
-
     var timeNow = new Date().getTime();
     if (timeNow - cacheMng[key].lastUpdated >= 60000) {
       console.log('업데이트 필요 : 너무 오래 업데이트를 안 했음');
@@ -293,6 +292,20 @@ angular.module('placekoob.services')
   function setRefreshCompleted(key) {
     cacheMng[key].needToUpdate = false;
     cacheMng[key].lastUpdated = new Date().getTime();
+  }
+
+  function updateCurPos(curPos) {
+    if (cachedUplaces.length > 0) {
+      PostHelper.updateDistance(cachedUplaces, curPos);
+    }
+
+    if (cachedUplacesAssgined.length > 0) {
+      PostHelper.updateDistance(cachedUplacesAssgined, curPos);
+    }
+
+    if (cachedPlaces.length > 0) {
+      PostHelper.updateDistance(cachedPlaces, curPos);
+    }
   }
 
   function getPostsOfMine(position) {
@@ -347,16 +360,6 @@ angular.module('placekoob.services')
             }
           }
           cachedUplaces = newElements.concat(cachedUplaces);
-          // if (response.data.count > cacheMng.uplaces.count) {
-          //   console.log('Uplaces count is ' + response.data.count + ', prev count was ' + cacheMng.uplaces.count);
-          //   cachedUplaces = response.data.results.splice(0, response.data.count - cacheMng.uplaces.count).concat(cachedUplaces);
-          //   cacheMng.uplaces.count = response.data.count;
-          // } else if (response.data.count < cacheMng.uplaces.count) {  //  삭제에 대한 처리가 애매한데..(임시로직)
-          //   console.log('삭제로 인해 리스트의 사이즈가 줄어들었음.');
-          //   cachedUplaces = response.data.results;
-          // } else {
-          //   console.info('리스트를 받았지만, 새로운 것은 없었음.');
-          // }
         } else {  //  position === 'bottom'
           if (response.data.results.length === 0) {
             cacheMng.uplaces.endoflist = true;
@@ -461,10 +464,11 @@ angular.module('placekoob.services')
     uploadImage: uploadImage,
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
-    getPost: getPost
+    getPost: getPost,
+    updateCurPos: updateCurPos
   }
 }])
-.factory('PostHelper', ['RESTServer', function(RESTServer) {
+.factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
   function getTags(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
       return [];
@@ -581,9 +585,32 @@ angular.module('placekoob.services')
     return new Date(timestamp).toLocaleDateString();
   }
 
+  function calcDistance(lat1, lon1, lat2, lon2)
+	{
+    function deg2rad(deg) {
+  	  return (deg * Math.PI / 180);
+  	}
+  	function rad2deg(rad) {
+  	  return (rad * 180 / Math.PI);
+  	}
+
+	  var theta = lon1 - lon2;
+	  var dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+	  dist = Math.acos(dist);
+	  dist = rad2deg(dist);
+	  dist = dist * 60 * 1.1515;
+	  dist = dist * 1.609344;
+	  return Number(dist*1000).toFixed(2);
+	}
+
+  function getDistance(post, curPos) {
+    return calcDistance(curPos.latitude, curPos.longitude, post.lonLat.lat, post.lonLat.lon);
+  }
+
   //  ng-repeat안에서 함수가 호출되는 것을 최대한 방지하기 위해, 로딩된 포스트의 썸네일 URL, 전화번호, 주소, 태그 등을
   //  계산해서 속성으로 담아둔다.
   function decoratePost(post) {
+    var curPos = StorageService.get('curPos');
     post.name = getPlaceName(post);
     post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
@@ -591,11 +618,18 @@ angular.module('placekoob.services')
     post.desc = getUserNote(post);
     post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
+    post.distance = getDistance(post, curPos);
   }
 
   function decoratePosts(posts) {
     for (var i = 0; i < posts.length; i++) {
       decoratePost(posts[i]);
+    }
+  }
+
+  function updateDistance(posts, curPos) {
+    for (var i = 0; i < posts.length; i++) {
+      posts[i].distance = getDistance(posts[i], curPos);
     }
   }
 
@@ -605,6 +639,7 @@ angular.module('placekoob.services')
     isOrganized: isOrganized,
     getTimeString: getTimeString,
     decoratePost: decoratePost,
-    decoratePosts: decoratePosts
+    decoratePosts: decoratePosts,
+    updateDistance: updateDistance
   }
 }]);
