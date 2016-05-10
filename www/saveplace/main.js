@@ -1,14 +1,43 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', 'PostHelper', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService, PostHelper) {
 	var main = this;
 	main.prevIndex = -1;
 	main.last_marker_index = -1;
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
-	main.map = { center: main.last_coords, zoom: 15 };
+	main.lastMapCenter = {};
+	main.map = {
+		center: main.last_coords,
+		events: {
+			zoom_changed: function(map, event, args) {
+				main.loadSavedPlace();
+			},
+			center_changed: function(map, event, args) {
+				var bounds = main.mapCtrl.getGMap().getBounds();
+				var center = {
+					latitude: (bounds.O.O + bounds.O.j) / 2,
+					longitude: (bounds.j.O + bounds.j.j) / 2
+				};
+				var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
+				if (dist > 1000) {
+					main.lastMapCenter.latitude = center.latitude;
+					main.lastMapCenter.longitude = center.longitude;
+					main.loadSavedPlace();
+				}
+			}
+		},
+		zoom: 15,
+		options: {
+			zoomControl: false,
+			mapTypeControl: false,
+			streetViewControl: false
+		}
+	};
+
 	main.mapCtrl = {};
+	main.loadedMap = false;
 
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
@@ -20,13 +49,6 @@ angular.module('placekoob.controllers')
     // return parseInt(document.getElementById('scroller').clientHeight - document.getElementById('header').clientHeight) + 'px';
     return '90px';
   };
-	main.jumpToSlide = function(index) {
-		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index,0, true);
-	};
-
-	main.goToCurrentPosition = function() {
-		main.jumpToSlide(0);
-	};
 
 	function isMarkerContained(lat, lon) {
 		try{
@@ -102,63 +124,95 @@ angular.module('placekoob.controllers')
 	};
 	main.divToFit();
 
-	uiGmapGoogleMapApi.then(function(maps) {
-		$ionicLoading.show({
-			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 60000
-		});
-
-		StorageService.set('addr1', '');
-		StorageService.set('addr2', '');
-		StorageService.set('addr3', '');
-
-		main.getCurrentPosition()
-    .then(function(pos){
-      main.map = {
-				center: {
-					latitude: pos.latitude,
-					longitude: pos.longitude
-				},
-				// events: {
-				// 	dragend: function(map, event, args) {
-				// 		main.needToUpdateCurMarker = true;
-				// 	},
-				// 	center_changed: function(map, event, args) {
-				// 		StorageService.set('curPos', main.map.center);
-				//
-				// 		//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
-				// 		if (main.needToUpdateCurMarker) {
-				// 			//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
-				// 			//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
-				// 			main.currentPosMarker.coords.latitude = main.map.center.latitude;
-				// 			main.currentPosMarker.coords.longitude = main.map.center.longitude;
-				// 			main.needToUpdateCurMarker = false;
-				// 		}
-				// 	}
-				// },
-				zoom: 15,
-				options: {
-					zoomControl: false,
-					mapTypeControl: false,
-					streetViewControl: false
-				}
-			};
-
-			main.loadSavedPlace()
-			.finally(function(){
-				$ionicLoading.hide();
+	main.loadMap = function() {
+		uiGmapGoogleMapApi.then(function(maps) {
+			$ionicLoading.show({
+				template: '<ion-spinner icon="lines"></ion-spinner>',
+				duration: 60000
 			});
-    }, function(err){
-      $ionicPopup.alert({ title: 'Warning!', template: err });
-    });
-  });
+
+			StorageService.set('addr1', '');
+			StorageService.set('addr2', '');
+			StorageService.set('addr3', '');
+
+			var result = false;
+			main.getCurrentPosition()
+	    .then(function(pos){
+				console.log('map..');
+				console.dir(main.map);
+				main.map.center.latitude = pos.latitude;
+				main.map.center.longitude = pos.longitude;
+				main.lastMapCenter.latitude = pos.latitude;
+				main.lastMapCenter.longitude = pos.longitude;
+	      // main.map = {
+				// 	center: {
+				// 		latitude: pos.latitude,
+				// 		longitude: pos.longitude
+				// 	},
+				// 	events: {
+				// 		zoom_changed: function(map, event, args) {
+				// 			console.dir(args);
+				// 		},
+				// 		dragend: function(map, event, args) {
+				// 			console.log(args);
+				// 		}
+				// 	},
+				// 	// events: {
+				// 	// 	dragend: function(map, event, args) {
+				// 	// 		main.needToUpdateCurMarker = true;
+				// 	// 	},
+				// 	// 	center_changed: function(map, event, args) {
+				// 	// 		StorageService.set('curPos', main.map.center);
+				// 	//
+				// 	// 		//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
+				// 	// 		if (main.needToUpdateCurMarker) {
+				// 	// 			//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
+				// 	// 			//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
+				// 	// 			main.currentPosMarker.coords.latitude = main.map.center.latitude;
+				// 	// 			main.currentPosMarker.coords.longitude = main.map.center.longitude;
+				// 	// 			main.needToUpdateCurMarker = false;
+				// 	// 		}
+				// 	// 	}
+				// 	// },
+				// 	zoom: 15,
+				// 	options: {
+				// 		zoomControl: false,
+				// 		mapTypeControl: false,
+				// 		streetViewControl: false
+				// 	}
+				// };
+
+				result = true;
+	    }, function(err){
+				result = false;
+	      $ionicPopup.alert({ title: 'Warning!', template: err });
+	    })
+			.finally(function() {
+				main.loadedMap = true;
+				$ionicLoading.hide();
+				if (result) {
+					var bounds = main.mapCtrl.getGMap().getBounds();
+					console.dir(bounds);
+					main.loadSavedPlace();
+				}
+			});
+	  });
+	};
 
 	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
-		var pos = StorageService.get('curPos');
-		RemoteAPIService.getPostsWithPlace(pos.latitude, pos.longitude, 0)
+
+		var bounds = main.mapCtrl.getGMap().getBounds();
+		var center = {
+			latitude: (bounds.O.O + bounds.O.j) / 2,
+			longitude: (bounds.j.O + bounds.j.j) / 2
+		};
+		var dist = parseInt(PostHelper.calcDistance(center.latitude, center.longitude, center.latitude, bounds.j.O));
+
+		RemoteAPIService.getPostsWithPlace(center.latitude, center.longitude, dist)
 		.then(function(posts) {
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
+			var pos = StorageService.get('curPos');
 			main.posts = [{
 				id: 0,
 				coords: {
@@ -235,6 +289,10 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 	}
 
+	main.jumpToSlide = function(index) {
+		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index,0, true);
+	};
+
 	$scope.$on('posts.request.refresh', function() {
 		main.loadSavedPlace()
 		.then(function() {
@@ -250,9 +308,13 @@ angular.module('placekoob.controllers')
 			}
 		});
 	});
+
 	$scope.$on('map.request.gotocurrent.after', function() {
-		main.goToCurrentPosition();
+		main.jumpToSlide(0);
+		main.map.center.latitude = main.posts[0].coords.latitude;
+		main.map.center.longitude = main.posts[0].coords.longitude;
 	});
+
 	$scope.$on('map.request.refresh.after', function() {
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
@@ -267,7 +329,12 @@ angular.module('placekoob.controllers')
 			$ionicLoading.hide();
     });
 	});
+
 	$scope.$on('$ionicView.afterEnter', function() {
-		main.loadSavedPlace();
+		if (main.loadedMap) {
+			main.loadSavedPlace();
+		} else {
+			main.loadMap();
+		}
 	});
 }]);

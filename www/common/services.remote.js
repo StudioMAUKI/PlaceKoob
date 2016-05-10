@@ -326,6 +326,7 @@ angular.module('placekoob.services')
   }
 
   function getPostsOfMine(position) {
+    console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
     var pos = position || 'top';
     var offset, limit;
@@ -414,9 +415,11 @@ angular.module('placekoob.services')
   }
 
   function getPostsWithPlace(lat, lon, radius) {
+    console.info('getPostsWithPlace : ', lat, lon, radius);
     var deferred = $q.defer();
 
-    if (checkNeedToRefresh('places')) {
+    //  위치에 따라 리스트를 불러오는 로직에 캐시를 적용하는게 좋을지는 좀 더 고민해봐야겠어서 일단 주석처리
+    // if (checkNeedToRefresh('places')) {
       $http({
         method: 'GET',
         url: getServerURL() + '/uplaces/',
@@ -442,9 +445,9 @@ angular.module('placekoob.services')
       .finally(function() {
         setRefreshCompleted('places');
       });
-    } else {
-      deferred.resolve(cachedPlaces);
-    }
+    // } else {
+    //   deferred.resolve(cachedPlaces);
+    // }
 
     return deferred.promise;
   }
@@ -664,6 +667,7 @@ angular.module('placekoob.services')
     getTimeString: getTimeString,
     decoratePost: decoratePost,
     decoratePosts: decoratePosts,
-    updateDistance: updateDistance
+    updateDistance: updateDistance,
+    calcDistance: calcDistance
   }
 }]);
