@@ -64,23 +64,27 @@ angular.module('placekoob.controllers')
 	}
 
 	main.slidehasChanged = function(index) {
-		if (index !== 0) {
-			main.posts[index].options.icon = 'img/icon/pin_active.svg';
-		}
+		try{
+			if (index !== 0) {
+				main.posts[index].options.icon = 'img/icon/pin_active.svg';
+			}
 
-		//	선택된 마커가 현재의 지도 안에 있는 지 확인
-		if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
-			main.map.center.latitude = main.posts[index].coords.latitude;
-			main.map.center.longitude = main.posts[index].coords.longitude;
-		}
+			//	선택된 마커가 현재의 지도 안에 있는 지 확인
+			if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
+				main.map.center.latitude = main.posts[index].coords.latitude;
+				main.map.center.longitude = main.posts[index].coords.longitude;
+			}
 
-		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
-		if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
-				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
-		}
-		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
-		main.prevIndex = index;
-		$scope.$digest();
+			//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
+			if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
+					main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
+			}
+			//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
+			main.prevIndex = index;
+			$scope.$digest();
+		} catch (err) {
+			console.error(err);
+		}		
 	}
 
 	main.getCurrentPosition = function() {
