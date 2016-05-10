@@ -88,19 +88,29 @@ angular.module('placekoob.controllers')
 	};
 
 	places.delete = function(post) {
-		RemoteAPIService.deleteUserPost(post.uplace_uuid)
-    .then(function() {
-      $ionicPopup.alert({
-        title: '성공',
-        template: '삭제되었습니다'
-      })
-      .then(function() {
+		$ionicPopup.confirm({
+			title: '장소 삭제',
+			template: '정말로 저장한 장소를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+				RemoteAPIService.deleteUserPost(post.uplace_uuid)
+		    .then(function() {
+		      $ionicPopup.alert({
+		        title: '성공',
+		        template: '삭제되었습니다'
+		      });
+		    }, function(err) {
+		      console.error(err);
+		    })
+				.finally(function(){
+					$ionicListDelegate.closeOptionButtons();
+					places.loadSavedPlace();
+				});
+			} else {
 				$ionicListDelegate.closeOptionButtons();
-        places.loadSavedPlace();
-      });
-    }, function(err) {
-      console.error(err);
-    });
+			}
+		});
 	}
 
 	places.share = function(post) {
