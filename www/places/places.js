@@ -10,7 +10,6 @@ angular.module('placekoob.controllers')
 	places.notYetCount = 0;
 	places.itemHeight = '99px';
 	places.itemWidth = window.innerWidth + 'px';
-	places.endoflist = false;
 	places.completedFirstLoading = false;
 
 	places.toggleLeft = function() {
@@ -132,22 +131,21 @@ angular.module('placekoob.controllers')
 			deferred.resolve();
 			// console.dir(places.posts);
 		}, function(err) {
-			if (err === 'endoflist') {
-				console.log('endoflist');
-				places.endoflist = true;
-			} else {
-				console.err(err);
-			}
+			console.err(err);
 		});
 
 		return deferred.promise;
 	}
 
+	places.isEndOfList = function() {
+		return RemoteAPIService.isEndOfList('uplaces');
+	}
+
 	places.doRefresh = function(direction) {
-		console.log('doRefersh');
+		console.log('doRefersh : ' + direction);
 		if (places.completedFirstLoading){
 			if (direction === 'top') {
-				places.loadSavedPlace()
+				places.loadSavedPlace('top')
 				.finally(function(){
 					$scope.$broadcast('scroll.refreshComplete');
 				});

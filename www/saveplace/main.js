@@ -45,6 +45,8 @@ angular.module('placekoob.controllers')
 		if (index !== 0) {
 			main.posts[index].options.icon = 'img/icon/pin_active.svg';
 		}
+
+		//	선택된 마커가 현재의 지도 안에 있는 지 확인
 		if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
 			main.map.center.latitude = main.posts[index].coords.latitude;
 			main.map.center.longitude = main.posts[index].coords.longitude;

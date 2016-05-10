@@ -30,7 +30,7 @@
       	</ion-option-button> -->
 			</ion-item>
 		</ion-list>
-		<ion-infinite-scroll ng-if="!places.endoflist" on-infinite="places.doRefresh('bottom')" distance="1%">
+		<ion-infinite-scroll ng-if="!places.isEndOfList()" on-infinite="places.doRefresh('bottom')" distance="1%">
 	  </ion-infinite-scroll>
 	</ion-content>
 </ion-view>

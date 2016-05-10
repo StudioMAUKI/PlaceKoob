@@ -7,7 +7,6 @@ angular.module('placekoob.controllers')
 	plNotYet.orderingType = "최신순";
 	plNotYet.itemHeight = '99px';
 	plNotYet.itemWidth = window.innerWidth + 'px';
-	plNotYet.endoflist = false;
 
 	plNotYet.goBack = function() {
 		// $state.go('tab.places');
@@ -76,12 +75,7 @@ angular.module('placekoob.controllers')
 			deferred.resolve();
 			// console.dir(plNotYet.posts);
 		}, function(err) {
-			if (err === 'endoflist') {
-				console.log('endoflist');
-				plNotYet.endoflist = true;
-			} else {
-				console.err(err);
-			}
+			console.err(err);
 		});
 
 		return deferred.promise;

@@ -45,16 +45,12 @@ angular.module('placekoob.services')
   var cachedPlaces = [];
   var cacheMng = {
     uplaces: {
-      list: [],
-      count: 0,
-      endoflist: false,
+      endOfList: false,
       lastUpdated: 0,
       needToUpdate: true
     },
     places: {
-      list: [],
-      count: 0,
-      endoflist: false,
+      endOfList: false,
       lastUpdated: 0,
       needToUpdate: true
     }
@@ -173,11 +169,7 @@ angular.module('placekoob.services')
       data: JSON.stringify({ add: JSON.stringify(sendObj) })
     })
     .then(function(result) {
-      //console.log('SendObj : ' + JSON.stringify(sendObj));
-      // if (sendObj.uplace_uuid === null) {
-        cacheMng.uplaces.needToUpdate = true;
-        cacheMng.places.needToUpdate = true;
-      // }
+      setAllNeedToUpdate();
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -210,8 +202,7 @@ angular.module('placekoob.services')
           cachedUplaces.splice(i, 1);
         }
       }
-      cacheMng.uplaces.needToUpdate = true;
-      cacheMng.places.needToUpdate = true;
+      setAllNeedToUpdate();
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -256,6 +247,28 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function resetCachedPosts() {
+    cachedUplaces = [];
+    cachedUplacesAssgined = [];
+    cachedUplacesWaiting = [];
+    cachedPlaces = [];
+    cacheMng.uplaces.endOfList = false;
+    cacheMng.uplaces.lastUpdated = 0;
+    cacheMng.uplaces.needToUpdate = true;
+    cacheMng.places.endOfList = false;
+    cacheMng.places.lastUpdated = 0;
+    cacheMng.places.needToUpdate = true;
+  }
+
+  function isEndOfList(key) {
+    return cacheMng[key].endOfList;
+  }
+
+  function setAllNeedToUpdate() {
+    cacheMng.uplaces.needToUpdate = true;
+    cacheMng.places.needToUpdate = true;
+  }
+
   //  캐싱 로직은 세가지 요소 검사
   //  1. 현재 캐싱된 리스트가 비어 있는가?
   //  2. 마지막으로 업데이트 한 시간에서 1분이 지났는가?
@@ -286,6 +299,10 @@ angular.module('placekoob.services')
       return true;
     }
     console.log('업데이트 필요 없음');
+    // console.log('key : ' + key);
+    // console.log('timeNow : ' + timeNow);
+    // console.log('lastUpdated : ' + cacheMng[key].lastUpdated);
+    // console.log('needToUpdate : ' + cacheMng[key].needToUpdate);
     return false;
   }
 
@@ -312,18 +329,20 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     var pos = position || 'top';
     var offset, limit;
+
     if (pos === 'top') {
       offset = 0;
       limit = 20;
     } else if (pos === 'bottom') {
       offset = cachedUplaces.length;
       limit = 20;
-      cacheMng.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
-      if (cacheMng.uplaces.endoflist) {
+
+      if (cacheMng.uplaces.endOfList) {
         console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
-        deferred.reject('endoflist');
-        cacheMng.uplaces.needToUpdate = false;
+        deferred.reject('endOfList');
         return deferred.promise;
+      } else {
+        cacheMng.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
       }
     } else {
       deferred.reject('Wrong parameter.');
@@ -362,7 +381,7 @@ angular.module('placekoob.services')
           cachedUplaces = newElements.concat(cachedUplaces);
         } else {  //  position === 'bottom'
           if (response.data.results.length === 0) {
-            cacheMng.uplaces.endoflist = true;
+            cacheMng.uplaces.endOfList = true;
           } else {
             cachedUplaces = cachedUplaces.concat(response.data.results);
           }
@@ -408,7 +427,6 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        cacheMng.places.list = response.data.results;
         cachedPlaces = [];
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
@@ -465,7 +483,9 @@ angular.module('placekoob.services')
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
     getPost: getPost,
-    updateCurPos: updateCurPos
+    updateCurPos: updateCurPos,
+    resetCachedPosts: resetCachedPosts,
+    isEndOfList: isEndOfList
   }
 }])
 .factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
@@ -608,7 +628,7 @@ angular.module('placekoob.services')
       return calcDistance(curPos.latitude, curPos.longitude, post.lonLat.lat, post.lonLat.lon);
     } else {
       return null;
-    }    
+    }
   }
 
   //  ng-repeat안에서 함수가 호출되는 것을 최대한 방지하기 위해, 로딩된 포스트의 썸네일 URL, 전화번호, 주소, 태그 등을
