@@ -48,18 +48,18 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
       StorageService.set('country', 'KR');
     }
 
-    // if (ionic.Platform.isIOS()) {
-    //   document.body.classList.remove('platform-android');
-    //   document.body.classList.add('platform-ios');
-    // } else if (ionic.Platform.isAndroid()) {
-    //   document.body.classList.remove('platform-ios');
-    //   document.body.classList.add('platform-android');
-    // } else {
-    //   document.body.classList.remove('platform-ios');
-    //   document.body.classList.remove('platform-android');
-    //   document.body.classList.add('platform-ionic');
-    // }
-    document.body.classList.add('platform-ios');
+    if (ionic.Platform.isIOS()) {
+      document.body.classList.remove('platform-android');
+      document.body.classList.add('platform-ios');
+    } else if (ionic.Platform.isAndroid()) {
+      document.body.classList.remove('platform-ios');
+      document.body.classList.add('platform-android');
+    } else {
+      document.body.classList.remove('platform-ios');
+      document.body.classList.remove('platform-android');
+      document.body.classList.add('platform-ionic');
+    }
+    //document.body.classList.add('platform-ios');
 
     $rootScope.$on('map.request.gotocurrent', function() {
       console.log('Go to current position.');
