@@ -84,7 +84,7 @@ angular.module('placekoob.controllers')
 			$scope.$digest();
 		} catch (err) {
 			console.error(err);
-		}		
+		}
 	}
 
 	main.getCurrentPosition = function() {
@@ -142,8 +142,6 @@ angular.module('placekoob.controllers')
 			var result = false;
 			main.getCurrentPosition()
 	    .then(function(pos){
-				console.log('map..');
-				console.dir(main.map);
 				main.map.center.latitude = pos.latitude;
 				main.map.center.longitude = pos.longitude;
 				main.lastMapCenter.latitude = pos.latitude;
@@ -195,8 +193,6 @@ angular.module('placekoob.controllers')
 				main.loadedMap = true;
 				$ionicLoading.hide();
 				if (result) {
-					var bounds = main.mapCtrl.getGMap().getBounds();
-					console.dir(bounds);
 					main.loadSavedPlace();
 				}
 			});

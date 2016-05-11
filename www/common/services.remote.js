@@ -47,7 +47,8 @@ angular.module('placekoob.services')
     uplaces: {
       endOfList: false,
       lastUpdated: 0,
-      needToUpdate: true
+      needToUpdate: true,
+      totalCount: 0
     },
     places: {
       endOfList: false,
@@ -362,7 +363,7 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         // console.dir(response.data);
-
+        cacheMng.uplaces.totalCount = response.data.count;
         if (pos === 'top') {
           var newElements = [];
           var found = false;
@@ -398,8 +399,7 @@ angular.module('placekoob.services')
             cachedUplacesWaiting.push(cachedUplaces[i]);
           }
         }
-
-        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
+        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -408,7 +408,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('uplaces');
       });
     } else {
-      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting});
+      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
     }
 
     return deferred.promise;

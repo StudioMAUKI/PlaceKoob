@@ -11,6 +11,7 @@ angular.module('placekoob.controllers')
 	places.itemHeight = '99px';
 	places.itemWidth = window.innerWidth + 'px';
 	places.completedFirstLoading = false;
+	places.totalCount = 0;
 
 	places.toggleLeft = function() {
 		$ionicSideMenuDelegate.toggleLeft();
@@ -127,6 +128,7 @@ angular.module('placekoob.controllers')
 			// places.posts = result.assigned;
 			places.posts = result.assigned.slice();
 			places.notYetCount = result.waiting.length;
+			places.totalCount = result.totalCount;
 			switch (places.orderingType) {
 				case 1:
 				sortPosts(1, true, false, sortByDate);
