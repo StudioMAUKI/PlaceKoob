@@ -51,11 +51,11 @@
 				{{note.content}}<br>
 				at {{place.postHelper.getTimeString(note.timestamp)}}
 			</section>
-			<section class="user-image" ng-repeat="image in place.post.userPost.images track by $index">
-				<img class="image-preview" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
-				<div class="user-image-comment" ng-show="image.note">
+			<section class="user-image">
+				<img class="image-preview" ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.getImageHeight()}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
+				<!-- <div class="user-image-comment" ng-show="image.note">
 					{{image.note}}
-				</div>
+				</div> -->
 			</section>
 		</article>
 		<p><strong>{{place.getTagString()}}</strong></p>

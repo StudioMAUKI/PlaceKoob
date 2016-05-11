@@ -1,6 +1,6 @@
 <div class="modal image-modal transparent" on-swipe-down="place.closeModal()">
   <ion-slide-box on-slide-changed="place.slideChanged(index)" active-slide="place.activeSlide">
-    <ion-slide ng-repeat="image in place.ImagesForSlide">
+    <ion-slide ng-repeat="image in place.imagesForSlide">
 
       <ion-scroll direction="xy" scrollbar-x="false" scrollbar-y="false"
       zooming="true" min-zoom="{{place.zoomMin}}" style="width:100%;height:100%"

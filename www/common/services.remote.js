@@ -415,7 +415,6 @@ angular.module('placekoob.services')
   }
 
   function getPostsWithPlace(lat, lon, radius) {
-    console.info('getPostsWithPlace : ', lat, lon, radius);
     var deferred = $q.defer();
 
     //  위치에 따라 리스트를 불러오는 로직에 캐시를 적용하는게 좋을지는 좀 더 고민해봐야겠어서 일단 주석처리

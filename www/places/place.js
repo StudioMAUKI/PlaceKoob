@@ -6,16 +6,17 @@ angular.module('placekoob.controllers')
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
   place.zoomMin = 1;
-  place.ImagesForSlide = [];
+  place.imagesForSlide = [];
+  place.imageHeight = 0;
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
         place.post = post;
         if (place.post.userPost.images) {
-          place.ImagesForSlide = [];
+          place.imagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {
-              place.ImagesForSlide.push(place.post.userPost.images[i].content);
+              place.imagesForSlide.push(place.post.userPost.images[i].content);
           }
         }
     }, function(err) {
@@ -260,6 +261,22 @@ angular.module('placekoob.controllers')
 
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
   };
+
+  place.getImageHeight = function() {
+    var images = document.getElementsByClassName('user-image');
+    for (var i = 0; i < images.length; i++) {
+      if (images[i].clientWidth) {
+        return parseInt(images[i].clientWidth / 3);
+      }
+    }
+    return 0;
+    // if (!place.imageHeight) {
+    //   console.log('.user-image width: ' + $('.user-image').width()/3);
+    //   // $('.image-preview').css({height: parseInt($('.user-image').width()/3)});
+    //   place.imageHeight = parseInt($('.user-image').width()/3);
+    // }
+    // return place.imageHeight;
+  }
 
   place.loadPlaceInfo();
 }]);

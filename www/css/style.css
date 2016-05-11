@@ -260,8 +260,9 @@ span.place-item-tag {
 
 .user-post-container {
   background-color: #CFD8DC;
-  border-radius: 5px;
-  margin: 10px;
+  /*border-radius: 5px;*/
+  /*margin: 10px;*/
+  margin-top: 5px;
   padding: 8px;
 }
 
@@ -272,7 +273,7 @@ span.place-item-tag {
 }
 .user-post-container .user-note {
   color: #212121;
-  border-radius: 5px;
+  /*border-radius: 5px;*/
   padding: 5px;
   background-color: #FFFFFF;
   margin-bottom: 5px;
@@ -280,15 +281,15 @@ span.place-item-tag {
 
 .user-post-container .user-image {
   max-width: 100%;
-  text-align: center;
-  position: relative;
+  /*text-align: center;*/
+  /*position: relative;*/
   background-color: #FFFFFF;
   padding-top: 6px;
 }
 
 .user-post-container .user-image .image-preview {
   width: auto;
-  height: 300px;
+  /*height: 300px;*/
 }
 
 .user-post-container .user-image .user-image-comment {
@@ -303,10 +304,10 @@ span.place-item-tag {
 }
 
 .image-modal {
-    width: 100% !important;
-    height: 100%;
-    top: 0 !important;
-    left: 0 !important;
+  width: 100% !important;
+  height: 100%;
+  top: 0 !important;
+  left: 0 !important;
 }
 
 .transparent {

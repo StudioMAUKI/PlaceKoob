@@ -5,7 +5,7 @@
 		<!-- <a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a> -->
 	</ion-header-bar>
 	<ion-content scroll="false">
-		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl" data-tap-disabled="true">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl" data-tap-disabled="true" refresh="true">
 			<script type="text/ng-template" id="save-dlg.tpl.html">
 				<div class="button-bar button-bar-on-map">
 					<a class="button pk-accent button-icon ion-pinpoint" ng-click="saveModal.savePosition()"></a>
