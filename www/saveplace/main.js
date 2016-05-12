@@ -69,9 +69,9 @@ angular.module('placekoob.controllers')
 
 	main.slidehasChanged = function(index) {
 		try{
-			if (index !== 0) {
+			// if (index !== 0) {
 				main.posts[index].options.icon = 'img/icon/pin_active.svg';
-			}
+			// }
 
 			//	선택된 마커가 현재의 지도 안에 있는 지 확인
 			if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
@@ -80,8 +80,9 @@ angular.module('placekoob.controllers')
 			}
 
 			//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
-			if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
-					main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
+			// if (main.prevIndex != 0 && main.prevIndex != -1 && main.prevIndex < main.posts.length) {
+			if (main.prevIndex != -1 && main.prevIndex < main.posts.length) {
+				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
 			}
 			//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 			main.prevIndex = index;
@@ -220,37 +221,38 @@ angular.module('placekoob.controllers')
 		.then(function(posts) {
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
 			var pos = StorageService.get('curPos');
-			main.posts = [{
-				id: 0,
-				coords: {
-					latitude: pos.latitude,
-					longitude: pos.longitude
-				},
-				options: {
-					draggable: true,
-					icon: 'img/icon/pin_current.svg',
-					events: {
-						dragend: function (marker, eventName, args) {
-							main.map.center.latitude = marker.position.lat();
-							main.map.center.longitude = marker.position.lng();
-							main.getCurrentRegion(main.map.center.latitude, main.map.center.longitude);
-							StorageService.set('curPos', main.map.center);
-						},
-						click: function(marker, eventName, args) {
-							main.jumpToSlide(marker.key);
-						}
-					}
-				},
-				uplace_uuid: '',
-				thumbnailURL: 'img/icon/pin_current.svg',
-				name: '현재 위치',
-				phoneNo: '',
-				address: main.address,
-				desc: '왼쪽으로 밀어 저장된 곳을 둘러보세요.'
-			}].concat(posts);
+			// main.posts = [{
+			// 	id: 0,
+			// 	coords: {
+			// 		latitude: pos.latitude,
+			// 		longitude: pos.longitude
+			// 	},
+			// 	options: {
+			// 		draggable: true,
+			// 		icon: 'img/icon/pin_current.svg',
+			// 		events: {
+			// 			dragend: function (marker, eventName, args) {
+			// 				main.map.center.latitude = marker.position.lat();
+			// 				main.map.center.longitude = marker.position.lng();
+			// 				main.getCurrentRegion(main.map.center.latitude, main.map.center.longitude);
+			// 				StorageService.set('curPos', main.map.center);
+			// 			},
+			// 			click: function(marker, eventName, args) {
+			// 				main.jumpToSlide(marker.key);
+			// 			}
+			// 		}
+			// 	},
+			// 	uplace_uuid: '',
+			// 	thumbnailURL: 'img/icon/pin_current.svg',
+			// 	name: '현재 위치',
+			// 	phoneNo: '',
+			// 	address: main.address,
+			// 	desc: '왼쪽으로 밀어 저장된 곳을 둘러보세요.'
+			// }].concat(posts);
+			main.posts = posts;
 
 			// markers for saved positions
-			for(var i = 1; i <= posts.length; i++) {
+			for(var i = 0; i < posts.length; i++) {
 				main.posts[i].id = i;
 				main.posts[i].options = {
 					draggable: false,
