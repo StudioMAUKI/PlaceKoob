@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
 	var places = this;
 	places.postHelper = PostHelper;
-	places.orderingTypeName = ['최근의', '오래된', '가까운', '먼'];
+	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
 	places.orderingType = 0;
 	places.showDelete = false;
 	places.notYetCount = 0;
@@ -12,10 +12,6 @@ angular.module('placekoob.controllers')
 	places.itemWidth = window.innerWidth + 'px';
 	places.completedFirstLoading = false;
 	places.totalCount = 0;
-
-	places.toggleLeft = function() {
-		$ionicSideMenuDelegate.toggleLeft();
-	};
 
 	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
@@ -27,32 +23,15 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	places.isActiveMenu = function(menuName) {
-		return places.orderingTypeName[places.orderingType] == menuName;
-	}
-
-	function calcDistance(lat1, lon1, lat2, lon2)
-	{
-		function deg2rad(deg) {
-		  return (deg * Math.PI / 180);
-		}
-		function rad2deg(rad) {
-		  return (rad * 180 / Math.PI);
-		}
-	  var theta = lon1 - lon2;
-	  var dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
-	  dist = Math.acos(dist);
-	  dist = rad2deg(dist);
-	  dist = dist * 60 * 1.1515;
-	  dist = dist * 1.609344;
-	  return Number(dist*1000).toFixed(2);
+	places.isActiveMenu = function(orderingType) {
+		return places.orderingType === orderingType;
 	}
 
 	function sortByDate(a, b) {
 		return a.created - b.created;
 	}
 	function sortByDistance(a, b) {
-		return a.distance - b.distance;
+		return a.distance_from_origin - b.distance_from_origin;
 	}
 
 	function sortPosts(type, isAsc, preventDuple, delegationFunc) {
@@ -68,7 +47,19 @@ angular.module('placekoob.controllers')
 		})
 	}
 
+	places.changeOrderingType = function(type) {
+		places.popOver.hide();
+		if (places.orderingType !== type) {
+			places.orderingType = type;
+			RemoteAPIService.resetCachedPosts('uplaces');
+			places.loadSavedPlace()
+			.then(function() {
+				$ionicScrollDelegate.scrollTop();
+			});
+		}
+	}
 	places.orderByDate = function(isRecent) {
+		if (isRecent)
 		console.log("places.orderByDate(" + isRecent + ") is invoked.");
 		places.popOver.hide();
 		sortPosts(0 + (isRecent ? 0 : 1), !isRecent, true, sortByDate);
@@ -122,28 +113,19 @@ angular.module('placekoob.controllers')
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
 		var pos = position || 'top';
-		RemoteAPIService.getPostsOfMine(pos)
+		var curPos = StorageService.get('curPos');
+		var lon = curPos.longitude || null;
+		var lat = curPos.latitude || null;
+
+		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
 		.then(function(result) {
-			//	정렬 기능 구현을 위해 배열을 shallow copy로 바꿔봄
-			// places.posts = result.assigned;
-			places.posts = result.assigned.slice();
+			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;
 			places.totalCount = result.totalCount;
-			switch (places.orderingType) {
-				case 1:
-				sortPosts(1, true, false, sortByDate);
-				break;
-				case 2:
-				sortPosts(2, true, false, sortByDistance);
-				break;
-				case 3:
-				sortPosts(3, false, false, sortByDistance);
-				break;
-			}
 			deferred.resolve();
 			// console.dir(places.posts);
 		}, function(err) {
-			console.err(err);
+			console.error(err);
 		});
 
 		return deferred.promise;

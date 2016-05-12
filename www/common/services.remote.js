@@ -248,17 +248,35 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function resetCachedPosts() {
-    cachedUplaces = [];
-    cachedUplacesAssgined = [];
-    cachedUplacesWaiting = [];
-    cachedPlaces = [];
-    cacheMng.uplaces.endOfList = false;
-    cacheMng.uplaces.lastUpdated = 0;
-    cacheMng.uplaces.needToUpdate = true;
-    cacheMng.places.endOfList = false;
-    cacheMng.places.lastUpdated = 0;
-    cacheMng.places.needToUpdate = true;
+  function resetCachedPosts(type) {
+    type = type || 'all';
+
+    if (type === 'all') {
+      cachedUplaces = [];
+      cachedUplacesAssgined = [];
+      cachedUplacesWaiting = [];
+      cachedPlaces = [];
+      cacheMng.uplaces.endOfList = false;
+      cacheMng.uplaces.lastUpdated = 0;
+      cacheMng.uplaces.needToUpdate = true;
+      cacheMng.places.endOfList = false;
+      cacheMng.places.lastUpdated = 0;
+      cacheMng.places.needToUpdate = true;
+    } else if (type === 'uplaces') {
+      cachedUplaces = [];
+      cachedUplacesAssgined = [];
+      cachedUplacesWaiting = [];
+      cacheMng.uplaces.endOfList = false;
+      cacheMng.uplaces.lastUpdated = 0;
+      cacheMng.uplaces.needToUpdate = true;
+    } else if (type === 'places') {
+      cachedPlaces = [];
+      cacheMng.places.endOfList = false;
+      cacheMng.places.lastUpdated = 0;
+      cacheMng.places.needToUpdate = true;
+    } else {
+      console.warn('resetCachedPosts : unknown parameter');
+    }
   }
 
   function isEndOfList(key) {
@@ -326,16 +344,19 @@ angular.module('placekoob.services')
     }
   }
 
-  function getPostsOfMine(position) {
+  function getPostsOfMine(position, orderBy, lon, lat) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
-    var pos = position || 'top';
+    position = position || 'top';
+    orderBy = orderBy || '-modified';
+    lon = lon || null;
+    lat = lat || null;
     var offset, limit;
 
-    if (pos === 'top') {
+    if (position === 'top') {
       offset = 0;
       limit = 20;
-    } else if (pos === 'bottom') {
+    } else if (position === 'bottom') {
       offset = cachedUplaces.length;
       limit = 20;
 
@@ -358,13 +379,17 @@ angular.module('placekoob.services')
         params: {
           ru: 'myself',
           limit: limit,
-          offset: offset
+          offset: offset,
+          order_by: orderBy,
+          lon: lon,
+          lat: lat,
+          r: 0
         }
       })
       .then(function(response) {
         // console.dir(response.data);
         cacheMng.uplaces.totalCount = response.data.count;
-        if (pos === 'top') {
+        if (position === 'top') {
           var newElements = [];
           var found = false;
           for (var i = 0; i < response.data.results.length; i++) {
@@ -436,6 +461,7 @@ angular.module('placekoob.services')
           }
         }
         PostHelper.decoratePosts(cachedPlaces);
+        console.dir(cachedPlaces);
         deferred.resolve(cachedPlaces);
       }, function(err) {
         console.error(err);
@@ -644,7 +670,6 @@ angular.module('placekoob.services')
     post.desc = getUserNote(post);
     post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
-    post.distance = getDistance(post, curPos);
   }
 
   function decoratePosts(posts) {
@@ -655,7 +680,7 @@ angular.module('placekoob.services')
 
   function updateDistance(posts, curPos) {
     for (var i = 0; i < posts.length; i++) {
-      posts[i].distance = getDistance(posts[i], curPos);
+      posts[i].distance_from_origin = getDistance(posts[i], curPos);
     }
   }
 

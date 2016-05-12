@@ -17,7 +17,7 @@
 			<ion-item collection-repeat="post in places.posts" item-width="places.itemWidth" item-height="places.itemHeight" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
-				<span class="place-item-addr"><strong>{{post.distance}}&nbsp;m</strong>&nbsp;{{post.address}}</span><br>
+				<span class="place-item-addr"><strong>{{post.distance_from_origin | number: 0}}&nbsp;m</strong>&nbsp;{{post.address}}</span><br>
 				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="places.onItemDelete(post)">
@@ -40,10 +40,10 @@
 	<ion-popover-view>
 		<ion-content>
 			<div class="list">
-				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('최근의')}" ng-click="places.orderByDate(true)">최근의</button>
-				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('오래된')}" ng-click="places.orderByDate(false)">오래된</button>
-				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('가까운')}" ng-click="places.orderByDistance(true)">가까운</button>
-				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu('먼')}" ng-click="places.orderByDistance(false)">먼</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu(0)}" ng-click="places.changeOrderingType(0)">최근의</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu(1)}" ng-click="places.changeOrderingType(1)">오래된</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu(2)}" ng-click="places.changeOrderingType(2)">가까운</button>
+				<button class="item button button-clear button-full" ng-class="{'button\-positive':places.isActiveMenu(3)}" ng-click="places.changeOrderingType(3)">먼</button>
 			</div>
 		</ion-content>
 	</ion-popover-view>
