@@ -21,7 +21,7 @@
 				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.address}}
 			</div>
 			<div class="place-phone">
-				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="#">{{place.post.phoneNo || '전화번호 없음'}}</a>
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="tel:{{place.post.phoneNo||''}}">{{place.post.phoneNo || '전화번호 없음'}}</a>
 			</div>
 			<div class="place-tags-container">
 				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
