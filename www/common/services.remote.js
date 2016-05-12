@@ -223,7 +223,7 @@ angular.module('placekoob.services')
       };
       $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
-        console.dir(result.response);
+        // console.dir(result.response);
         deferred.resolve(JSON.parse(result.response));
       }, function(err) {
         console.error(err);
@@ -462,7 +462,7 @@ angular.module('placekoob.services')
           }
         }
         PostHelper.decoratePosts(cachedPlaces);
-        console.dir(cachedPlaces);
+        // console.dir(cachedPlaces);
         deferred.resolve(cachedPlaces);
       }, function(err) {
         console.error(err);

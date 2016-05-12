@@ -197,7 +197,7 @@ angular.module('placekoob.controllers')
         } else {
           PhotoService.getPhotoWithPhotoLibrary(5)
       		.then(function(imageURIs) {
-            console.dir(imageURIs);
+            // console.dir(imageURIs);
             for (var i = 0; i < imageURIs.length; i++){
               $ionicLoading.show({
           			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',

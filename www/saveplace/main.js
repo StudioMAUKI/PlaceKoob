@@ -212,9 +212,9 @@ angular.module('placekoob.controllers')
 			longitude: (bounds.j.O + bounds.j.j) / 2
 		};
 		var dist = parseInt(PostHelper.calcDistance(center.latitude, center.longitude, center.latitude, bounds.j.O));
-		console.dir(bounds);
-		console.dir(center);
-		console.log('distance : ' + dist);
+		if (dist === 0) {
+			console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
+		}
 
 		RemoteAPIService.getPostsWithPlace(center.latitude, center.longitude, dist)
 		.then(function(posts) {
