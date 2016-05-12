@@ -52,7 +52,7 @@ angular.module('placekoob.controllers')
 		if (places.orderingType !== type) {
 			places.orderingType = type;
 			RemoteAPIService.resetCachedPosts('uplaces');
-			places.loadSavedPlace()
+			places.loadSavedPlace('top')
 			.then(function() {
 				$ionicScrollDelegate.scrollTop();
 			});

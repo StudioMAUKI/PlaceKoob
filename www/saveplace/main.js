@@ -100,7 +100,7 @@ angular.module('placekoob.controllers')
 		});
 		return deferred.promise;
 	};
-	
+
 	main.getCurrentRegion = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
@@ -208,6 +208,9 @@ angular.module('placekoob.controllers')
 			longitude: (bounds.j.O + bounds.j.j) / 2
 		};
 		var dist = parseInt(PostHelper.calcDistance(center.latitude, center.longitude, center.latitude, bounds.j.O));
+		console.dir(bounds);
+		console.dir(center);
+		console.log('distance : ' + dist);
 
 		RemoteAPIService.getPostsWithPlace(center.latitude, center.longitude, dist)
 		.then(function(posts) {
