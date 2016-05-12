@@ -100,8 +100,8 @@ angular.module('placekoob.controllers')
 		});
 		return deferred.promise;
 	};
+	
 	main.getCurrentRegion = function(latitude, longitude) {
-
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
 			StorageService.set('addr1', addrs.roadAddress.name);
