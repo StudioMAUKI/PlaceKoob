@@ -8,6 +8,7 @@ angular.module('placekoob.controllers')
 	main.needToUpdateCurMarker = false;
 	main.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	main.lastMapCenter = {};
+	main.enabled = true;
 	main.map = {
 		center: main.last_coords,
 		events: {
@@ -15,16 +16,18 @@ angular.module('placekoob.controllers')
 				main.loadSavedPlace();
 			},
 			center_changed: function(map, event, args) {
-				var bounds = main.mapCtrl.getGMap().getBounds();
-				var center = {
-					latitude: (bounds.O.O + bounds.O.j) / 2,
-					longitude: (bounds.j.O + bounds.j.j) / 2
-				};
-				var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
-				if (dist > 1000) {
-					main.lastMapCenter.latitude = center.latitude;
-					main.lastMapCenter.longitude = center.longitude;
-					main.loadSavedPlace();
+				if (main.enabled) {
+					var bounds = main.mapCtrl.getGMap().getBounds();
+					var center = {
+						latitude: (bounds.O.O + bounds.O.j) / 2,
+						longitude: (bounds.j.O + bounds.j.j) / 2
+					};
+					var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
+					if (dist > 1000) {
+						main.lastMapCenter.latitude = center.latitude;
+						main.lastMapCenter.longitude = center.longitude;
+						main.loadSavedPlace();
+					}
 				}
 			}
 		},
@@ -33,7 +36,8 @@ angular.module('placekoob.controllers')
 			zoomControl: false,
 			mapTypeControl: false,
 			streetViewControl: false
-		}
+		},
+		enabled: true
 	};
 
 	main.mapCtrl = {};
@@ -334,10 +338,20 @@ angular.module('placekoob.controllers')
 	});
 
 	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('$ionicView.afterEnter');
+		main.enabled = true;
 		if (main.loadedMap) {
+			// console.dir(main.mapCtrl);
+			main.mapCtrl.refresh();
 			main.loadSavedPlace();
 		} else {
 			main.loadMap();
 		}
+
+	});
+
+	$scope.$on('$ionicView.afterLeave', function() {
+		console.log('$ionicView.afterLeave');
+		main.enabled = false;
 	});
 }]);
