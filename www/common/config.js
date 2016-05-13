@@ -125,6 +125,6 @@ angular.module('placekoob.config', [])
     uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8',
         v: '3.22', //defaults to latest 3.X anyhow
-        libraries: 'weather,geometry,visualization'
+        // libraries: 'weather,geometry,visualization'				
     });
 });

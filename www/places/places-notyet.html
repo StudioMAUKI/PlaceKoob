@@ -3,8 +3,8 @@
 	<ion-header-bar class="pk-primary">
 		<button class="button button-icon icon ion-chevron-left pk-primary" ng-click="plNotYet.goBack()">Back</button>
 		<h1 class="title">저장한 목록</h1>
-		<button class="button button-icon button-clear ion-connection-bars pk-primary
-		" ng-click="plNotYet.popOverOrdering($event)"></button>
+		<!-- <button class="button button-icon button-clear ion-connection-bars pk-primary
+		" ng-click="plNotYet.popOverOrdering($event)"></button> -->
 	</ion-header-bar>
 	<ion-content>
 		<ion-refresher pulling-text="Pull to refresh..." on-refresh="plNotYet.doRefresh('top')">
@@ -30,7 +30,7 @@
       	</ion-option-button> -->
 			</ion-item>
 		</ion-list>
-		<!-- <ion-infinite-scroll ng-if="!plNotYet.endoflist" on-infinite="plNotYet.doRefresh('bottom')" distance="1%">
+		<!-- <ion-infinite-scroll ng-if="!plNotYet.endOfList" on-infinite="plNotYet.doRefresh('bottom')" distance="1%">
 	  </ion-infinite-scroll> -->
 	</ion-content>
 </ion-view>
@@ -39,10 +39,10 @@
 <script id="popover-ordering.html" type="text/ng-template">
 	<ion-popover-view>
 		<ion-content>
-			<ion-list>
-				<button class="button button-clear button-full" ng-click="plNotYet.orderByDate()">최신순</button>
-				<button class="button button-clear button-full" ng-click="plNotYet.orderByDistance()">거리순</button>
-			</ion-list>
+			<div class="list">
+				<button class="item button button-clear button-full" ng-click="plNotYet.orderByDate()">최신순</button>
+				<button class="item button button-clear button-full" ng-click="plNotYet.orderByDistance()">거리순</button>
+			</div>
 		</ion-content>
 	</ion-popover-view>
 </script>

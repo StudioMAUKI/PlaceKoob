@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', '$ionicLoading', 'StorageService', '$cordovaClipboard', 'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, $ionicLoading, StorageService, $cordovaClipboard, RemoteAPIService, PhotoService, MapService) {
+.controller('saveModalCtrl', ['$scope', '$ionicModal', '$ionicPopup', '$http', '$ionicLoading', 'StorageService', '$cordovaClipboard', '$q',  'RemoteAPIService', 'PhotoService', 'MapService', function($scope, $ionicModal, $ionicPopup, $http, $ionicLoading, StorageService, $cordovaClipboard, $q, RemoteAPIService, PhotoService, MapService) {
 	var saveModal = this;
 	saveModal.attatchedImage = '';
 	saveModal.URL = '';
@@ -68,9 +68,34 @@ angular.module('placekoob.controllers')
 		saveModal.URL = '';
 	};
 
+	saveModal.getCurrentPosition = function() {
+		var deferred = $q.defer();
+		MapService.getCurrentPosition()
+		.then(function(pos){
+			StorageService.set('curPos', pos);
+			RemoteAPIService.updateCurPos(pos);
+			MapService.getCurrentAddress(pos.latitude, pos.longitude)
+			.then(function(addrs) {
+				StorageService.set('addr1', addrs.roadAddress.name);
+				StorageService.set('addr2', addrs.jibunAddress.name);
+				StorageService.set('addr3', addrs.region);
+				console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+				console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+				console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+				deferred.resolve(pos);
+			}, function(err) {
+				console.error(err);
+				deferred.reject(err);
+			});
+		}, function(err) {
+			deferred.reject(err);
+		});
+		return deferred.promise;
+	};
+
 	saveModal.confirmSave = function() {
-		var curPos = StorageService.get('curPos');
-		console.log('Current Corrds : ' + JSON.stringify(curPos));
+		// var curPos = StorageService.get('curPos');
+		// console.log('Current Corrds : ' + JSON.stringify(curPos));
 
 		//	브라우저의 경우 테스트를 위해 분기함
 		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
@@ -81,42 +106,45 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
 			duration: 60000
 		});
-		RemoteAPIService.uploadImage(saveModal.attatchedImage)
-		.then(function(response) {
-			// console.log('Image UUID: ' + response.uuid);
+		saveModal.getCurrentPosition()
+		.then(function(curPos) {
+			RemoteAPIService.uploadImage(saveModal.attatchedImage)
+			.then(function(response) {
+				// console.log('Image UUID: ' + response.uuid);
 
-			RemoteAPIService.sendUserPost({
-				lonLat: {
-					lon: curPos.longitude,
-					lat: curPos.latitude
-				},
-				notes: [{
-					content: saveModal.note
-				}],
-				images: [{
-					content: response.file
-				}],
-				addr1: { content: StorageService.get('addr1') || null },
-				addr2: { content: StorageService.get('addr2') || null },
-				addr3: { content: StorageService.get('addr3') || null },
-			})
-			.then(function(result) {
-				StorageService.set('last_uplace_id', result.data.uplace_uuid);
-				$ionicLoading.hide();
-				saveModal.closeSaveDlg();
-				$scope.$emit('posts.request.refresh');
+				RemoteAPIService.sendUserPost({
+					lonLat: {
+						lon: curPos.longitude,
+						lat: curPos.latitude
+					},
+					notes: [{
+						content: saveModal.note
+					}],
+					images: [{
+						content: response.file
+					}],
+					addr1: { content: StorageService.get('addr1') || null },
+					addr2: { content: StorageService.get('addr2') || null },
+					addr3: { content: StorageService.get('addr3') || null },
+				})
+				.then(function(result) {
+					StorageService.set('last_uplace_id', result.data.uplace_uuid);
+					$ionicLoading.hide();
+					saveModal.closeSaveDlg();
+					$scope.$emit('posts.request.refresh');
+				}, function(err) {
+					$ionicLoading.hide();
+					saveModal.showAlert('오류: 장소 저장', err)
+					.then(function(){
+						saveModal.closeSaveDlg();
+					});
+				});
 			}, function(err) {
 				$ionicLoading.hide();
-				saveModal.showAlert('오류: 장소 저장', err)
+				saveModal.showAlert('오류: 이미지 업로드', err)
 				.then(function(){
 					saveModal.closeSaveDlg();
 				});
-			});
-		}, function(err) {
-			$ionicLoading.hide();
-			saveModal.showAlert('오류: 이미지 업로드', err)
-			.then(function(){
-				saveModal.closeSaveDlg();
 			});
 		});
 	};

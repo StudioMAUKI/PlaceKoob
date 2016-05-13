@@ -21,7 +21,7 @@
 				<i class="ion-flag"></i>&nbsp;&nbsp;{{place.post.address}}
 			</div>
 			<div class="place-phone">
-				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="#">{{place.post.phoneNo || '전화번호 없음'}}</a>
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="tel:{{place.post.phoneNo||''}}">{{place.post.phoneNo || '전화번호 없음'}}</a>
 			</div>
 			<div class="place-tags-container">
 				<span class="place-item-tag" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
@@ -51,11 +51,11 @@
 				{{note.content}}<br>
 				at {{place.postHelper.getTimeString(note.timestamp)}}
 			</section>
-			<section class="user-image" ng-repeat="image in place.post.userPost.images track by $index">
-				<img class="image-preview" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
-				<div class="user-image-comment" ng-show="image.note">
+			<section class="user-image">
+				<img class="image-preview" ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.getImageHeight()}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
+				<!-- <div class="user-image-comment" ng-show="image.note">
 					{{image.note}}
-				</div>
+				</div> -->
 			</section>
 		</article>
 		<p><strong>{{place.getTagString()}}</strong></p>

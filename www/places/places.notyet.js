@@ -7,7 +7,6 @@ angular.module('placekoob.controllers')
 	plNotYet.orderingType = "최신순";
 	plNotYet.itemHeight = '99px';
 	plNotYet.itemWidth = window.innerWidth + 'px';
-	plNotYet.endoflist = false;
 
 	plNotYet.goBack = function() {
 		// $state.go('tab.places');
@@ -24,17 +23,19 @@ angular.module('placekoob.controllers')
 			scope: $scope,
 		})
 		.then(function(popover){
-			plNotYet.popOverOrdering = popover;
-			plNotYet.popOverOrdering.show($event);
+			plNotYet.popOver = popover;
+			plNotYet.popOver.show($event);
 		});
 	};
 
 	plNotYet.orderByDate = function() {
 		console.log("plNotYet.orderByData is invoked.");
+		plNotYet.popOver.hide();
 	};
 
 	plNotYet.orderByDistance = function() {
 		console.log('plNotYet.orderByDistance is invoked.');
+		plNotYet.popOver.hide();
 	};
 
 	plNotYet.onItemDelete = function(post) {
@@ -46,19 +47,29 @@ angular.module('placekoob.controllers')
 	};
 
 	plNotYet.delete = function(post) {
-		RemoteAPIService.deleteUserPost(post.uplace_uuid)
-    .then(function() {
-      $ionicPopup.alert({
-        title: '성공',
-        template: '삭제되었습니다'
-      })
-      .then(function() {
+		$ionicPopup.confirm({
+			title: '장소 삭제',
+			template: '정말로 저장한 장소를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+				RemoteAPIService.deleteUserPost(post.uplace_uuid)
+		    .then(function() {
+		      $ionicPopup.alert({
+		        title: '성공',
+		        template: '삭제되었습니다'
+		      });
+		    }, function(err) {
+		      console.error(err);
+		    })
+				.finally(function(){
+					$ionicListDelegate.closeOptionButtons();
+					plNotYet.loadSavedPlace('top');
+				});
+			} else {
 				$ionicListDelegate.closeOptionButtons();
-        plNotYet.loadSavedPlace('top');
-      });
-    }, function(err) {
-      console.error(err);
-    });
+			}
+		});
 	};
 
 	plNotYet.share = function(post) {
@@ -72,13 +83,9 @@ angular.module('placekoob.controllers')
 		.then(function(result) {
 			plNotYet.posts = result.waiting;
 			deferred.resolve();
+			// console.dir(plNotYet.posts);
 		}, function(err) {
-			if (err === 'endoflist') {
-				console.log('endoflist');
-				plNotYet.endoflist = true;
-			} else {
-				console.err(err);
-			}
+			console.err(err);
 		});
 
 		return deferred.promise;

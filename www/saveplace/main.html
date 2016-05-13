@@ -5,16 +5,18 @@
 		<!-- <a class="button button-icon button-clear ion-gear-a" ng-href="#/config"></a> -->
 	</ion-header-bar>
 	<ion-content scroll="false">
-		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl" data-tap-disabled="true">
+		<ui-gmap-google-map center="main.map.center" zoom="main.map.zoom" events="main.map.events" options="main.map.options" control="main.mapCtrl" data-tap-disabled="true" refresh="true">
 			<script type="text/ng-template" id="save-dlg.tpl.html">
 				<div class="button-bar button-bar-on-map">
-					<a class="button pk-accent button-icon ion-pinpoint" ng-click="saveModal.savePosition()"></a>
-					<a class="button pk-accent button-icon ion-link" ng-click="saveModal.saveURL()"></a>
-					<a class="button pk-accent button-icon ion-home" ng-click="saveModal.goToCurrentPosition()"></a>
-					<a class="button pk-accent button-icon ion-refresh" ng-click="saveModal.refresh()"></a>
+					<a class="button pk-accent button-icon ion-pinpoint" ng-click="saveModal.savePosition()">&nbsp;현위치 저장</a>
+					<a class="button pk-accent button-icon ion-link" ng-click="saveModal.saveURL()">&nbsp;URL 저장</a>
+					<!-- <a class="button pk-accent button-icon ion-home" ng-click="saveModal.goToCurrentPosition()"></a> -->
+					<a class="button pk-accent button-icon ion-refresh" ng-click="saveModal.refresh()">&nbsp;현위치 갱신</a>
 				</div>
       </script>
 			<ui-gmap-map-control template="save-dlg.tpl.html" position="top-center" controller="saveModalCtrl as saveModal" index="-1"></ui-gmap-map-control>
+			<ui-gmap-marker coords="main.curMarker.coords" options="main.curMarker.options" idkey="'curMarker'" events="main.curMarker.options.events">
+      </ui-gmap-marker>
       <ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="$index" events="post.options.events">
       </ui-gmap-marker>
     </ui-gmap-google-map>
@@ -26,7 +28,7 @@
 						<div>
 							<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>
 							&nbsp;&nbsp;
-							<span class="place-desc"><a href="tel:{{post.phoneNo}}">{{post.phoneNo}}</a></span>
+							<span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span>
 						</div>
 						<span class="place-desc">{{$index === 0 ? main.address : post.address}}</span><br>
 						<span class="place-note">
