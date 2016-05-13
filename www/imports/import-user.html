@@ -1,0 +1,35 @@
+<!-- start : real contents area -->
+<ion-view title="목록으로 보기">
+	<ion-header-bar class="pk-primary">
+		<h1 class="title">가져오기</h1>
+		<button class="button button-icon button-clear ion-connection-bars pk-primary
+		" ng-click="importUser.popOverOrdering($event)"></button>
+	</ion-header-bar>
+	<ion-content>
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh('top')">
+  	</ion-refresher>
+		<ion-list show-delete="importUser.showDelete">
+			<div class="item item-divider">
+		    총 {{importUser.totalCount}}개의 장소를 가져왔습니다.
+		  </div>
+			<ion-item collection-repeat="post in importUser.posts" item-width="importUser.itemWidth" item-height="importUser.itemHeight" href="#/places/{{post.uplace_uuid}}">
+				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
+				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
+				<span class="place-item-addr"><strong>{{post.distance_from_origin}}</strong>&nbsp;{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
+				<ion-delete-button class="ion-minus-circled" ng-click="importUser.onItemDelete(post)">
+      	</ion-delete-button>
+      	<ion-option-button class="button-assertive" ng-click="importUser.delete(post)">
+        	Delete
+      	</ion-option-button>
+      	<!-- <ion-option-button class="button-energized" ng-click="importUser.share(post)">
+        	Share
+      	</ion-option-button> -->
+			</ion-item>
+		</ion-list>
+		<ion-infinite-scroll ng-if="!importUser.isEndOfList()" on-infinite="importUser.doRefresh('bottom')" distance="1%">
+	  </ion-infinite-scroll>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->
