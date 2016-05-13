@@ -322,8 +322,8 @@ angular.module('placekoob.controllers')
     .then(function(pos){
 			main.map.center.latitude = pos.latitude;
 			main.map.center.longitude = pos.longitude;
-			main.posts[0].coords.latitude = pos.latitude;
-			main.posts[0].coords.longitude = pos.longitude;
+			main.curMarker.coords.latitude = pos.latitude;
+			main.curMarker.coords.longitude = pos.longitude;
 			$ionicLoading.hide();
     });
 	});
