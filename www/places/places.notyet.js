@@ -19,7 +19,7 @@ angular.module('placekoob.controllers')
 
 	plNotYet.popOverOrdering = function($event) {
 		console.log('popOverOrdering invoked.');
-		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
+		$ionicPopover.fromTemplateUrl('popover-ordering-not-yet.html', {
 			scope: $scope,
 		})
 		.then(function(popover){

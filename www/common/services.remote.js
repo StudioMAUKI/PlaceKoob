@@ -349,8 +349,14 @@ angular.module('placekoob.services')
     var deferred = $q.defer();
     position = position || 'top';
     orderBy = orderBy || '-modified';
-    lon = lon || null;
-    lat = lat || null;
+    if (orderBy === '-modified' || orderBy === 'modified') {
+      lon = null;
+      lat = null;
+    } else {
+      lon = lon || null;
+      lat = lat || null;
+    }
+
     var offset, limit;
 
     if (position === 'top') {
@@ -387,7 +393,7 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        // console.dir(response.data);
+        console.dir(response.data.results);
         cacheMng.uplaces.totalCount = response.data.count;
         if (position === 'top') {
           var newElements = [];
