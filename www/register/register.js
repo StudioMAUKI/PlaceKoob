@@ -71,6 +71,4 @@ angular.module('placekoob.controllers')
 	$scope.$on('$ionicView.afterEnter', function() {
 		register.init();
 	});
-
-	register.init();
 }]);
