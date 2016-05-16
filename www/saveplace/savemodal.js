@@ -85,7 +85,7 @@ angular.module('placekoob.controllers')
 				deferred.resolve(pos);
 			}, function(err) {
 				console.error(err);
-				deferred.reject(err);
+				deferred.resolve(pos);
 			});
 		}, function(err) {
 			deferred.reject(err);
@@ -141,11 +141,11 @@ angular.module('placekoob.controllers')
 				});
 			}, function(err) {
 				$ionicLoading.hide();
-				saveModal.showAlert('오류: 이미지 업로드', err)
-				.then(function(){
-					saveModal.closeSaveDlg();
-				});
+				saveModal.showAlert('오류: 이미지 업로드', err);
 			});
+		}, function(err) {
+			$ionicLoading.hide();
+			saveModal.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
 		});
 	};
 
