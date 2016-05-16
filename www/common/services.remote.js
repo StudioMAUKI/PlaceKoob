@@ -293,6 +293,9 @@ angular.module('placekoob.services')
   //  2. 마지막으로 업데이트 한 시간에서 1분이 지났는가?
   //  3. 업데이트 태그가 설정되어 있는가?
   function checkNeedToRefresh(key) {
+    //  잠시 캐시 기능을 꺼보기로 함
+    return true;
+
     if (key === 'uplaces') {
       if (cachedUplaces.length === 0){
         console.log('업데이트 필요 : 리스트가 비어 있음');
@@ -393,7 +396,7 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
-        console.dir(response.data.results);
+        // console.dir(response.data.results);
         cacheMng.uplaces.totalCount = response.data.count;
         if (position === 'top') {
           var newElements = [];
@@ -484,6 +487,86 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function importUser(userEmail) {
+    var deferred = $q.defer();
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/importers/',
+      data: JSON.stringify({ guide: JSON.stringify({ type: 'user', email: userEmail })})
+    })
+    .then(function(result) {
+      console.dir(result);
+      deferred.resolve(result);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
+  function getIplaces(lat, lon) {
+    var deferred = $q.defer();
+
+    $http({
+      method: 'GET',
+      url: getServerURL() + '/iplaces/',
+      params: {
+        ru: 'myself',
+        lat: lat,
+        lon: lon,
+        r: 0
+      }
+    })
+    .then(function(response) {
+      // console.dir(response);
+      PostHelper.decoratePosts(response.data.results);
+      deferred.resolve({ iplaces: response.data.results, totalCount: response.data.count });
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  function takeIplace(iplace_uuid) {
+    var deferred = $q.defer();
+    var ret_uplace_uuid = iplace_uuid.split('.')[0];
+    console.log('ret_uplace_uuid : ' + ret_uplace_uuid);
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/iplaces/' + ret_uplace_uuid + '/take/'
+    })
+    .then(function(response) {
+      console.dir(response);
+      deferred.resolve(response);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  function dropIplace(iplace_uuid) {
+    var deferred = $q.defer();
+    var ret_uplace_uuid = iplace_uuid.split('.')[0];
+    console.log('ret_uplace_uuid : ' + ret_uplace_uuid);
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/iplaces/' + ret_uplace_uuid + '/drop/'
+    })
+    .then(function(response) {
+      console.dir(response);
+      deferred.resolve(response);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
   function getPost(uplace_uuid) {
     var deferred = $q.defer();
     var foundPost = null;
@@ -520,7 +603,11 @@ angular.module('placekoob.services')
     getPost: getPost,
     updateCurPos: updateCurPos,
     resetCachedPosts: resetCachedPosts,
-    isEndOfList: isEndOfList
+    isEndOfList: isEndOfList,
+    importUser: importUser,
+    getIplaces: getIplaces,
+    takeIplace: takeIplace,
+    dropIplace: dropIplace
   }
 }])
 .factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {

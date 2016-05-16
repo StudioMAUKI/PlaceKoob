@@ -91,14 +91,17 @@ angular.module('placekoob.controllers')
 
 	main.getCurrentPosition = function() {
 		var deferred = $q.defer();
+		// console.log('getCurrentPosition called..');
 		MapService.getCurrentPosition()
 		.then(function(pos){
 			StorageService.set('curPos', pos);
 			main.getCurrentRegion(pos.latitude, pos.longitude);
 			RemoteAPIService.updateCurPos(pos);
+			// console.log('getCurrentPosition called.. then');
 			deferred.resolve(pos);
 		}, function(err) {
 			deferred.reject(err);
+			// console.log('getCurrentPosition called.. error');
 		});
 		return deferred.promise;
 	};
@@ -194,6 +197,7 @@ angular.module('placekoob.controllers')
 			.finally(function() {
 				main.loadedMap = true;
 				$ionicLoading.hide();
+				// console.log('main.loadMap finally');
 				if (result) {
 					main.loadSavedPlace();
 				}
@@ -203,19 +207,29 @@ angular.module('placekoob.controllers')
 
 	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
-
+		// console.log('loadSavedPlace..');
 		var bounds = main.mapCtrl.getGMap().getBounds();
+		// console.log('loadSavedPlace : main.mapCtrl.getGMap().getBounds()');
+		// console.log(bounds.O.O);
+		// console.log(bounds.O.j);
+		// console.log(bounds.j.O);
+		// console.log(bounds.j.j);
+		// console.dir(bounds);
 		var center = {
 			latitude: (bounds.O.O + bounds.O.j) / 2,
 			longitude: (bounds.j.O + bounds.j.j) / 2
 		};
+		// console.dir(center);
+		// console.log('loadSavedPlace : 22');
 		var dist = parseInt(PostHelper.calcDistance(center.latitude, center.longitude, center.latitude, bounds.j.O));
 		if (dist === 0) {
 			console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
 		}
 
+		// console.log('loadSavedPlace: getPostsWithPlace before call..');
 		RemoteAPIService.getPostsWithPlace(center.latitude, center.longitude, dist)
 		.then(function(posts) {
+			// console.log('loadSavedPlace: getPostsWithPlace');
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
 			var pos = StorageService.get('curPos');
 			main.curMarker = {

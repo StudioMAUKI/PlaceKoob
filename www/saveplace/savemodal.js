@@ -82,10 +82,11 @@ angular.module('placekoob.controllers')
 				console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
 				console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
 				console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
-				deferred.resolve(pos);
 			}, function(err) {
 				console.error(err);
-				deferred.resolve(pos);
+			})
+			.finally(function() {
+				deferred.resolve(pos);	//	주소를 얻지 못해도 정상이라고 리턴시킨다!!
 			});
 		}, function(err) {
 			deferred.reject(err);
