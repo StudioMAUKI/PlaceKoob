@@ -495,7 +495,7 @@ angular.module('placekoob.services')
       data: JSON.stringify({ guide: JSON.stringify({ type: 'user', email: userEmail })})
     })
     .then(function(result) {
-      console.dir(result);
+      // console.dir(result);
       deferred.resolve(result);
     }, function(err) {
       console.error(err);
@@ -538,7 +538,7 @@ angular.module('placekoob.services')
       url: getServerURL() + '/iplaces/' + ret_uplace_uuid + '/take/'
     })
     .then(function(response) {
-      console.dir(response);
+      // console.dir(response);
       deferred.resolve(response);
     }, function(err) {
       console.error(err);
@@ -557,7 +557,7 @@ angular.module('placekoob.services')
       url: getServerURL() + '/iplaces/' + ret_uplace_uuid + '/drop/'
     })
     .then(function(response) {
-      console.dir(response);
+      // console.dir(response);
       deferred.resolve(response);
     }, function(err) {
       console.error(err);
