@@ -12,32 +12,15 @@ angular.module('placekoob.controllers')
 	main.map = {
 		center: main.last_coords,
 		events: {
-			zoom_changed: function(map, event, args) {
-				main.loadSavedPlace();
-			},
-			center_changed: function(map, event, args) {
-				if (main.enabled) {
-					var bounds = main.mapCtrl.getGMap().getBounds();
-					var center = {
-						latitude: (bounds.O.O + bounds.O.j) / 2,
-						longitude: (bounds.j.O + bounds.j.j) / 2
-					};
-					var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
-					if (dist > 1000) {
-						main.lastMapCenter.latitude = center.latitude;
-						main.lastMapCenter.longitude = center.longitude;
-						main.loadSavedPlace();
-					}
-				}
-			}
+			zoom_changed: function(map, event, args){},
+			center_changed: function(map, event, args) {}
 		},
 		zoom: 15,
 		options: {
 			zoomControl: false,
 			mapTypeControl: false,
 			streetViewControl: false
-		},
-		enabled: true
+		}
 	};
 	main.mapCtrl = {};
 	main.curMarker = {};
@@ -63,6 +46,7 @@ angular.module('placekoob.controllers')
 				return false;
 			}
 		} catch (e) {
+			console.error(e);
 			return false;
 		}
 	}
@@ -137,7 +121,7 @@ angular.module('placekoob.controllers')
 		uiGmapGoogleMapApi.then(function(maps) {
 			$ionicLoading.show({
 				template: '<ion-spinner icon="lines"></ion-spinner>',
-				duration: 60000
+				duration: 10000
 			});
 
 			StorageService.set('addr1', '');
@@ -151,43 +135,29 @@ angular.module('placekoob.controllers')
 				main.map.center.longitude = pos.longitude;
 				main.lastMapCenter.latitude = pos.latitude;
 				main.lastMapCenter.longitude = pos.longitude;
-	      // main.map = {
-				// 	center: {
-				// 		latitude: pos.latitude,
-				// 		longitude: pos.longitude
-				// 	},
-				// 	events: {
-				// 		zoom_changed: function(map, event, args) {
-				// 			console.dir(args);
-				// 		},
-				// 		dragend: function(map, event, args) {
-				// 			console.log(args);
-				// 		}
-				// 	},
-				// 	// events: {
-				// 	// 	dragend: function(map, event, args) {
-				// 	// 		main.needToUpdateCurMarker = true;
-				// 	// 	},
-				// 	// 	center_changed: function(map, event, args) {
-				// 	// 		StorageService.set('curPos', main.map.center);
-				// 	//
-				// 	// 		//	지도의 중심이 바뀔때마다 현재 위치 마커의 위치를 바꾸지 않고, 드래그 후 발생한 중심 변경만 반영한다
-				// 	// 		if (main.needToUpdateCurMarker) {
-				// 	// 			//	속성별로 뜯어서 복사하지 않고, 객체수준으로 복사하면 참조하게 되어 그 때부터
-				// 	// 			//	지도와 마커가 한 몸으로 움직이게 되므로 피해야 한다
-				// 	// 			main.currentPosMarker.coords.latitude = main.map.center.latitude;
-				// 	// 			main.currentPosMarker.coords.longitude = main.map.center.longitude;
-				// 	// 			main.needToUpdateCurMarker = false;
-				// 	// 		}
-				// 	// 	}
-				// 	// },
-				// 	zoom: 15,
-				// 	options: {
-				// 		zoomControl: false,
-				// 		mapTypeControl: false,
-				// 		streetViewControl: false
-				// 	}
-				// };
+				main.map.events.zoom_changed = function(map, event, args) {
+					main.loadSavedPlace();
+				};
+				main.map.events.center_changed = function(map, event, args) {
+					if (main.enabled) {
+						try {
+							var bounds = main.mapCtrl.getGMap().getBounds();
+							var center = {
+								latitude: (bounds.O.O + bounds.O.j) / 2,
+								longitude: (bounds.j.O + bounds.j.j) / 2
+							};
+							var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
+							if (dist > 1000) {
+								main.lastMapCenter.latitude = center.latitude;
+								main.lastMapCenter.longitude = center.longitude;
+								main.loadSavedPlace();
+							}
+						} catch (e) {
+							console.warn('Unavailable main.mapCtrl.getGMap().getBounds() yet');
+							console.error(e);
+						}
+					}
+				};
 
 				result = true;
 	    }, function(err){
@@ -199,7 +169,10 @@ angular.module('placekoob.controllers')
 				$ionicLoading.hide();
 				// console.log('main.loadMap finally');
 				if (result) {
-					main.loadSavedPlace();
+					//	지도가 채 초기화 되기전에 장소를 로딩하는 느낌이 있어서, 약간의 지연을 둬봄
+					setTimeout(function() {
+						main.loadSavedPlace();
+					}, 1300);
 				}
 			});
 	  });
@@ -207,14 +180,8 @@ angular.module('placekoob.controllers')
 
 	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
-		// console.log('loadSavedPlace..');
+		console.log('loadSavedPlace..');
 		var bounds = main.mapCtrl.getGMap().getBounds();
-		// console.log('loadSavedPlace : main.mapCtrl.getGMap().getBounds()');
-		// console.log(bounds.O.O);
-		// console.log(bounds.O.j);
-		// console.log(bounds.j.O);
-		// console.log(bounds.j.j);
-		// console.dir(bounds);
 		var center = {
 			latitude: (bounds.O.O + bounds.O.j) / 2,
 			longitude: (bounds.j.O + bounds.j.j) / 2
