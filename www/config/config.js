@@ -59,7 +59,7 @@ angular.module('placekoob.controllers')
 	}
 
 	config.logout = function() {
-		RemoteAPIService.logoutUser();
+		RemoteAPIService.logoutUser(0);
 		$ionicPopup.alert({
 			title: '로그아웃',
 			template: '로그아웃했습니다.'

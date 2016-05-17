@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper, StorageService) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
@@ -117,6 +117,10 @@ angular.module('placekoob.controllers')
 		var lon = curPos.longitude || null;
 		var lat = curPos.latitude || null;
 
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
 		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
 		.then(function(result) {
 			places.posts = result.assigned;
@@ -126,6 +130,9 @@ angular.module('placekoob.controllers')
 			// console.dir(places.posts);
 		}, function(err) {
 			console.error(err);
+		})
+		.finally(function() {
+			$ionicLoading.hide();
 		});
 
 		return deferred.promise;
