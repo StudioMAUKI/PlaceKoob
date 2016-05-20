@@ -72,9 +72,9 @@ angular.module('placekoob.services')
       $http({
         method: 'POST',
         url: getServerURL() + '/users/register/',
-        country:StorageService.get('country'),
+        data: JSON.stringify({country:StorageService.get('country'),
         language:StorageService.get('lang'),
-        timezone:''
+        timezone:''})
       })
       .then(function(result) {
         console.log('User Registration successed: ' + result.data.auth_user_token);
@@ -464,6 +464,7 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
+        // console.dir(response);
         cachedPlaces = [];
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
