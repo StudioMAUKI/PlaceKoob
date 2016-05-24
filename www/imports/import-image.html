@@ -1,0 +1,24 @@
+<!-- start : real contents area -->
+<ion-view title="목록으로 보기">
+	<ion-header-bar class="pk-primary" align-title="center">
+		<!-- <button class="button button-icon button-clear ion-ios-plus-outline pk-primary" ng-click="importImage.showDelete = !importImage.showDelete"></button> -->
+		<h1 class="title">가져오기</h1>
+		<button class="button button-icon button-clear ion-plus pk-primary" ng-click="importImage.addUserImport()"></button>
+	</ion-header-bar>
+	<ion-content>
+		<button class="button button-full" ng-click="importImage.reset()">초기화</button>
+    <button class="button button-full" ng-disabled="importImage.started" ng-click="importImage.start()">앨범 가져오기 시작</button>
+    <button class="button button-full" ng-disabled="!importImage.started||importImage.paused" ng-click="importImage.pause()">일시 정지</button>
+    <button class="button button-full" ng-disabled="!importImage.started||!importImage.paused" ng-click="importImage.resume()">가져오기 재개</button>
+    <button class="button button-full" ng-disabled="!importImage.started" ng-click="importImage.stop()">앨범 가져오기 중지</button>
+    <div class="row">
+      <div class="col col-75">
+        <progress max="100" value="{{importImage.ratio}}"></progress>
+      </div>
+			<div class="col">
+				현재&nbsp;{{importImage.status.current}}&nbsp;/&nbsp;총&nbsp;{{importImage.status.total}}
+			</div>
+    </div>
+	</ion-content>
+</ion-view>
+<!-- end : real contents area -->
