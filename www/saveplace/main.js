@@ -53,7 +53,7 @@ angular.module('placekoob.controllers')
 				return false;
 			}
 		} catch (e) {
-			console.error(e);
+			console.error('isMarkerContained : ' + e);
 			return false;
 		}
 	}
@@ -179,12 +179,19 @@ angular.module('placekoob.controllers')
 	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
 		console.log('loadSavedPlace..');
-		var bounds = main.mapCtrl.getGMap().getBounds();
-		var sw = bounds.getSouthWest();
-		var dist = parseInt(PostHelper.calcDistance(main.map.center.latitude, main.map.center.longitude, main.map.center.latitude, sw.lng()));
-		if (dist === 0) {
-			console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
+		var dist = 0;
+		try {
+			var bounds = main.mapCtrl.getGMap().getBounds();
+			var sw = bounds.getSouthWest();
+			dist = parseInt(PostHelper.calcDistance(main.map.center.latitude, main.map.center.longitude, main.map.center.latitude, sw.lng()));
+			if (dist === 0) {
+				console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
+			}
+		} catch (e) {
+			console.error('loadSavedPlace.getBounds : ' + e);
+			dist = 950;
 		}
+
 
 		// console.log('loadSavedPlace: getPostsWithPlace before call..');
 		RemoteAPIService.getPostsWithPlace(main.map.center.latitude, main.map.center.longitude, dist)
