@@ -37,7 +37,11 @@
       "id": "com.verso.cordova.clipboard"
     },
     "cordova-plugin-file-transfer",
-    "cordova-plugin-globalization"
+    "cordova-plugin-globalization",
+    {
+      "locator": "https://gitlab.com/iwelab/cordova-plugin-photo-engine.git",
+      "id": "cordova-plugin-photo-engine"
+    }
   ],
   "cordovaPlatforms": [
     "ios",

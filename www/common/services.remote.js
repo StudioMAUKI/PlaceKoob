@@ -37,6 +37,29 @@ angular.module('placekoob.services')
     }
   }
 }])
+.factory('remoteStorageService', ['$http', 'RESTServer', function($http, RESTServer) {
+  var getServerURL = RESTServer.getURL;
+
+  function downloadData(key) {
+    return $http({
+      method: 'GET',
+      url: getServerURL() + '/storages/' + key + '/'
+    });
+  }
+
+  function uploadData(key, data) {
+    return $http({
+      method: 'PATCH',
+      url: getServerURL() + '/storages/' + key + '/',
+      data: { value: JSON.stringify(data) }
+    });
+  }
+
+  return {
+    downloadData: downloadData,
+    uploadData: uploadData
+  };
+}])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
   var getServerURL = RESTServer.getURL;
   var cachedUplaces = [];
@@ -72,9 +95,9 @@ angular.module('placekoob.services')
       $http({
         method: 'POST',
         url: getServerURL() + '/users/register/',
-        country:StorageService.get('country'),
+        data: JSON.stringify({country:StorageService.get('country'),
         language:StorageService.get('lang'),
-        timezone:''
+        timezone:''})
       })
       .then(function(result) {
         console.log('User Registration successed: ' + result.data.auth_user_token);
@@ -464,6 +487,7 @@ angular.module('placekoob.services')
         }
       })
       .then(function(response) {
+        // console.dir(response);
         cachedPlaces = [];
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
@@ -787,5 +811,190 @@ angular.module('placekoob.services')
     decoratePosts: decoratePosts,
     updateDistance: updateDistance,
     calcDistance: calcDistance
+  }
+}])
+.factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService) {
+  var getServerURL = RESTServer.getURL;
+  //  [URI, URI, ..]
+  var uploadedImages = [];
+  //  [{id, longitude, latitude, url}, {}, ... ]
+  var beforeImages = [];
+  var completedImages = [];
+  var status = {
+    name: 'notused',
+    total: 0,
+    current: 0
+  };
+  var timer = null;
+  var progress = null;
+
+  function updateProgress() {
+    if (progress) {
+      progress(status);
+    }
+  }
+
+  function loadHistory() {
+    var deferred = $q.defer();
+    uploadedImages = [];
+    remoteStorageService.downloadData('uploaded_imgs')
+    .then(function(result) {
+      uploadedImages = JSON.parse(result.data.value) || [];
+      console.dir(uploadedImages);
+      deferred.resolve();
+    }, function(err) {
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
+  function findImage(key) {
+    for (var i = 0; i < uploadedImages.length; i++) {
+      if (uploadedImages[i] === key) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function uploadImage() {
+    console.log('uploadImage..(status:' + status.name + ')');
+    if (status.name !== 'ready') {
+      return;
+    } else {
+      status.name = 'uploading';
+    }
+
+    while(findImage(beforeImages[status.current].url)) {
+      status.current++;
+      if (status.current === beforeImages.length) {
+        complete();
+        return;
+      }
+    }
+
+    photoEngineService.getPhoto(beforeImages[status.current].id)
+    .then(function(fileURI) {
+      // console.log('image path : ' + fileURI);
+      var options = {
+        fileKey: 'file',
+        httpMethod: 'POST'
+      };
+      $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
+      .then(function(result) {
+        var response = JSON.parse(result.response);
+        // console.dir(response);
+        // console.log('lon : ' + beforeImages[status.current].longitude);
+        // console.log('lat : ' + beforeImages[status.current].latitude);
+        $http({
+          method: 'POST',
+          url: getServerURL() + '/imgs/',
+          data: JSON.stringify({
+            content: response.url,
+            lon: beforeImages[status.current].longitude,
+            lat: beforeImages[status.current].latitude,
+            local_datetime: '2015:04:22 11:54:19'
+          })
+        })
+        .then(function(result) {
+          // console.dir(result);
+          photoEngineService.deletePhoto(beforeImages[status.current].id);
+          uploadedImages.push(beforeImages[status.current].url);
+          remoteStorageService.uploadData('uploaded_imgs', uploadedImages);
+          status.current++;
+          updateProgress();
+        }, function(err) {
+          console.error('In posting to imgs :' + JSON.stringify(err));
+          // console.dir(err);
+        })
+        .finally(function() {
+          status.name = 'ready';
+          if (status.current === beforeImages.length) {
+            complete();
+          }
+        });
+      }, function(err) {
+        console.error('In cordovaFileTransfer: ' + err);
+      });
+      //  3. delete tempfile
+
+    }, function(err) {
+      console.error('In uploadImage : ' + err);
+    });
+  }
+
+  function start(prograssCallback) {
+    progress = prograssCallback || null;
+    status.total = 0;
+    status.current = 0;
+    loadHistory()
+    .then(function() {
+      console.log('imageImporter start');
+      photoEngineService.getPhotoList()
+      .then(function(list) {
+        beforeImages = list;
+        status.total = beforeImages.length;
+        // console.dir(beforeImages);
+        status.name = 'ready';
+        updateProgress();
+        timer = setInterval(uploadImage, 1000);
+      }, function(err) {
+        console.error(err);
+      });
+    });
+  }
+
+  function pause() {
+    console.log('imageImporter pause');
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+      status.name = 'paused';
+      updateProgress();
+    }
+  }
+
+  function resume() {
+    console.log('imageImporter resume');
+    if (timer !== null) {
+      return;
+    }
+    status.name = 'ready';
+    updateProgress();
+    timer = setInterval(uploadImage, 1000);
+  }
+
+  function stop() {
+    console.log('imageImporter stop');
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+      status.name = 'stopped';
+      updateProgress();
+    }
+  }
+
+  function complete() {
+    console.log('imageImporter complete');
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+      status.name = 'completed';
+      updateProgress();
+    }
+  }
+
+  function getStatus() {
+    return status;
+  }
+
+  return {
+    getUploadedImages: function() { return uploadedImages; },
+    getImagesToUpload: function() { return beforeImages; },
+    start: start,
+    pause: pause,
+    resume: resume,
+    stop: stop,
+    getStatus: getStatus
   }
 }]);

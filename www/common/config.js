@@ -77,13 +77,23 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.import', {
-    url: '/import',
+	.state('tab.import-user', {
+    url: '/import-user',
     views: {
-      'import': {
+      'import-user': {
         templateUrl: 'imports/import-user.html',
         controller: 'importUserCtrl',
         controllerAs: 'importUser'
+      }
+    }
+  })
+	.state('tab.import-image', {
+    url: '/import-image',
+    views: {
+      'import-image': {
+        templateUrl: 'imports/import-image.html',
+        controller: 'importImageCtrl',
+        controllerAs: 'importImage'
       }
     }
   })
@@ -134,7 +144,7 @@ angular.module('placekoob.config', [])
 .config(function(uiGmapGoogleMapApiProvider) {
     uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8',
-        v: '3.22', //defaults to latest 3.X anyhow
+        v: '3', //defaults to latest 3.X anyhow
         // libraries: 'weather,geometry,visualization'
     });
 });
