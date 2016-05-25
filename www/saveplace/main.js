@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', 'PostHelper', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService, PostHelper) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', 'PostHelper', 'uiGmapIsReady', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService, PostHelper, uiGmapIsReady) {
 	var main = this;
 	main.prevIndex = 0;
 	main.last_marker_index = -1;
@@ -40,7 +40,14 @@ angular.module('placekoob.controllers')
 	function isMarkerContained(lat, lon) {
 		try{
 			var bounds = main.mapCtrl.getGMap().getBounds();
-			if (lat > bounds.O.O && lat < bounds.O.j && lon > bounds.j.j && lon < bounds.j.O) {
+			var ne = bounds.getNorthEast();
+			var sw = bounds.getSouthWest();
+			var latMin = Math.min(ne.lat(), sw.lat());
+			var latMax = Math.max(ne.lat(), sw.lat());
+			var lonMin = Math.min(ne.lng(), sw.lng());
+			var lonMax = Math.max(ne.lng(), sw.lng());
+
+			if (lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax) {
 				return true;
 			} else {
 				return false;
@@ -96,9 +103,9 @@ angular.module('placekoob.controllers')
 			StorageService.set('addr1', addrs.roadAddress.name);
 			StorageService.set('addr2', addrs.jibunAddress.name);
 			StorageService.set('addr3', addrs.region);
-			console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
-			console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
-			console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+			// console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			// console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			// console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
 			main.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
@@ -118,83 +125,69 @@ angular.module('placekoob.controllers')
 	main.divToFit();
 
 	main.loadMap = function() {
-		uiGmapGoogleMapApi.then(function(maps) {
-			$ionicLoading.show({
-				template: '<ion-spinner icon="lines"></ion-spinner>',
-				duration: 10000
-			});
+		uiGmapIsReady.promise().then(function(instances) {
+			uiGmapGoogleMapApi.then(function(maps) {
+				$ionicLoading.show({
+					template: '<ion-spinner icon="lines"></ion-spinner>',
+					duration: 10000
+				});
 
-			StorageService.set('addr1', '');
-			StorageService.set('addr2', '');
-			StorageService.set('addr3', '');
+				StorageService.set('addr1', '');
+				StorageService.set('addr2', '');
+				StorageService.set('addr3', '');
 
-			var result = false;
-			main.getCurrentPosition()
-	    .then(function(pos){
-				main.map.center.latitude = pos.latitude;
-				main.map.center.longitude = pos.longitude;
-				main.lastMapCenter.latitude = pos.latitude;
-				main.lastMapCenter.longitude = pos.longitude;
-				main.map.events.zoom_changed = function(map, event, args) {
-					main.loadSavedPlace();
-				};
-				main.map.events.center_changed = function(map, event, args) {
-					if (main.enabled) {
-						try {
-							var bounds = main.mapCtrl.getGMap().getBounds();
-							var center = {
-								latitude: (bounds.O.O + bounds.O.j) / 2,
-								longitude: (bounds.j.O + bounds.j.j) / 2
-							};
-							var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, center.latitude, center.longitude));
-							if (dist > 1000) {
-								main.lastMapCenter.latitude = center.latitude;
-								main.lastMapCenter.longitude = center.longitude;
+				var result = false;
+				main.getCurrentPosition()
+		    .then(function(pos){
+					main.map.center.latitude = pos.latitude;
+					main.map.center.longitude = pos.longitude;
+					main.lastMapCenter.latitude = pos.latitude;
+					main.lastMapCenter.longitude = pos.longitude;
+					main.map.events.zoom_changed = function(map, event, args) {
+						main.loadSavedPlace();
+					};
+					main.map.events.center_changed = function(map, event, args) {
+						if (main.enabled) {
+							var dist = parseInt(PostHelper.calcDistance(main.lastMapCenter.latitude, main.lastMapCenter.longitude, main.map.center.latitude, main.map.center.longitude));
+							if (dist > 500) {
+								main.lastMapCenter.latitude = main.map.center.latitude;
+								main.lastMapCenter.longitude = main.map.center.longitude;
 								main.loadSavedPlace();
 							}
-						} catch (e) {
-							console.warn('Unavailable main.mapCtrl.getGMap().getBounds() yet');
-							console.error(e);
 						}
+					};
+					result = true;
+		    }, function(err){
+					result = false;
+		      $ionicPopup.alert({ title: 'Warning!', template: err });
+		    })
+				.finally(function() {
+					main.loadedMap = true;
+					$ionicLoading.hide();
+					// console.log('main.loadMap finally');
+					if (result) {
+						//	지도가 채 초기화 되기전에 장소를 로딩하는 느낌이 있어서, 약간의 지연을 둬봄
+						// setTimeout(function() {
+							main.loadSavedPlace();
+						// }, 1300);
 					}
-				};
-
-				result = true;
-	    }, function(err){
-				result = false;
-	      $ionicPopup.alert({ title: 'Warning!', template: err });
-	    })
-			.finally(function() {
-				main.loadedMap = true;
-				$ionicLoading.hide();
-				// console.log('main.loadMap finally');
-				if (result) {
-					//	지도가 채 초기화 되기전에 장소를 로딩하는 느낌이 있어서, 약간의 지연을 둬봄
-					setTimeout(function() {
-						main.loadSavedPlace();
-					}, 1300);
-				}
-			});
-	  });
+				});
+		  });
+    });
 	};
 
 	main.loadSavedPlace = function() {
 		var deferred = $q.defer();
 		console.log('loadSavedPlace..');
 		var bounds = main.mapCtrl.getGMap().getBounds();
-		var center = {
-			latitude: (bounds.O.O + bounds.O.j) / 2,
-			longitude: (bounds.j.O + bounds.j.j) / 2
-		};
-		// console.dir(center);
-		// console.log('loadSavedPlace : 22');
-		var dist = parseInt(PostHelper.calcDistance(center.latitude, center.longitude, center.latitude, bounds.j.O));
+		var sw = bounds.getSouthWest();
+		var dist = parseInt(PostHelper.calcDistance(main.map.center.latitude, main.map.center.longitude, main.map.center.latitude, sw.lng()));
 		if (dist === 0) {
 			console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
 		}
 
 		// console.log('loadSavedPlace: getPostsWithPlace before call..');
-		RemoteAPIService.getPostsWithPlace(center.latitude, center.longitude, dist)
+		RemoteAPIService.getPostsWithPlace(main.map.center.latitude, main.map.center.longitude, dist)
 		.then(function(posts) {
 			// console.log('loadSavedPlace: getPostsWithPlace');
 			//	현재 위치에 대한 post를 먼저 작성하고, 얻어온 포스트 배열을 뒤에 추가한다
