@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', 'PostHelper', 'uiGmapIsReady', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService, PostHelper, uiGmapIsReady) {
+.controller('mainCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', 'uiGmapGoogleMapApi', 'MapService', 'RemoteAPIService', 'StorageService', 'PostHelper', 'uiGmapIsReady', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal,  uiGmapGoogleMapApi, MapService, RemoteAPIService, StorageService, PostHelper, uiGmapIsReady) {
 	var main = this;
 	main.prevIndex = 0;
 	main.last_marker_index = -1;
@@ -25,6 +25,8 @@ angular.module('placekoob.controllers')
 	main.mapCtrl = {};
 	main.curMarker = {};
 	main.loadedMap = false;
+	main.itemHeight = '99px';
+	main.itemWidth = window.innerWidth + 'px';
 
 	main.getWidth = function () {
 		return window.innerWidth + 'px';
@@ -326,4 +328,20 @@ angular.module('placekoob.controllers')
 		console.log('$ionicView.afterLeave');
 		main.enabled = false;
 	});
+
+	main.showListDlg = function() {
+		$ionicModal.fromTemplateUrl('saveplace/listmodal.html', {
+			scope: $scope,
+			animation: 'slide-in-up'
+		})
+		.then(function(modal) {
+			main.listDlg = modal;
+			main.listDlg.show();
+		});
+	};
+
+	main.closeListDlg = function() {
+		main.listDlg.hide();
+		main.listDlg.remove();
+	}
 }]);

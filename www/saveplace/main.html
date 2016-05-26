@@ -20,7 +20,7 @@
       <ui-gmap-marker ng-repeat="post in main.posts track by $index" coords="post.coords" options="post.options" idkey="$index" events="post.options.events">
       </ui-gmap-marker>
     </ui-gmap-google-map>
-		<div class="button-show-list" ng-show="main.posts.length !== 0">
+		<div class="button-show-list" ng-show="main.posts.length !== 0" ng-click="main.showListDlg()">
 			<button class="button icon ion-ios-list-outline"></button>
 		</div>
 		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true" on-scroll="main.scrollToMarker()" delegate-handle="mapScroll" overflow-scroll="false">
