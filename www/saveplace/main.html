@@ -23,18 +23,20 @@
 		<ion-scroll class="slider-scroll-on-map" direction="x" ng-style="{width: main.getWidth(), height: main.getHeight()}" paging="true" on-scroll="main.scrollToMarker()" delegate-handle="mapScroll" overflow-scroll="false">
 			<div ng-style="{width: main.getFullWidth()}">
 				<div collection-repeat="post in main.posts" class="page" ng-style="{width: main.getWidth(), height: main.getHeight()}">
-					<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><img class="list-thumbnail" ng-src="{{post.thumbnailURL}}"></a>
-					<section>
-						<div>
-							<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>
-							&nbsp;&nbsp;
-							<span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span>
-						</div>
+					<div class="map-slider-desc">
+						<a ng-click="main.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>
+						&nbsp;&nbsp;
+						<span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span><br>
 						<span class="place-desc">{{$index === 0 ? main.address : post.address}}</span><br>
 						<span class="place-note">
 							<strong>{{post.desc}}</strong>
 						</span>
-					</section>
+					</div>
+					<div class="map-slider-thumbnail">
+						<a ng-click="main.goPlace(post.uplace_uuid)" href="#">
+							<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}">
+						</a>
+					</div>
 				</div>
       </div>
 		</ion-scroll>

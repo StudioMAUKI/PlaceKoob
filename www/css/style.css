@@ -139,6 +139,16 @@ div.pk-dark-primary{
   margin: auto;
 }
 
+.map-slider-desc {
+  position: absolute;
+  left: 10px;
+}
+
+.map-slider-thumbnail {
+  position: absolute;
+  right: 0px;
+}
+
 div.image-container {
   /*overflow: scroll;*/
   white-space: nowrap;
