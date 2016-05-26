@@ -8,8 +8,9 @@
 			<div class="item item-divider">
 		    총 {{main.posts.length}}개의 주변 장소가 저장되어 있습니다.
 		  </div>
-			<ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" href="#/places/{{post.uplace_uuid}}">
-      <!-- <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" ng-click="main.closeListDlg(post.uplace_uuid)"> -->
+			<!-- <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" href="#/places/{{post.uplace_uuid}}"> -->
+      <!-- <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" ng-click="main.goToPlace(post.uplace_uuid)"> -->
+      <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" ng-click="main.showPlaceDlg($index)">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
 				<span class="place-item-addr"><strong>{{post.distance_from_origin}}</strong>&nbsp;{{post.address}}</span><br>

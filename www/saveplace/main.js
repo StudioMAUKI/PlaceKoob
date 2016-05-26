@@ -349,4 +349,51 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {uplace_uuid: uplace_uuid});
 		main.closeListDlg();
 	};
+
+	main.showPlaceDlg = function(index) {
+		main.selectedPlace = main.posts[index];
+		$ionicModal.fromTemplateUrl('saveplace/placemodal.html', {
+			scope: $scope,
+			animation: 'splat'
+		})
+		.then(function(modal) {
+			main.placeDlg = modal;
+			main.placeDlg.show();
+		});
+	};
+
+	main.closePlaceDlg = function() {
+		main.placeDlg.hide();
+		main.placeDlg.remove();
+	};
+
+	main.getImageHeight = function() {
+    var images = document.getElementsByClassName('user-image');
+    for (var i = 0; i < images.length; i++) {
+      if (images[i].clientWidth) {
+        return parseInt(images[i].clientWidth / 3);
+      }
+    }
+    return 0;
+  };
+
+	main.searchPlace = function() {
+		var query = '';
+    var region = main.selectedPlace.placePost.addr2 || main.selectedPlace.placePost.addr1 || main.selectedPlace.placePost.addr3 || null;
+    console.log('Region : ' + region);
+    if (region) {
+      var region_items = region.content.split(' ');
+      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+      for (var i = 1; i < loopCount; i++) {
+        query += region_items[i] + '+';
+      }
+    }
+
+    query += (main.selectedPlace.placePost.name.content || main.selectedPlace.userPost.name.content);
+    console.log('Calculated query : ', query);
+    query = encodeURI(query);
+    console.log('URL encoded query : ', query);
+
+    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+	}
 }]);
