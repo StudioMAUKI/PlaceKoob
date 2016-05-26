@@ -343,5 +343,10 @@ angular.module('placekoob.controllers')
 	main.closeListDlg = function() {
 		main.listDlg.hide();
 		main.listDlg.remove();
-	}
+	};
+
+	main.goToPlace = function(uplace_uuid) {
+		$state.go('tab.places', {uplace_uuid: uplace_uuid});
+		main.closeListDlg();
+	};
 }]);
