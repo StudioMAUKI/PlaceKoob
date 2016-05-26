@@ -338,9 +338,19 @@ span.place-item-tag {
 }
 
 .slider-scroll-on-map {
-  position: relative;
-  top: -90px;
+  position: absolute;
+  bottom: 0px;
 }
+
+.button-show-list {
+  position: absolute;
+  right: 5px;
+  bottom: 95px;
+  border: 1px solid grey;
+  border-radius: 5px;
+  opacity: 0.85;
+}
+
 .page {
   float: left;
   display: inline-block;
