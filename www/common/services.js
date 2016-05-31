@@ -335,7 +335,7 @@ angular.module('placekoob.services', [])
   function getPhoto(index) {
     var deferred = $q.defer();
 
-    PhotoEngine.base64Encoded(index, function(results) {
+    PhotoEngine.storePhoto(index, function(results) {
       // console.dir(results);
       if (results.error === '0') {
         // $cordovaFile.checkFile(cordova.file.documentsDirectory, index + '')

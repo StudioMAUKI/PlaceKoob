@@ -62,7 +62,7 @@ angular.module('placekoob.controllers')
 
 	main.slidehasChanged = function(index) {
 		try{
-			main.posts[index].options.icon = 'img/icon/pin_active.svg';
+			main.posts[index].marker.icon = 'img/icon/pin_active.svg';
 
 			//	선택된 마커가 현재의 지도 안에 있는 지 확인
 			if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
@@ -72,7 +72,11 @@ angular.module('placekoob.controllers')
 
 			//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 			if (main.prevIndex < main.posts.length) {
-				main.posts[main.prevIndex].options.icon = 'img/icon/pin_normal.svg';
+				main.posts[main.prevIndex].marker.icon = 'img/icon/pin_normal.svg';
+				main.posts[main.prevIndex].marker.zIndex = main.prevIndex;
+				main.posts[main.prevIndex].window.zIndex = main.prevIndex;
+				main.posts[index].marker.zIndex = 9999;
+				main.posts[index].window.zIndex = 9999;
 			}
 			//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 			main.prevIndex = index;
@@ -209,7 +213,9 @@ angular.module('placekoob.controllers')
 				},
 				options: {
 					draggable: true,
-					icon: 'img/icon/pin_current.svg',
+					// icon: 'img/icon/pin_current.svg',
+					// animation: google.maps.Animation.DROP,
+					zIndex: 9999,
 					events: {
 						dragend: function (marker, eventName, args) {
 							main.map.center.latitude = marker.position.lat();
@@ -218,17 +224,19 @@ angular.module('placekoob.controllers')
 							StorageService.set('curPos', main.map.center);
 						}
 					}
-				},
-				thumbnailURL: 'img/icon/pin_current.svg',
+				}
 			};
 			main.posts = posts;
+			// console.dir(main.posts);
 
 			// markers for saved positions
 			for(var i = 0; i < posts.length; i++) {
 				main.posts[i].id = i;
-				main.posts[i].options = {
+				main.posts[i].marker = {
 					draggable: false,
 					icon: (i === 0 ? 'img/icon/pin_active.svg' : 'img/icon/pin_normal.svg'),
+					// animation: google.maps.Animation.DROP,
+					zIndex: (i === 0 ? 9999 : i),
 					events: {
 	          click: function(marker, eventName, args) {
 							main.jumpToSlide(marker.key);
@@ -238,8 +246,29 @@ angular.module('placekoob.controllers')
 				main.posts[i].coords = {
 					latitude: main.posts[i].lonLat.lat,
 					longitude: main.posts[i].lonLat.lon
-				}
+				};
+				main.posts[i].window = {
+					zIndex: (1 === 0 ? 9999 : i),
+					disableAutoPan: true
+				};
+				main.posts[i].windowCtrl = {};
 			}
+
+			setTimeout(function() {
+				var iwOuter = $('.gm-style-iw');
+				var iwBackground = iwOuter.prev();
+
+				iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+				iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+
+				// iwOuter.parent().parent().css({left: '115px'});
+
+				iwBackground.children(':nth-child(1)').css({'display' : 'none'});
+				iwBackground.children(':nth-child(3)').css({'display' : 'none'});
+
+				var iwCloseBtn = iwOuter.next();
+				iwCloseBtn.css({'display': 'none'});
+			}, 100);
 
 			main.scrollToMarker = function() {
 				var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
@@ -395,5 +424,10 @@ angular.module('placekoob.controllers')
     console.log('URL encoded query : ', query);
 
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+	}
+
+	main.hasTags = function(index) {
+		console.log('hasTags[' + index + '] : ' + (main.posts[index].tags.length > 0));
+		return main.posts[index].tags.length > 0;
 	}
 }]);
