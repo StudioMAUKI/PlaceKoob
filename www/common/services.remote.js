@@ -528,6 +528,23 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function importImage() {
+    var deferred = $q.defer();
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/importers/',
+      data: JSON.stringify({ guide: JSON.stringify({ type: 'images', vd: 'myself' })})
+    })
+    .then(function(result) {
+      // console.dir(result);
+      deferred.resolve(result);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
   function getIplaces(lat, lon) {
     var deferred = $q.defer();
 
@@ -629,6 +646,7 @@ angular.module('placekoob.services')
     resetCachedPosts: resetCachedPosts,
     isEndOfList: isEndOfList,
     importUser: importUser,
+    importImage: importImage,
     getIplaces: getIplaces,
     takeIplace: takeIplace,
     dropIplace: dropIplace
@@ -813,13 +831,12 @@ angular.module('placekoob.services')
     calcDistance: calcDistance
   }
 }])
-.factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService) {
+.factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', 'RemoteAPIService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService, RemoteAPIService) {
   var getServerURL = RESTServer.getURL;
   //  [URI, URI, ..]
   var uploadedImages = [];
   //  [{id, longitude, latitude, url}, {}, ... ]
-  var beforeImages = [];
-  var completedImages = [];
+  var imagesToUpload = [];
   var status = {
     name: 'notused',
     total: 0,
@@ -828,7 +845,9 @@ angular.module('placekoob.services')
   var timer = null;
   var progress = null;
 
-  function updateProgress() {
+  function updateProgress(stateName) {
+    status.name = stateName;
+
     if (progress) {
       progress(status);
     }
@@ -848,6 +867,11 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function saveHistory(url) {
+    uploadedImages.push(url);
+    remoteStorageService.uploadData('uploaded_imgs', uploadedImages);
+  }
+
   function findImage(key) {
     for (var i = 0; i < uploadedImages.length; i++) {
       if (uploadedImages[i] === key) {
@@ -865,15 +889,15 @@ angular.module('placekoob.services')
       status.name = 'uploading';
     }
 
-    while(findImage(beforeImages[status.current].url)) {
+    while(findImage(imagesToUpload[status.current].url)) {
       status.current++;
-      if (status.current === beforeImages.length) {
+      if (status.current === imagesToUpload.length) {
         complete();
         return;
       }
     }
 
-    photoEngineService.getPhoto(beforeImages[status.current].id)
+    photoEngineService.getPhoto(imagesToUpload[status.current].id)
     .then(function(fileURI) {
       // console.log('image path : ' + fileURI);
       var options = {
@@ -884,40 +908,38 @@ angular.module('placekoob.services')
       .then(function(result) {
         var response = JSON.parse(result.response);
         // console.dir(response);
-        // console.log('lon : ' + beforeImages[status.current].longitude);
-        // console.log('lat : ' + beforeImages[status.current].latitude);
+        // console.log('lon : ' + imagesToUpload[status.current].longitude);
+        // console.log('lat : ' + imagesToUpload[status.current].latitude);
+        // console.log('local_datetime : ' + imagesToUpload[status.current].timestamp);
         $http({
           method: 'POST',
           url: getServerURL() + '/imgs/',
           data: JSON.stringify({
             content: response.url,
-            lon: beforeImages[status.current].longitude,
-            lat: beforeImages[status.current].latitude,
-            local_datetime: '2015:04:22 11:54:19'
+            lon: imagesToUpload[status.current].longitude,
+            lat: imagesToUpload[status.current].latitude,
+            local_datetime: imagesToUpload[status.current].timestamp
           })
         })
         .then(function(result) {
           // console.dir(result);
-          photoEngineService.deletePhoto(beforeImages[status.current].id);
-          uploadedImages.push(beforeImages[status.current].url);
-          remoteStorageService.uploadData('uploaded_imgs', uploadedImages);
+          photoEngineService.deletePhoto(imagesToUpload[status.current].id);
+          saveHistory(imagesToUpload[status.current].url);
           status.current++;
-          updateProgress();
+          updateProgress('uploading');
         }, function(err) {
           console.error('In posting to imgs :' + JSON.stringify(err));
           // console.dir(err);
         })
         .finally(function() {
           status.name = 'ready';
-          if (status.current === beforeImages.length) {
+          if (status.current === imagesToUpload.length) {
             complete();
           }
         });
       }, function(err) {
         console.error('In cordovaFileTransfer: ' + err);
       });
-      //  3. delete tempfile
-
     }, function(err) {
       console.error('In uploadImage : ' + err);
     });
@@ -932,11 +954,10 @@ angular.module('placekoob.services')
       console.log('imageImporter start');
       photoEngineService.getPhotoList()
       .then(function(list) {
-        beforeImages = list;
-        status.total = beforeImages.length;
-        // console.dir(beforeImages);
-        status.name = 'ready';
-        updateProgress();
+        imagesToUpload = list;
+        status.total = imagesToUpload.length;
+        // console.dir(imagesToUpload);
+        updateProgress('ready');
         timer = setInterval(uploadImage, 1000);
       }, function(err) {
         console.error(err);
@@ -949,8 +970,7 @@ angular.module('placekoob.services')
     if (timer !== null) {
       clearInterval(timer);
       timer = null;
-      status.name = 'paused';
-      updateProgress();
+      updateProgress('paused');
     }
   }
 
@@ -959,8 +979,7 @@ angular.module('placekoob.services')
     if (timer !== null) {
       return;
     }
-    status.name = 'ready';
-    updateProgress();
+    updateProgress('ready');
     timer = setInterval(uploadImage, 1000);
   }
 
@@ -969,9 +988,8 @@ angular.module('placekoob.services')
     if (timer !== null) {
       clearInterval(timer);
       timer = null;
-      status.name = 'stopped';
-      updateProgress();
     }
+    updateProgress('stopped');
   }
 
   function complete() {
@@ -979,9 +997,14 @@ angular.module('placekoob.services')
     if (timer !== null) {
       clearInterval(timer);
       timer = null;
-      status.name = 'completed';
-      updateProgress();
     }
+    // create Importer
+    RemoteAPIService.importImage()
+    .then(function() {
+      updateProgress('completed');
+    }, function(err) {
+      console.error(err);
+    });
   }
 
   function getStatus() {
@@ -990,7 +1013,7 @@ angular.module('placekoob.services')
 
   return {
     getUploadedImages: function() { return uploadedImages; },
-    getImagesToUpload: function() { return beforeImages; },
+    getImagesToUpload: function() { return imagesToUpload; },
     start: start,
     pause: pause,
     resume: resume,
