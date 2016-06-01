@@ -405,7 +405,7 @@ span.place-item-tag {
 
 .gm-style-iw {
    width: 100px !important;
-   top: 30px !important; // move the infowindow 15px down
+   top: 45px !important; // move the infowindow 15px down
    left: 0 !important;
    background-color: #fff;
    /*box-shadow: 0 1px 6px rgba(178, 178, 178, 0.6);*/
@@ -429,7 +429,7 @@ span.place-item-tag {
 
 .iw-container .iw-content {
   text-align: center;
-  
+
 }
 
 .iw-container .tag {

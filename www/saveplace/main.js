@@ -62,7 +62,7 @@ angular.module('placekoob.controllers')
 
 	main.slidehasChanged = function(index) {
 		try{
-			main.posts[index].marker.icon = 'img/icon/pin_active.svg';
+			main.posts[index].marker.icon = 'img/icon/arrow-point-to-custom.svg';
 
 			//	선택된 마커가 현재의 지도 안에 있는 지 확인
 			if (!isMarkerContained(main.posts[index].coords.latitude, main.posts[index].coords.longitude)) {
@@ -72,7 +72,7 @@ angular.module('placekoob.controllers')
 
 			//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 			if (main.prevIndex < main.posts.length) {
-				main.posts[main.prevIndex].marker.icon = 'img/icon/pin_normal.svg';
+				main.posts[main.prevIndex].marker.icon = 'img/icon/arrow-point-to-down-blue.svg';
 				main.posts[main.prevIndex].marker.zIndex = main.prevIndex;
 				main.posts[main.prevIndex].window.zIndex = main.prevIndex;
 				main.posts[index].marker.zIndex = 9999;
@@ -234,7 +234,7 @@ angular.module('placekoob.controllers')
 				main.posts[i].id = i;
 				main.posts[i].marker = {
 					draggable: false,
-					icon: (i === 0 ? 'img/icon/pin_active.svg' : 'img/icon/pin_normal.svg'),
+					icon: (i === 0 ? 'img/icon/arrow-point-to-custom.svg' : 'img/icon/arrow-point-to-down-blue.svg'),
 					// animation: google.maps.Animation.DROP,
 					zIndex: (i === 0 ? 9999 : i),
 					events: {
@@ -279,7 +279,7 @@ angular.module('placekoob.controllers')
 						main.last_marker_index = index;
 						window.setTimeout(function() {
 							main.slidehasChanged(index);
-						}, 200);
+						}, 500);
 					}
 		    }
 			};
@@ -427,7 +427,7 @@ angular.module('placekoob.controllers')
 	}
 
 	main.hasTags = function(index) {
-		console.log('hasTags[' + index + '] : ' + (main.posts[index].tags.length > 0));
+		//console.log('hasTags[' + index + '] : ' + (main.posts[index].tags.length > 0));
 		return main.posts[index].tags.length > 0;
 	}
 }]);
