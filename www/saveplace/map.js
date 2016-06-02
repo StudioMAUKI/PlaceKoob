@@ -5,7 +5,6 @@ angular.module('placekoob.controllers')
   var map = this;
   map.prevIndex = 0;
 	map.last_marker_index = -1;
-	map.needToUpdateCurMarker = false;
 	map.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	map.lastMapCenter = {};
 	map.enabled = true;
@@ -19,7 +18,12 @@ angular.module('placekoob.controllers')
 		mapTypeControl: false,
 		streetViewControl: false
 	};
-
+  map.mapObj = gmapService.createMap('map', map.mapOption);
+  map.curMarker = null;
+  map.postMarkers = [];
+	map.loadedMap = false;
+	map.itemHeight = '99px';
+	map.itemWidth = window.innerWidth + 'px';
 
   // 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	map.divToFit = function() {
@@ -27,10 +31,10 @@ angular.module('placekoob.controllers')
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
     var buttonBarHeight = document.getElementsByClassName('button-bar')[0].clientHeight || 50;
 		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
-    console.info('Document Height : ' + documentHeight);
-		console.info('Bar Height : ' + barHeight);
-    console.info('Button Bar Height : ' + buttonBarHeight);
-		console.info('Tab Height : ' + tabHeight);
+    // console.info('Document Height : ' + documentHeight);
+		// console.info('Bar Height : ' + barHeight);
+    // console.info('Button Bar Height : ' + buttonBarHeight);
+		// console.info('Tab Height : ' + tabHeight);
 		$('#map').css({
 			height: documentHeight
         - barHeight
@@ -51,7 +55,7 @@ angular.module('placekoob.controllers')
     return '90px';
   };
 
-  map.caculateDist = function(lat1, lon1, lat2, lon2)
+  map.calculateDist = function(lat1, lon1, lat2, lon2)
 	{
     function deg2rad(deg) { return (deg * Math.PI / 180); }
   	function rad2deg(rad) { return (rad * 180 / Math.PI); }
@@ -60,6 +64,335 @@ angular.module('placekoob.controllers')
 	  return  Number(rad2deg(Math.acos(dist)) * 60 * 1.1515 * 1.609344 * 1000).toFixed(2);
 	}
 
-  map.mapObj = gmapService.createMap('map', map.mapOption);
+  function isMarkerContained(lat, lon) {
+		var bounds = map.mapObj.getBounds();
+		return bounds.contains(new google.maps.LatLng(lat,  lon));
+	}
+
+  map.slidehasChanged = function(index) {
+		map.postMarkers[index].setIcon('img/icon/arrow-point-to-custom.svg');
+
+		//	선택된 마커가 현재의 지도 안에 있는 지 확인
+		if (!isMarkerContained(map.posts[index].lonLat.lat, map.posts[index].lonLat.lon)) {
+      map.mapObj.setCenter({
+        lat: map.posts[index].lonLat.lat,
+        lng: map.posts[index].lonLat.lon
+      });
+		}
+
+		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
+		if (map.prevIndex < map.posts.length) {
+      map.postMarkers[map.prevIndex].setIcon('img/icon/arrow-point-to-down-blue.svg');
+      map.postMarkers[map.prevIndex].setZIndex(1000 + map.prevIndex);
+			map.postMarkers[index].setZIndex(9999);
+		}
+		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
+		map.prevIndex = index;
+		$scope.$digest();
+	}
+
+  map.getCurrentPosition = function() {
+    var deferred = $q.defer();
+		MapService.getCurrentPosition()
+		.then(function(pos){
+			map.getCurrentRegion(pos.latitude, pos.longitude);
+			RemoteAPIService.updateCurPos(pos);
+			deferred.resolve(pos);
+		}, function(err) {
+			deferred.reject(err);
+		});
+
+    return deferred.promise;
+	};
+
+  map.getCurrentRegion = function(latitude, longitude) {
+		MapService.getCurrentAddress(latitude, longitude)
+		.then(function(addrs) {
+			// console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
+			// console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
+			// console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+			map.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
+		});
+	};
+
+  map.loadMap = function() {
+		$ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 10000
+		});
+
+		StorageService.set('addr1', '');
+		StorageService.set('addr2', '');
+		StorageService.set('addr3', '');
+
+		map.getCurrentPosition()
+    .then(function(pos){
+      map.mapObj.setCenter({
+        lat: pos.latitude,
+        lng: pos.longitude
+      });
+			map.lastMapCenter.latitude = pos.latitude;
+			map.lastMapCenter.longitude = pos.longitude;
+      map.mapObj.addListener('zoom_changed', function() {
+        console.log('map: zoom_changed');
+        map.loadSavedPlace();
+      });
+      map.mapObj.addListener('center_changed', function() {
+        if (map.enabled) {
+          var mapCenter = map.mapObj.getCenter();
+          // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
+					var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
+					if (dist > 500) {
+						map.lastMapCenter.latitude = mapCenter.lat();
+						map.lastMapCenter.longitude = mapCenter.lng();
+						map.loadSavedPlace();
+					}
+				}
+      });
+
+      map.curMarker = gmapService.deleteMarker(map.curMarker);
+      map.curMarker = gmapService.createMarker({
+        map: map.mapObj,
+        position: { lat: pos.latitude, lng: pos.longitude },
+        draggable: true,
+        zIndex: 9999
+      });
+      map.curMarker.addListener('dragend', function(event) {
+        console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
+        map.mapObj.setCenter(event.latLng);
+        map.getCurrentRegion(event.latLng.lat(), event.latLng.lng());
+        StorageService.set('curPos', {
+          latitude: event.latLng.lat(),
+          longitude: event.latLng.lng()
+        });
+      });
+
+      map.loadedMap = true;
+      google.maps.event.trigger(map.mapObj, 'resize');
+      console.log('map loaded');
+      map.loadSavedPlace();
+    }, function(err){
+      $ionicPopup.alert({ title: 'Warning!', template: err });
+    })
+		.finally(function() {
+			$ionicLoading.hide();
+		});
+	};
+
+  map.loadSavedPlace = function() {
+    var deferred = $q.defer();
+    var dist = 0;
+    var bounds = map.mapObj.getBounds();
+    var sw = bounds.getSouthWest();
+    var mapCenter = map.mapObj.getCenter();
+    dist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), sw.lng()));
+    if (dist === 0) {
+      console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
+    }
+
+    RemoteAPIService.getPostsWithPlace(mapCenter.lat(), mapCenter.lng(), dist)
+    .then(function(posts) {
+      map.posts = posts;
+      // console.dir(map.posts);
+
+      // markers for saved positions
+      map.postMarkers = gmapService.deleteMarkers(map.postMarkers);
+      for(var i = 0; i < posts.length; i++) {
+        map.posts[i].id = i;
+        map.postMarkers.push(gmapService.createMarker({
+          map: map.mapObj,
+          position: { lat: map.posts[i].lonLat.lat, lng: map.posts[i].lonLat.lon },
+          icon: (i === 0 ? 'img/icon/arrow-point-to-custom.svg' : 'img/icon/arrow-point-to-down-blue.svg'),
+          draggable: false,
+          zIndex: 1000 + i
+        }));
+        map.postMarkers[i].addListener('click', (function(i) {
+            return function() {
+              console.log('marker click : ' + i);
+              return map.jumpToSlide(i);
+            };
+          })(i)
+        );
+
+        // map.posts[i].window = {
+        //   zIndex: (1 === 0 ? 9999 : i),
+        //   disableAutoPan: true
+        // };
+        // map.posts[i].windowCtrl = {};
+      }
+
+      // setTimeout(function() {
+      //   var iwOuter = $('.gm-style-iw');
+      //   var iwBackground = iwOuter.prev();
+      //
+      //   iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+      //   iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+      //
+      //   // iwOuter.parent().parent().css({left: '115px'});
+      //
+      //   iwBackground.children(':nth-child(1)').css({'display' : 'none'});
+      //   iwBackground.children(':nth-child(3)').css({'display' : 'none'});
+      //
+      //   var iwCloseBtn = iwOuter.next();
+      //   iwCloseBtn.css({'display': 'none'});
+      // }, 100);
+
+      map.scrollToMarker = function() {
+        var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
+        if (scrolled_pos % window.innerWidth === 0) {
+          //	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
+          var index = scrolled_pos / window.innerWidth;
+          if (map.last_marker_index !== index) {
+            map.last_marker_index = index;
+            window.setTimeout(function() {
+              map.slidehasChanged(index);
+            }, 500);
+          }
+        }
+      };
+      deferred.resolve(true);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  };
+
+  map.goPlace = function(uplace_uuid) {
+		if (uplace_uuid === '')
+			return;
+		console.log('goPlace : ' + uplace_uuid);
+		$state.go('tab.places', {uplace_uuid: uplace_uuid});
+	}
+
+  map.jumpToSlide = function(index) {
+		$ionicScrollDelegate.$getByHandle('mapScroll').scrollTo(window.innerWidth * index, 0, true);
+	};
+
+  $scope.$on('posts.request.refresh', function() {
+		map.loadSavedPlace()
+		.then(function() {
+			//	방금 저장한 장소로 핀과 슬라이드를 이동 시킴
+			var last_uplace_id = StorageService.get('last_uplace_id') || '';
+			if (last_uplace_id) {
+				for (var i = 0; i < map.posts.length; i++) {
+					if (last_uplace_id === map.posts[i].uplace_uuid) {
+						map.jumpToSlide(i);
+						break;
+					}
+				}
+			}
+		});
+	});
+
+  map.refresh = function() {
+    $ionicLoading.show({
+			template: '<ion-spinner icon="lines"></ion-spinner>',
+			duration: 60000
+		});
+		map.getCurrentPosition()
+    .then(function(pos){
+      map.mapObj.setCenter({
+        lat: pos.latitude,
+        lng: pos.longitude
+      });
+			map.lastMapCenter.latitude = pos.latitude;
+			map.lastMapCenter.longitude = pos.longitude;
+      map.curMarker.setPosition({
+        lat: pos.latitude,
+        lng: pos.longitude
+      });
+
+    })
+    .finally(function() {
+      $ionicLoading.hide();
+    });
+  }
+
+  $scope.$on('$ionicView.afterEnter', function() {
+		console.log('$ionicView.afterEnter');
+		map.enabled = true;
+		if (map.loadedMap) {
+      console.log('map resize event triggered');
+      google.maps.event.trigger(map.mapObj, 'resize');
+			map.loadSavedPlace();
+		} else {
+			map.loadMap();
+		}
+	});
+
+  $scope.$on('$ionicView.afterLeave', function() {
+    console.log('$ionicView.afterLeave');
+    map.enabled = false;
+  });
+
+  map.showListDlg = function() {
+		$ionicModal.fromTemplateUrl('saveplace/listmodal.html', {
+			scope: $scope,
+			animation: 'slide-in-up'
+		})
+		.then(function(modal) {
+			map.listDlg = modal;
+			map.listDlg.show();
+		});
+	};
+
+	map.closeListDlg = function() {
+		map.listDlg.hide();
+		map.listDlg.remove();
+	};
+
+	map.goToPlace = function(uplace_uuid) {
+		$state.go('tab.places', {uplace_uuid: uplace_uuid});
+		map.closeListDlg();
+	};
+
+	map.showPlaceDlg = function(index) {
+		map.selectedPlace = map.posts[index];
+		$ionicModal.fromTemplateUrl('saveplace/placemodal.html', {
+			scope: $scope,
+			animation: 'splat'
+		})
+		.then(function(modal) {
+			map.placeDlg = modal;
+			map.placeDlg.show();
+		});
+	};
+
+	map.closePlaceDlg = function() {
+		map.placeDlg.hide();
+		map.placeDlg.remove();
+	};
+
+	map.getImageHeight = function() {
+    var images = document.getElementsByClassName('user-image');
+    for (var i = 0; i < images.length; i++) {
+      if (images[i].clientWidth) {
+        return parseInt(images[i].clientWidth / 3);
+      }
+    }
+    return 0;
+  };
+
+	map.searchPlace = function() {
+		var query = '';
+    var region = map.selectedPlace.placePost.addr2 || map.selectedPlace.placePost.addr1 || map.selectedPlace.placePost.addr3 || null;
+    console.log('Region : ' + region);
+    if (region) {
+      var region_items = region.content.split(' ');
+      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+      for (var i = 1; i < loopCount; i++) {
+        query += region_items[i] + '+';
+      }
+    }
+
+    query += (map.selectedPlace.placePost.name.content || map.selectedPlace.userPost.name.content);
+    console.log('Calculated query : ', query);
+    query = encodeURI(query);
+    console.log('URL encoded query : ', query);
+
+    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+	}
 
 }]);

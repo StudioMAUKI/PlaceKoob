@@ -131,24 +131,23 @@ angular.module('placekoob.services', [])
     close: close
   };
 }])
-.factory('MapService', ['$q', function($q) {
-  var pos = {};
+.factory('MapService', ['$q', 'StorageService', function($q, StorageService) {
+  var pos = { latitude: 0.0, longitude: 0.0 };
 
   function getCurrentPosition() {
     return $q(function(resolve, reject) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          pos = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
+          pos.latitude = position.coords.latitude;
+          pos.longitude = position.coords.longitude;
+          StorageService.set('curPos', pos);
           console.info('Original position is (' + pos.latitude + ', ' + pos.longitude + ').');
+
           resolve(pos);
         }, function() {
-          pos = {
-            latitude: 37.403425,
-            longitude: 127.105783
-          };
+          pos.latitude = 37.403425;
+          pos.longitude = 127.105783;
+
           resolve(pos);
         });
       } else {
@@ -169,6 +168,9 @@ angular.module('placekoob.services', [])
         if (status === daum.maps.services.Status.OK) {
           if (result[0]) {
             console.info('Current Address is ' + result[0].jibunAddress.name + '.');
+            StorageService.set('addr1', result[0].roadAddress.name);
+      			StorageService.set('addr2', result[0].jibunAddress.name);
+      			StorageService.set('addr3', result[0].region);
             deferred.resolve(result[0]);
           } else {
             console.warn('Geocoder results are not found.');
@@ -388,7 +390,28 @@ angular.module('placekoob.services', [])
     return new google.maps.Map(document.getElementById(elemName), mapOption);
   }
 
+  function createMarker(markerOption) {
+    return new google.maps.Marker(markerOption);
+  }
+
+  function deleteMarker(markerObj) {
+    if (markerObj) {
+      markerObj.setMap(null);
+    }
+    return null;
+  }
+
+  function deleteMarkers(markerObjs) {
+    for (var i = 0; i < markerObjs.length; i++) {
+      markerObjs[i].setMap(null);
+    }
+    return [];
+  }
+
   return {
-    createMap: createMap
+    createMap: createMap,
+    createMarker: createMarker,
+    deleteMarker: deleteMarker,
+    deleteMarkers: deleteMarkers
   };
 }]);

@@ -91,7 +91,6 @@ angular.module('placekoob.controllers')
 		// console.log('getCurrentPosition called..');
 		MapService.getCurrentPosition()
 		.then(function(pos){
-			StorageService.set('curPos', pos);
 			main.getCurrentRegion(pos.latitude, pos.longitude);
 			RemoteAPIService.updateCurPos(pos);
 			// console.log('getCurrentPosition called.. then');
@@ -106,9 +105,6 @@ angular.module('placekoob.controllers')
 	main.getCurrentRegion = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
-			StorageService.set('addr1', addrs.roadAddress.name);
-			StorageService.set('addr2', addrs.jibunAddress.name);
-			StorageService.set('addr3', addrs.region);
 			// console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
 			// console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
 			// console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
@@ -239,6 +235,7 @@ angular.module('placekoob.controllers')
 					zIndex: (i === 0 ? 9999 : i),
 					events: {
 	          click: function(marker, eventName, args) {
+							console.dir(marker);
 							main.jumpToSlide(marker.key);
 						}
 	        }

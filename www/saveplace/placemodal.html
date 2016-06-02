@@ -1,7 +1,7 @@
 <ion-view>
 	<ion-header-bar class="pk-primary" align-title="center">
 		<div class="buttons">
-	    <button class="button-clear button-icon ion-chevron-left ion-arrow-left pk-primary" ng-click="main.closePlaceDlg()">
+	    <button class="button-clear button-icon ion-chevron-left ion-arrow-left pk-primary" ng-click="map.closePlaceDlg()">
 	      뒤로
 	    </button>
 		</div>
@@ -12,18 +12,18 @@
 	</ion-header-bar>
 	<ion-content class="post-container">
 		<!-- placePost 영역 -->
-		<article class="place-post-container" ng-show="main.selectedPlace.name">
+		<article class="place-post-container" ng-show="map.selectedPlace.name">
 			<div class="place-name">
-				<strong>{{main.selectedPlace.name || '등록 대기중'}}</strong>
+				<strong>{{map.selectedPlace.name || '등록 대기중'}}</strong>
 			</div>
 			<div class="place-addr">
-				<i class="ion-flag"></i>&nbsp;&nbsp;{{main.selectedPlace.address}}
+				<i class="ion-flag"></i>&nbsp;&nbsp;{{map.selectedPlace.address}}
 			</div>
 			<div class="place-phone">
-				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="tel:{{main.selectedPlace.phoneNo||''}}">{{main.selectedPlace.phoneNo || '전화번호 없음'}}</a>
+				<i class="ion-ios-telephone"></i>&nbsp;&nbsp;<a href="tel:{{map.selectedPlace.phoneNo||''}}">{{map.selectedPlace.phoneNo || '전화번호 없음'}}</a>
 			</div>
 			<div class="place-tags-container">
-				<span class="place-item-tag" ng-repeat="tag in main.selectedPlace.tags">{{tag}}&nbsp;</span>
+				<span class="place-item-tag" ng-repeat="tag in map.selectedPlace.tags">{{tag}}&nbsp;</span>
 			</div>
 		</article>
 
@@ -32,20 +32,20 @@
 			<a class="button pk-accent button-icon ion-image" ng-click="place.addPhoto()"> 사진 추가</a>
 			<a class="button pk-accent button-icon ion-link" ng-click="place.addURL()"> URL 추가</a>
 		</div> -->
-		<div class="button-bar" ng-show="main.selectedPlace.name" style="margin-top:5px;">
-			<a class="button button-balanced" ng-click="main.searchPlace()">관련 블로그 검색</a>
+		<div class="button-bar" ng-show="map.selectedPlace.name" style="margin-top:5px;">
+			<a class="button button-balanced" ng-click="map.searchPlace()">관련 블로그 검색</a>
 		</div>
 
 		<!-- userPost 영역 -->
 		<article class="user-post-container">
-			<section class="user-note" ng-repeat="url in main.selectedPlace.userPost.urls">
+			<section class="user-note" ng-repeat="url in map.selectedPlace.userPost.urls">
 				<a href="#" ng-click="place.openLink(url.content)">{{url.content}}</a>
 			</section>
-			<section class="user-note" ng-repeat="note in main.selectedPlace.userPost.notes">
-				{{note.content}}&nbsp;at&nbsp;{{main.selectedPlace.datetime}}
+			<section class="user-note" ng-repeat="note in map.selectedPlace.userPost.notes">
+				{{note.content}}&nbsp;at&nbsp;{{map.selectedPlace.datetime}}
 			</section>
 			<section class="user-image">
-				<img class="image-preview" ng-repeat="image in main.selectedPlace.userPost.images track by $index" ng-style="{height:main.getImageHeight()}" ng-src="{{image.summary}}">
+				<img class="image-preview" ng-repeat="image in map.selectedPlace.userPost.images track by $index" ng-style="{height:map.getImageHeight()}" ng-src="{{image.summary}}">
 			</section>
 		</article>
 		<p><strong>{{place.getTagString()}}</strong></p>

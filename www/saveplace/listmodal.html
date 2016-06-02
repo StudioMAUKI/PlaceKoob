@@ -1,16 +1,16 @@
 <ion-modal-view>
   <ion-header-bar class="pk-primary" align-title="center">
-    <button class="button button-icon button-clear ion-close" ng-click="main.closeListDlg()"></button>
+    <button class="button button-icon button-clear ion-close" ng-click="map.closeListDlg()"></button>
 		<h1 class="title">주변 장소들</h1>
 	</ion-header-bar>
 	<ion-content>
     <ion-list>
 			<div class="item item-divider">
-		    총 {{main.posts.length}}개의 주변 장소가 저장되어 있습니다.
+		    총 {{map.posts.length}}개의 주변 장소가 저장되어 있습니다.
 		  </div>
-			<!-- <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" href="#/places/{{post.uplace_uuid}}"> -->
-      <!-- <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" ng-click="main.goToPlace(post.uplace_uuid)"> -->
-      <ion-item collection-repeat="post in main.posts" item-width="main.itemWidth" item-height="main.itemHeight" ng-click="main.showPlaceDlg($index)">
+			<!-- <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" href="#/places/{{post.uplace_uuid}}"> -->
+      <!-- <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" ng-click="map.goToPlace(post.uplace_uuid)"> -->
+      <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" ng-click="map.showPlaceDlg($index)">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
 				<span class="place-item-addr"><strong>{{post.distance_from_origin}}</strong>&nbsp;{{post.address}}</span><br>
