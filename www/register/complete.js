@@ -16,7 +16,7 @@ angular.module('placekoob.controllers')
   };
 
   register.goHome = function() {
-		$state.go('tab.home');
+		$state.go('tab.map');
 	};
 
 	register.goBack = function() {

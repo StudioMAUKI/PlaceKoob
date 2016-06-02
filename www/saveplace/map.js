@@ -245,7 +245,7 @@ angular.module('placekoob.controllers')
 
         var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
         for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
-          tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>'
+          tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>&nbsp;'
         }
         tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
         map.postInfoWindows.push(gmapService.createInfoWindow({
