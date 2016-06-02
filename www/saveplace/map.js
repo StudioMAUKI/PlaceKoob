@@ -25,6 +25,7 @@ angular.module('placekoob.controllers')
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
+  map.showInfoWindow = true;
 
   $scope.$on('$ionicView.loaded', function() {
     map.divToFit();
@@ -258,11 +259,6 @@ angular.module('placekoob.controllers')
           disableAutoPan: true
         }));
         map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
-        // map.posts[i].window = {
-        //   zIndex: (1 === 0 ? 9999 : i),
-        //   disableAutoPan: true
-        // };
-        // map.posts[i].windowCtrl = {};
         google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
           var iwOuter = $('.gm-style-iw');
           var iwBackground = iwOuter.prev();
@@ -353,6 +349,10 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicLoading.hide();
     });
+  }
+
+  map.toggleInfoWindow = function() {
+    map.showInfoWindow = !map.showInfoWindow;
   }
 
   map.showListDlg = function() {

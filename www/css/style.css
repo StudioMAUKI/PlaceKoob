@@ -342,6 +342,15 @@ span.place-item-tag {
   bottom: 0px;
 }
 
+.button-toggle-info-window {
+  position: absolute;
+  right: 65px;
+  bottom: 95px;
+  border: 1px solid grey;
+  border-radius: 5px;
+  opacity: 0.85;
+}
+
 .button-show-list {
   position: absolute;
   right: 5px;
