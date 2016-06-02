@@ -27,6 +27,16 @@ angular.module('placekoob.config', [])
       }
     }
   })
+	.state('tab.map', {
+    url: '/map',
+    views: {
+      'map': {
+        templateUrl: 'saveplace/map.html',
+        controller: 'mapCtrl',
+        controllerAs: 'map'
+      }
+    }
+  })
   .state('tab.places', {
     url: '/places?uplace_uuid',
     views: {
@@ -147,4 +157,5 @@ angular.module('placekoob.config', [])
         v: '3', //defaults to latest 3.X anyhow
         // libraries: 'weather,geometry,visualization'
     });
-});
+})
+;

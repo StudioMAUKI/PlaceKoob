@@ -383,4 +383,12 @@ angular.module('placekoob.services', [])
     deletePhoto: deletePhoto
   };
 }])
-;
+.factory('gmapService', [function(){
+  function createMap(elemName, mapOption) {
+    return new google.maps.Map(document.getElementById(elemName), mapOption);
+  }
+
+  return {
+    createMap: createMap
+  };
+}]);

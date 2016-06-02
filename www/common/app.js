@@ -6,6 +6,7 @@
 'use strict';
 
 angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordovaOauth', 'uiGmapgoogle-maps', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
+// angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordovaOauth', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
 .run(['$rootScope', '$ionicPlatform', '$ionicPopup', '$state', 'RemoteAPIService', 'StorageService',  function($rootScope, $ionicPlatform, $ionicPopup, $state, RemoteAPIService, StorageService) {
   $ionicPlatform.ready(function() {
     function showAlert(msg) {
