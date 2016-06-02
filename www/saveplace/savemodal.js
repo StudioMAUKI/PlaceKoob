@@ -72,16 +72,10 @@ angular.module('placekoob.controllers')
 		var deferred = $q.defer();
 		MapService.getCurrentPosition()
 		.then(function(pos){
-			StorageService.set('curPos', pos);
 			RemoteAPIService.updateCurPos(pos);
 			MapService.getCurrentAddress(pos.latitude, pos.longitude)
 			.then(function(addrs) {
-				StorageService.set('addr1', addrs.roadAddress.name);
-				StorageService.set('addr2', addrs.jibunAddress.name);
-				StorageService.set('addr3', addrs.region);
-				console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
-				console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
-				console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
+
 			}, function(err) {
 				console.error(err);
 			})
