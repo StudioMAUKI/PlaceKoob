@@ -21,6 +21,7 @@ angular.module('placekoob.controllers')
   map.mapObj = gmapService.createMap('map', map.mapOption);
   map.curMarker = null;
   map.postMarkers = [];
+  map.postInfoWindows = [];
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
@@ -109,7 +110,9 @@ angular.module('placekoob.controllers')
 		if (map.prevIndex < map.posts.length) {
       map.postMarkers[map.prevIndex].setIcon('img/icon/arrow-point-to-down-blue.svg');
       map.postMarkers[map.prevIndex].setZIndex(1000 + map.prevIndex);
+      map.postInfoWindows[map.prevIndex].setZIndex(1000 + map.prevIndex);
 			map.postMarkers[index].setZIndex(9999);
+      map.postInfoWindows[index].setZIndex(9999);
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		map.prevIndex = index;
@@ -222,6 +225,7 @@ angular.module('placekoob.controllers')
 
       // markers for saved positions
       map.postMarkers = gmapService.deleteMarkers(map.postMarkers);
+      map.postInfoWindows = gmapService.deleteInfoWindows(map.postInfoWindows);
       for(var i = 0; i < posts.length; i++) {
         map.posts[i].id = i;
         map.postMarkers.push(gmapService.createMarker({
@@ -239,28 +243,42 @@ angular.module('placekoob.controllers')
           })(i)
         );
 
+        var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
+        for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
+          tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>'
+        }
+        tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
+        map.postInfoWindows.push(gmapService.createInfoWindow({
+          content: '<div class="iw-container">'
+					    + '<div class="iw-title">' + posts[i].name + '</div>'
+					    + tagsBlock
+					    + '</div>',
+          maxWidth: 100,
+          zIndex: 1000 + i,
+          disableAutoPan: true
+        }));
+        map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
         // map.posts[i].window = {
         //   zIndex: (1 === 0 ? 9999 : i),
         //   disableAutoPan: true
         // };
         // map.posts[i].windowCtrl = {};
-      }
+        google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
+          var iwOuter = $('.gm-style-iw');
+          var iwBackground = iwOuter.prev();
 
-      // setTimeout(function() {
-      //   var iwOuter = $('.gm-style-iw');
-      //   var iwBackground = iwOuter.prev();
-      //
-      //   iwBackground.children(':nth-child(2)').css({'display' : 'none'});
-      //   iwBackground.children(':nth-child(4)').css({'display' : 'none'});
-      //
-      //   // iwOuter.parent().parent().css({left: '115px'});
-      //
-      //   iwBackground.children(':nth-child(1)').css({'display' : 'none'});
-      //   iwBackground.children(':nth-child(3)').css({'display' : 'none'});
-      //
-      //   var iwCloseBtn = iwOuter.next();
-      //   iwCloseBtn.css({'display': 'none'});
-      // }, 100);
+          iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+          iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+
+          iwOuter.parent().parent().css({left: '15px'});
+
+          iwBackground.children(':nth-child(1)').css({'display' : 'none'});
+          iwBackground.children(':nth-child(3)').css({'display' : 'none'});
+
+          var iwCloseBtn = iwOuter.next();
+          iwCloseBtn.css({'display': 'none'});
+        });
+      }
 
       map.scrollToMarker = function() {
         var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;

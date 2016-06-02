@@ -408,10 +408,30 @@ angular.module('placekoob.services', [])
     return [];
   }
 
+  function createInfoWindow(wndOption){
+    return new google.maps.InfoWindow(wndOption);
+  }
+
+  function deleteInfoWindow(wndObj) {
+    if (wndObj) {
+      wndObj.close();
+    }
+  }
+
+  function deleteInfoWindows(wndObjs) {
+    for (var i = 0; i < wndObjs.length; i++) {
+      deleteInfoWindow(wndObjs[i]);
+    }
+    return [];
+  }
+
   return {
     createMap: createMap,
     createMarker: createMarker,
     deleteMarker: deleteMarker,
-    deleteMarkers: deleteMarkers
+    deleteMarkers: deleteMarkers,
+    createInfoWindow: createInfoWindow,
+    deleteInfoWindow: deleteInfoWindow,
+    deleteInfoWindows: deleteInfoWindows
   };
 }]);
