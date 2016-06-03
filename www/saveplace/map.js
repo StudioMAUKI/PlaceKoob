@@ -29,6 +29,7 @@ angular.module('placekoob.controllers')
 
   $scope.$on('$ionicView.loaded', function() {
     map.divToFit();
+    map.loadMap();
   });
 
   $scope.$on('$ionicView.afterEnter', function() {
@@ -38,8 +39,6 @@ angular.module('placekoob.controllers')
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
 			map.loadSavedPlace();
-		} else {
-			map.loadMap();
 		}
 	});
 
@@ -58,11 +57,7 @@ angular.module('placekoob.controllers')
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
     var buttonBarHeight = document.getElementsByClassName('button-bar')[0].clientHeight || 50;
 		var tabHeight = document.getElementsByClassName('tabs')[0].clientHeight || 49;
-    // console.info('Document Height : ' + documentHeight);
-		// console.info('Bar Height : ' + barHeight);
-    // console.info('Button Bar Height : ' + buttonBarHeight);
-		// console.info('Tab Height : ' + tabHeight);
-		$('#map').css({
+    $('#map').css({
 			height: documentHeight
         - barHeight
         - buttonBarHeight
@@ -124,7 +119,7 @@ angular.module('placekoob.controllers')
     var deferred = $q.defer();
 		MapService.getCurrentPosition()
 		.then(function(pos){
-			map.getCurrentRegion(pos.latitude, pos.longitude);
+			map.getCurrentAddress(pos.latitude, pos.longitude);
 			RemoteAPIService.updateCurPos(pos);
 			deferred.resolve(pos);
 		}, function(err) {
@@ -134,12 +129,9 @@ angular.module('placekoob.controllers')
     return deferred.promise;
 	};
 
-  map.getCurrentRegion = function(latitude, longitude) {
+  map.getCurrentAddress = function(latitude, longitude) {
 		MapService.getCurrentAddress(latitude, longitude)
 		.then(function(addrs) {
-			// console.info('addr1 : ', StorageService.get('addr1') + ', ' + addrs.roadAddress.name);
-			// console.info('addr2 : ', StorageService.get('addr2') + ', ' + addrs.jibunAddress.name);
-			// console.info('addr3 : ', StorageService.get('addr3') + ', ' + addrs.region);
 			map.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
 		});
 	};
@@ -149,10 +141,6 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines"></ion-spinner>',
 			duration: 10000
 		});
-
-		StorageService.set('addr1', '');
-		StorageService.set('addr2', '');
-		StorageService.set('addr3', '');
 
 		map.getCurrentPosition()
     .then(function(pos){
@@ -164,14 +152,18 @@ angular.module('placekoob.controllers')
 			map.lastMapCenter.longitude = pos.longitude;
       map.mapObj.addListener('zoom_changed', function() {
         // console.log('map: zoom_changed');
+        console.log('Zoom_Level: ' + map.mapObj.getZoom());
         map.loadSavedPlace();
       });
       map.mapObj.addListener('center_changed', function() {
         if (map.enabled) {
           var mapCenter = map.mapObj.getCenter();
+          var ne = map.mapObj.getBounds().getNorthEast();
+          var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
+          console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
           // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
 					var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
-					if (dist > 500) {
+					if (dist > maxDist * 0.7) {
 						map.lastMapCenter.latitude = mapCenter.lat();
 						map.lastMapCenter.longitude = mapCenter.lng();
 						map.loadSavedPlace();
@@ -189,7 +181,7 @@ angular.module('placekoob.controllers')
       map.curMarker.addListener('dragend', function(event) {
         console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
         map.mapObj.setCenter(event.latLng);
-        map.getCurrentRegion(event.latLng.lat(), event.latLng.lng());
+        map.getCurrentAddress(event.latLng.lat(), event.latLng.lng());
         StorageService.set('curPos', {
           latitude: event.latLng.lat(),
           longitude: event.latLng.lng()
@@ -212,9 +204,9 @@ angular.module('placekoob.controllers')
     var deferred = $q.defer();
     var dist = 0;
     var bounds = map.mapObj.getBounds();
-    var sw = bounds.getSouthWest();
+    var ne = bounds.getNorthEast();
     var mapCenter = map.mapObj.getCenter();
-    dist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), sw.lng()));
+    dist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
     if (dist === 0) {
       console.warn('계산된 반경이 0으로 나왔음. 뭔가 이상한데..');
     }
