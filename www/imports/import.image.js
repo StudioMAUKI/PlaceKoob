@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('importImageCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$ionicLoading', '$cordovaFile',  'RemoteAPIService', 'StorageService', 'remoteStorageService', 'imageImporter', function($scope, $ionicPopup, $ionicListDelegate, $q, $ionicLoading, $cordovaFile, RemoteAPIService, StorageService, remoteStorageService, imageImporter) {
+.controller('importImageCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$ionicLoading', '$cordovaFile', '$timeout', 'RemoteAPIService', 'StorageService', 'remoteStorageService', 'imageImporter', function($scope, $ionicPopup, $ionicListDelegate, $q, $ionicLoading, $cordovaFile, $timeout, RemoteAPIService, StorageService, remoteStorageService, imageImporter) {
 	var importImage = this;
 	importImage.started = false;
 	importImage.paused = false;
@@ -46,15 +46,17 @@ angular.module('placekoob.controllers')
   };
 
   function progress(status) {
-    if (status.name === 'completed') {
-			console.log('compleded received..');
-      importImage.ratio = 100;
-			importImage.started = false;
-			importImage.paused = false;
-			$scope.$apply();
-    } else {
-      importImage.ratio = Math.floor(100*status.current/status.total);
-    }
-    importImage.status = status;
+		$timeout(function() {
+			if (status.name === 'completed') {
+				console.log('compleded received..');
+	      importImage.ratio = 100;
+				importImage.started = false;
+				importImage.paused = false;
+	    } else {
+	      importImage.ratio = Math.floor(100*status.current/status.total);
+	    }
+	    importImage.status = status;
+		}, 1);
+
   };
 }]);

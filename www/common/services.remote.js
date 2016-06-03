@@ -881,12 +881,32 @@ angular.module('placekoob.services')
     return false;
   }
 
+  function convertToTimeString(timestamp) {
+    //  '2015:04:22 11:54:19'
+    var dd = new Date(timestamp * 1000);  // 자바스크립트는 초단위가 아닌 밀리초단위로 입력 받는다
+    var result = '';
+    var month = (dd.getUTCMonth() + 1) + ':';
+    var day = dd.getUTCDate() + ' ';
+    var hour = dd.getUTCHours() + ':';
+    var min = dd.getUTCMinutes() + ':';
+    var sec = dd.getUTCSeconds() + '';
+
+    result += dd.getUTCFullYear() + ':';
+    result += ((month.length === 2) ? '0' : '') + month;
+    result += ((day.length === 2) ? '0' : '') + day;
+    result += ((hour.length === 2) ? '0' : '') + hour;
+    result += ((min.length === 2) ? '0' : '') + min;
+    result += ((sec.length === 1) ? '0' : '') + sec;
+
+    return result;
+  }
+
   function uploadImage() {
     console.log('uploadImage..(status:' + status.name + ')');
     if (status.name !== 'ready') {
       return;
     } else {
-      status.name = 'uploading';
+      updateProgress('uploading');
     }
 
     while(findImage(imagesToUpload[status.current].url)) {
@@ -918,21 +938,20 @@ angular.module('placekoob.services')
             content: response.url,
             lon: imagesToUpload[status.current].longitude,
             lat: imagesToUpload[status.current].latitude,
-            local_datetime: imagesToUpload[status.current].timestamp
+            local_datetime: convertToTimeString(imagesToUpload[status.current].timestamp)
           })
         })
         .then(function(result) {
           // console.dir(result);
           photoEngineService.deletePhoto(imagesToUpload[status.current].id);
           saveHistory(imagesToUpload[status.current].url);
-          status.current++;
-          updateProgress('uploading');
         }, function(err) {
           console.error('In posting to imgs :' + JSON.stringify(err));
           // console.dir(err);
         })
         .finally(function() {
-          status.name = 'ready';
+          status.current++;
+          updateProgress('ready');
           if (status.current === imagesToUpload.length) {
             complete();
           }
@@ -949,6 +968,7 @@ angular.module('placekoob.services')
     progress = prograssCallback || null;
     status.total = 0;
     status.current = 0;
+    uploadedImages = [];
     loadHistory()
     .then(function() {
       console.log('imageImporter start');
@@ -958,7 +978,7 @@ angular.module('placekoob.services')
         status.total = imagesToUpload.length;
         // console.dir(imagesToUpload);
         updateProgress('ready');
-        timer = setInterval(uploadImage, 1000);
+        timer = setInterval(uploadImage, 100);
       }, function(err) {
         console.error(err);
       });
@@ -980,7 +1000,7 @@ angular.module('placekoob.services')
       return;
     }
     updateProgress('ready');
-    timer = setInterval(uploadImage, 1000);
+    timer = setInterval(uploadImage, 100);
   }
 
   function stop() {
