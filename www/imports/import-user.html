@@ -26,7 +26,7 @@
       	<ion-option-button class="button-assertive icon ion-ios-trash-outline" ng-click="importUser.drop($index)"></ion-option-button>
 			</ion-item>
 		</ion-list>
-		<ion-infinite-scroll ng-if="!importUser.isEndOfList()" on-infinite="importUser.doRefresh('bottom')" distance="1%">
+		<ion-infinite-scroll ng-if="!importUser.isEndOfList()" on-infinite="importUser.doRefresh('bottom')" immediate-check="false" distance="1%">
 	  </ion-infinite-scroll>
 	</ion-content>
 </ion-view>
