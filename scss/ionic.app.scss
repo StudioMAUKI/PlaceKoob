@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
 To customize the look and feel of Ionic, you can override the variables
 in ionic's _variables.scss file.
@@ -239,9 +240,9 @@ span.place-item-tag {
   opacity: 0.85;
 }
 
-.slider-scroll-on-map a:link
-, .slider-scroll-on-map a:visited
-, .slider-scroll-on-map a:hover {
+.slider-scroll-on-map a:link,
+.slider-scroll-on-map a:visited,
+.slider-scroll-on-map a:hover {
   color: black;
   text-decoration: none;
 }
@@ -295,7 +296,6 @@ span.place-item-tag {
 
 .iw-container .iw-content {
   text-align: center;
-
 }
 
 .iw-container .tag {
@@ -308,5 +308,5 @@ span.place-item-tag {
   text-align: center;
 }
 
-@import "www/register/style";
-@import "www/saveplace/style";
+@import "www/register/style",
+        "www/saveplace/style";

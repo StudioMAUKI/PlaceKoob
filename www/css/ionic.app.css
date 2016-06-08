@@ -9912,7 +9912,9 @@ span.place-item-tag {
   color: #727272;
   opacity: 0.85; }
 
-.slider-scroll-on-map a:link, .slider-scroll-on-map a:visited, .slider-scroll-on-map a:hover {
+.slider-scroll-on-map a:link,
+.slider-scroll-on-map a:visited,
+.slider-scroll-on-map a:hover {
   color: black;
   text-decoration: none; }
 
