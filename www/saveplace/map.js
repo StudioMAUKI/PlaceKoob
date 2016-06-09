@@ -370,7 +370,7 @@ angular.module('placekoob.controllers')
 
 	map.showPlaceDlg = function(index) {
 		map.selectedPlace = map.posts[index];
-		$ionicModal.fromTemplateUrl('saveplace/placemodal.html', {
+		$ionicModal.fromTemplateUrl('places/placemodal.html', {
 			scope: $scope,
 			animation: 'splat'
 		})

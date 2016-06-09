@@ -1,27 +1,29 @@
+@charset "UTF-8";
+
 .register {
   text-align: center;
   color: #FFFFFF;
-}
 
-.register a {
-  color: #FFC107;
+  a {
+    color: #FFC107;
+  }
 }
 
 .app-title {
   margin-left: 25%;
   margin-right: 25%;
   padding-top: 50px;
-}
 
-.app-title .main-title {
-  text-align: center;
-  color: #FFFFFF;
-  text-shadow: 0px 0px 2px #B6B6B6;
-}
+  .main-title {
+    text-align: center;
+    color: #FFFFFF;
+    text-shadow: 0px 0px 2px #B6B6B6;
+  }
 
-.app-title .sub-title {
-  text-align: right;
-  color: #FFFFFF;
+  .sub-title {
+    text-align: right;
+    color: #FFFFFF;
+  }
 }
 
 .introduction {
