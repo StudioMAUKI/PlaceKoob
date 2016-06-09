@@ -94,10 +94,7 @@ angular.module('placekoob.services')
 
       $http({
         method: 'POST',
-        url: getServerURL() + '/users/register/',
-        data: JSON.stringify({country:StorageService.get('country'),
-        language:StorageService.get('lang'),
-        timezone:''})
+        url: getServerURL() + '/users/register/'
       })
       .then(function(result) {
         console.log('User Registration successed: ' + result.data.auth_user_token);
@@ -150,7 +147,7 @@ angular.module('placekoob.services')
       $http({
         method: 'POST',
         url: getServerURL() + '/vds/register/',
-        data: JSON.stringify({ email: email })
+        data: JSON.stringify({ email: email, country:StorageService.get('country'), language:StorageService.get('lang'), timezone:'' })
       })
       .then(function(result) {
         console.log('VD Registration successed: ' + result.data.auth_vd_token);
