@@ -1,18 +1,18 @@
 <ion-modal-view>
 	<ion-header-bar class="pk-dark-primary" align-title="center">
-		<button class="button button-icon button-clear ion-close" ng-click="saveModal.closeSaveDlg()"></button>
+		<button class="button button-icon button-clear ion-close" ng-click="map.closeSaveDlg()"></button>
 	  <h1 class="title">현재 위치를 저장합니다</h1>
-	  <button class="button button-icon button-clear ion-checkmark" ng-click="saveModal.confirmSave()"></button>
+	  <button class="button button-icon button-clear ion-checkmark" ng-click="map.confirmSave()"></button>
 	</ion-header-bar>
 	<ion-content scroll="false">
 		<div style="text-align:center;border:solid #AAAAAA 1px;margin:4px;padding:4px;">
-			<img style="height:240px;" ng-src="{{saveModal.attatchedImage}}">
+			<img style="height:240px;" ng-src="{{map.attatchedImage}}">
 		</div>
 		<!-- for BrowserTest-->
-		<input type="file" file-model="saveModal.browserFile" ng-show="saveModal.showFileForm()">
+		<input type="file" file-model="map.browserFile" ng-show="map.showFileForm()">
 		<label class="item item-input item-stacked-label">
   		<span class="input-label">Note</span>
-			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="saveModal.note"></textarea>
+			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="map.note"></textarea>
 		</label>
 	</ion-content>
 </ion-modal-view>

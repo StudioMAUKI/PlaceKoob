@@ -1,0 +1,22 @@
+<ion-modal-view>
+  <ion-header-bar class="pk-primary" align-title="center">
+		<h1 class="title">주변 장소들</h1>
+    <button class="button button-icon button-clear ion-map" ng-click="map.closeListDlg()"></button>
+	</ion-header-bar>
+	<ion-content>
+    <ion-list>
+			<div class="item item-divider">
+		    총 {{map.posts.length}}개의 주변 장소가 저장되어 있습니다.
+		  </div>
+			<!-- <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" href="#/places/{{post.uplace_uuid}}"> -->
+      <!-- <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" ng-click="map.goToPlace(post.uplace_uuid)"> -->
+      <ion-item collection-repeat="post in map.posts" item-width="map.itemWidth" item-height="map.itemHeight" ng-click="map.showPlaceDlg($index)">
+				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
+				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
+				<span class="place-item-addr"><strong>{{post.distance_from_origin}}</strong>&nbsp;{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.tags">{{tag}}</span>
+			</ion-item>
+		</ion-list>
+	</ion-content>
+</ion-modal-view>

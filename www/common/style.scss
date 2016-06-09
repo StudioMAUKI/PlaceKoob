@@ -1,0 +1,96 @@
+@charset "UTF-8";
+
+$pk-dark-primary: #2e4a94;
+$pk-primary: #4875e9;
+$pk-light-primary: #CFD8DC;
+$pk-accent: #FFC107;
+$pk-text-color: #FFFFFF;
+
+.pk-dark-primary {
+  background-color: $pk-dark-primary;
+  color: $pk-text-color;
+}
+
+.pk-primary {
+  background-color: $pk-primary;
+  color: $pk-text-color;
+}
+
+.pk-light-primary {
+  background-color: $pk-light-primary;
+  color: #212121;
+}
+
+.pk-accent {
+  background-color: $pk-accent;
+  color: $pk-text-color;
+}
+
+.bar {
+  button.pk-dark-primary{
+    background-color: $pk-dark-primary;
+    color: $pk-text-color;
+    border-color: transparent;
+  }
+
+  button.pk-primary{
+    background-color: $pk-primary;
+    color: $pk-text-color;
+    border-color: transparent;
+  }
+}
+
+.pk-dark-primary .title,
+.pk-dark-primary .button,
+.pk-primary .title,
+.pk-primary .button,
+.pk-accent .title
+{
+  color: $pk-text-color;
+}
+
+img.list-thumbnail {
+  float: left;
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+}
+
+span.place-item-name {
+  font-size: 90%;
+}
+
+span.place-item-addr {
+  font-size: 80%;
+  color: #727272;
+}
+
+div.place-item-note {
+  font-size: 90%;
+  display: inline-block;
+}
+
+span.place-item-tag {
+  font-size: 85%;
+  margin: 2px;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 5px;
+  background-color: #727272;
+  color: #FFFFFF;
+}
+
+/* ionic component customizing area*/
+.item-complex .item-content {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.popup-container .popup {
+  width: 100%;
+}
+
+.button.button-more-width {
+  width: 200px;
+}

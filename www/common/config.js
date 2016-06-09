@@ -17,13 +17,13 @@ angular.module('placekoob.config', [])
     controller: 'tabCtrl',
     templateUrl: 'common/tab.html'
   })
-	.state('tab.home', {
-    url: '/home',
+	.state('tab.map', {
+    url: '/map',
     views: {
-      'home': {
-        templateUrl: 'saveplace/main.html',
-        controller: 'mainCtrl',
-        controllerAs: 'main'
+      'map': {
+        templateUrl: 'saveplace/map.html',
+        controller: 'mapCtrl',
+        controllerAs: 'map'
       }
     }
   })
@@ -140,11 +140,4 @@ angular.module('placekoob.config', [])
 
 	$urlRouterProvider.otherwise('/register');
 	console.log('config call endid');
-})
-.config(function(uiGmapGoogleMapApiProvider) {
-    uiGmapGoogleMapApiProvider.configure({
-        key: 'AIzaSyDkuFga8fr1c4PjzSAiHaBWo26zvQbtxB8',
-        v: '3', //defaults to latest 3.X anyhow
-        // libraries: 'weather,geometry,visualization'
-    });
 });

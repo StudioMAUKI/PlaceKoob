@@ -38,7 +38,7 @@ angular.module('placekoob.controllers')
             // VD 로그인
             RemoteAPIService.loginVD(result)
             .then(function(result) {
-              $state.go('tab.home');
+              $state.go('tab.map');
             }, function(err) {
               console.error(err);
               resetUserInfo(4);

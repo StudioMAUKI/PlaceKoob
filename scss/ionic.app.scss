@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
 To customize the look and feel of Ionic, you can override the variables
 in ionic's _variables.scss file.
@@ -18,6 +19,19 @@ $dark:                            #444 !default;
 // The path for our ionicons font files, relative to the built CSS in www/css
 $ionicons-font-path: "../lib/ionic/fonts" !default;
 
+$light: #FAFAFA;
+$stable: #EEE;
+$positive: #3F51B5;
+$calm: #2196F3;
+$balanced: #4CAF50;
+$energized: #FFC107;
+$assertive: #F44336;
+$royal: #9C27B0;
+$dark: #333;
+
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
-
+@import "www/common/style",
+        "www/register/style",
+        "www/saveplace/style",
+        "www/places/style";
