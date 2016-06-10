@@ -281,6 +281,8 @@ angular.module('placekoob.controllers')
           }
         }
       };
+
+      map.prevIndex = 0;
       deferred.resolve(true);
     }, function(err) {
       console.error(err);
@@ -501,6 +503,7 @@ angular.module('placekoob.controllers')
 		.then(function(curPos) {
 			RemoteAPIService.uploadImage(map.attatchedImage)
 			.then(function(response) {
+        console.log('response file: ' + response.file);
 				RemoteAPIService.sendUserPost({
 					lonLat: {
 						lon: curPos.longitude,
@@ -517,6 +520,7 @@ angular.module('placekoob.controllers')
 					addr3: { content: StorageService.get('addr3') || null },
 				})
 				.then(function(result) {
+          console.dir(result);
 					$ionicLoading.hide();
 					map.closeSaveDlg();
 					map.scrollToSavedPlace(result.data.uplace_uuid);

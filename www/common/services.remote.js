@@ -651,28 +651,26 @@ angular.module('placekoob.services')
 }])
 .factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
   function getTags(post) {
-    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
+    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length === 0) {
       return [];
     }
 
-    return getTagsWithContent(post.userPost.notes[0].content);
+    return getTagsWithContent(post.userPost.notes);
   }
 
-  function getTagsWithContent(content) {
-    if (!content || content === '') {
-        return [];
-    }
-
-    var words = content.split(/\s+/);
+  function getTagsWithContent(notes) {
+    var words = [];
     var output = [];
-    for (var i = 0; i < words.length; i++) {
-      //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
-      //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
-      if (words[i].charAt(0) === '#') {
-        output.push(words[i].substring(1));
+    for (var i = 0; i < notes.length; i++) {
+      words = notes[i].content.split(/\s+/);
+      for (var j = 0; j < words.length; j++) {
+        //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
+        //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
+        if (words[j].charAt(0) === '#') {
+          output.push(words[j].substring(1));
+        }
       }
     }
-
     return output;
   }
 
@@ -811,9 +809,14 @@ angular.module('placekoob.services')
 
   function getTimeString(timestamp) {
     var timegap = (Date.now() - timestamp) / 1000;
-    console.info('timegap : ' + timegap);
+    //console.info('timegap : ' + timegap);
     if (timegap < 3600) {
-      return parseInt(timegap / 60) + '분 전';
+      var min = parseInt(timegap / 60);
+      if (min === 0) {
+        return '방금';
+      } else {
+        return parseInt(timegap / 60) + '분 전';
+      }
     } else if (timegap < 24 * 3600) {
       return parseInt(timegap / 3600) + '시간 전';
     } else {

@@ -8,16 +8,21 @@ angular.module('placekoob.controllers')
   place.zoomMin = 1;
   place.imagesForSlide = [];
   place.imageHeight = 0;
+  place.tag = '';
+  place.coverImage = 'img/default.jpg';
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
+      console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {
               place.imagesForSlide.push(place.post.userPost.images[i].content);
           }
+          place.coverImage = place.post.userPost.images[0].summary;
+          // $scope.$apply();
         }
     }, function(err) {
       $ionicPopup.alert({
@@ -86,6 +91,59 @@ angular.module('placekoob.controllers')
     }
   };
 
+  place.addNote = function() {
+    var myPopup = $ionicPopup.show({
+      template: '<input type="text" ng-model="place.note">',
+      title: '댓글을 입력하세요',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>확인</b>',
+          type: 'pk-accent',
+          onTap: function(e) {
+            if (!$scope.place.note) {
+              e.preventDefault();
+            } else {
+              return $scope.place.note;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(note) {
+      console.log('Tapped!', note);
+      if (note !== undefined) {
+        RemoteAPIService.sendUserPost({
+          notes: [{
+            content: note
+          }],
+          uplace_uuid: place.uplace_uuid
+        })
+        .then(function(result) {
+          if (place.post.userPost.notes === undefined || place.post.userPost.notes === null || place.post.userPost.notes.length === 0) {
+            place.post.userPost.notes = [{
+              content: note,
+              timestamp: Date.now()
+            }];
+          } else {
+            place.post.userPost.notes.splice(0, 0, {
+              content: note,
+              timestamp: Date.now()
+            });
+          }
+        }, function(err) {
+          console.error('Adding URL to the post is failed.');
+          $ionicPopup.alert({
+            title: 'ERROR: Add URL',
+            template: JSON.stringify(err)
+          });
+        });
+      }
+    });
+  }
+
   place.addURL= function() {
     // An elaborate, custom popup
     var myPopup = $ionicPopup.show({
@@ -137,7 +195,18 @@ angular.module('placekoob.controllers')
             template: 'URL이 추가되었습니다.'
           })
           .then(function(result){
-            place.loadPlaceInfo();
+            // place.loadPlaceInfo();
+            if (place.post.userPost.urls === undefined || place.post.userPost.urls === null || place.post.userPost.urls.length === 0) {
+              place.post.userPost.urls = [{
+                content: URL,
+                timestamp: Date.now()
+              }];
+            } else {
+              place.post.userPost.urls.splice(0, 0, {
+                content: URL,
+                timestamp: Date.now()
+              });
+            }
           });
         }, function(err) {
           console.error('Adding URL to the post is failed.');
@@ -177,8 +246,16 @@ angular.module('placekoob.controllers')
       					uplace_uuid: place.uplace_uuid
       				})
       				.then(function(result) {
-      					$ionicLoading.hide();
-                place.loadPlaceInfo();
+                $ionicLoading.hide();
+                // place.loadPlaceInfo();
+                if (place.post.userPost.images === undefined || place.post.userPost.images === null || place.post.userPost.images.length === 0) {
+                  place.post.userPost.images = [result.data.userPost.images[0]];
+                  place.imagesForSlide = [result.data.userPost.images[0].content];
+                  place.coverImage = result.data.userPost.images[0].summary;
+                } else {
+                  place.post.userPost.images.splice(0, 0, result.data.userPost.images[0]);
+                  place.imagesForSlide.splice(0, 0, result.data.userPost.images[0].content);
+                }
       				}, function(err) {
                 $ionicLoading.hide();
       					$ionicPopup.alert({
@@ -213,8 +290,16 @@ angular.module('placekoob.controllers')
         					uplace_uuid: place.uplace_uuid
         				})
         				.then(function(result) {
-                  place.loadPlaceInfo();
+                  // place.loadPlaceInfo();
                   $ionicLoading.hide();
+                  if (place.post.userPost.images === undefined || place.post.userPost.images === null || place.post.userPost.images.length === 0) {
+                    place.post.userPost.images = [result.data.userPost.images[0]];
+                    place.imagesForSlide = [result.data.userPost.images[0].content];
+                    place.coverImage = result.data.userPost.images[0].summary;
+                  } else {
+                    place.post.userPost.images.splice(0, 0, result.data.userPost.images[0]);
+                    place.imagesForSlide.splice(0, 0, result.data.userPost.images[0].content);
+                  }
         				}, function(err) {
                   $ionicLoading.hide();
         					$ionicPopup.alert({
@@ -276,7 +361,18 @@ angular.module('placekoob.controllers')
     //   place.imageHeight = parseInt($('.user-image').width()/3);
     // }
     // return place.imageHeight;
-  }
+  };
+
+  place.processTags = function($event) {
+    // console.dir($event);
+    var space = 32;
+    var enter = 13;
+    var comma = 188;
+    if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
+      place.post.tags.push(place.tag);
+      place.tag = '';
+    }
+  };
 
   $ionicSlideBoxDelegate.update();
   place.onUserDetailContentScroll = function(){
@@ -285,7 +381,9 @@ angular.module('placekoob.controllers')
     $scope.$broadcast('userDetailContent.scroll', scrollView);
   }
 
-  place.loadPlaceInfo();
+  $scope.$on('$ionicView.afterEnter', function() {
+		place.loadPlaceInfo();
+	});
 }])
 .directive('headerShrink', function($document) {
   return {

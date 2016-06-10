@@ -297,7 +297,8 @@ angular.module('placekoob.services', [])
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			$cordovaImagePicker.getPictures({
 	      maximumImagesCount: reqCount,
-	      width: 1280,
+	      quality: 70,
+        width: 1280,
 				height: 1280
 	    }).
 	    then(function(imageURIs) {
