@@ -723,27 +723,74 @@ angular.module('placekoob.services')
 
   function getAddress(post) {
     // 주소는 공식 포스트의 주소를 우선한다.
+    var addr = '';
     if (post.placePost) {
       if (post.placePost.addr1 && post.placePost.addr1.content !== '') {
-        return post.placePost.addr1.content;
-      } else if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
-        return post.placePost.addr2.content;
-      } else if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
-        return post.placePost.addr3.content;
+        addr = post.placePost.addr1.content;
       }
-    }
-
-    if (post.userPost) {
+      if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
+        if (addr.length === 0) {
+          addr = post.placePost.addr2.content;
+        } else {
+          addr += ', ' + post.placePost.addr2.content;
+        }
+      }
+      if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
+        if (addr.length === 0) {
+          addr = post.placePost.addr3.content;
+        } else {
+          addr += ', ' + post.placePost.addr3.content;
+        }
+      }
+    } else if (post.userPost) {
       if (post.userPost.addr1 && post.userPost.addr1.content !== '') {
-        return post.userPost.addr1.content;
-      } else if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
-        return post.userPost.addr2.content;
-      } else if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
-        return post.userPost.addr3.content;
+        addr = post.userPost.addr1.content;
+      }
+      if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
+        if (addr.length === 0) {
+          addr = post.userPost.addr2.content;
+        } else {
+          addr += ', ' + post.userPost.addr2.content;
+        }
+      }
+      if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
+        if (addr.length === 0) {
+          addr = post.userPost.addr3.content;
+        } else {
+          addr += ', ' + post.userPost.addr3.content;
+        }
       }
     }
 
-    return '';
+    return addr;
+  }
+
+  function getAddresses(post) {
+    // 주소는 공식 포스트의 주소를 우선한다.
+    var addrs = [];
+    if (post.placePost) {
+      if (post.placePost.addr1 && post.placePost.addr1.content !== '') {
+        addrs.push(post.placePost.addr1.content);
+      }
+      if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
+        addrs.push(post.placePost.addr2.content);
+      }
+      if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
+        addrs.push(post.placePost.addr3.content);
+      }
+    } else if (post.userPost) {
+      if (post.userPost.addr1 && post.userPost.addr1.content !== '') {
+        addrs.push(post.userPost.addr1.content);
+      }
+      if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
+        addrs.push(post.userPost.addr2.content);
+      }
+      if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
+        addrs.push(post.userPost.addr3.content);
+      }
+    }
+
+    return addrs;
   }
 
   function getPhoneNo(post) {
@@ -763,7 +810,16 @@ angular.module('placekoob.services')
   }
 
   function getTimeString(timestamp) {
-    return new Date(timestamp).toLocaleDateString();
+    var timegap = (Date.now() - timestamp) / 1000;
+    console.info('timegap : ' + timegap);
+    if (timegap < 3600) {
+      return parseInt(timegap / 60) + '분 전';
+    } else if (timegap < 24 * 3600) {
+      return parseInt(timegap / 3600) + '시간 전';
+    } else {
+      return parseInt(timegap / 86400) + '일 전';
+    }
+    // return new Date(timestamp).toLocaleDateString();
   }
 
   function calcDistance(lat1, lon1, lat2, lon2)
@@ -800,6 +856,7 @@ angular.module('placekoob.services')
     post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
     post.address = getAddress(post);
+    post.addrs = getAddresses(post);
     post.desc = getUserNote(post);
     post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
@@ -817,6 +874,15 @@ angular.module('placekoob.services')
     }
   }
 
+  function getReadablePhoneNo(phoneNo) {
+    if (typeof phoneNo === 'string') {
+      phoneNo = '0' + phoneNo.replace('+82', '');
+      return phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+    } else {
+      return null;
+    }
+  }
+
   return {
     getTagsWithContent: getTagsWithContent,
     getImageURL: getImageURL,
@@ -825,7 +891,8 @@ angular.module('placekoob.services')
     decoratePost: decoratePost,
     decoratePosts: decoratePosts,
     updateDistance: updateDistance,
-    calcDistance: calcDistance
+    calcDistance: calcDistance,
+    getReadablePhoneNo: getReadablePhoneNo
   }
 }])
 .factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', 'RemoteAPIService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService, RemoteAPIService) {

@@ -70,16 +70,49 @@ div.place-item-note {
   display: inline-block;
 }
 
-span.place-item-tag {
-  font-size: 85%;
+@mixin tag-style() {
   margin: 2px;
   padding: 2px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
   background-color: #727272;
   color: #FFFFFF;
 }
+
+span.place-item-tag {
+  font-size: 85%;
+  @include tag-style();
+}
+
+span.place-item-tag-large {
+  font-size: 100%;
+  @include tag-style();
+}
+
+//  begin : tag input
+div#container{
+  width: 100%;
+  position: absolute;
+  text-align: center;
+  bottom: 4px;
+  margin: 0px;
+  left: 0px;
+  // height: 36px;
+  background-color: rgba(255, 255, 255, 0.0);
+}
+
+label#rounded{
+  position: relative;
+  border: 1px solid silver;
+  border-radius:18px;
+}
+
+label.chat-input {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+//  end : tag input
 
 /* ionic component customizing area*/
 .item-complex .item-content {

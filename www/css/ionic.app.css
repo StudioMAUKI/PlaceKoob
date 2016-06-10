@@ -9785,11 +9785,39 @@ span.place-item-tag {
   font-size: 85%;
   margin: 2px;
   padding: 2px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
   background-color: #727272;
   color: #FFFFFF; }
+
+span.place-item-tag-large {
+  font-size: 100%;
+  margin: 2px;
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
+  background-color: #727272;
+  color: #FFFFFF; }
+
+div#container {
+  width: 100%;
+  position: absolute;
+  text-align: center;
+  bottom: 4px;
+  margin: 0px;
+  left: 0px;
+  background-color: rgba(255, 255, 255, 0); }
+
+label#rounded {
+  position: relative;
+  border: 1px solid silver;
+  border-radius: 18px; }
+
+label.chat-input {
+  padding-top: 0px;
+  padding-bottom: 0px; }
 
 /* ionic component customizing area*/
 .item-complex .item-content {
@@ -9923,16 +9951,11 @@ span.place-item-tag {
   text-align: center; }
 
 .post-container {
-  font-size: 85%;
   color: #727272; }
 
 .place-post-container {
   padding: 20px;
   text-align: center; }
-
-.place-name {
-  font-size: 150%;
-  margin-bottom: 10px; }
 
 .user-post-container {
   background-color: #CFD8DC;
@@ -9955,7 +9978,8 @@ span.place-item-tag {
     /*text-align: center;*/
     /*position: relative;*/
     background-color: #FFFFFF;
-    padding-top: 6px; }
+    padding-top: 5px;
+    padding-left: 5px; }
     .user-post-container .user-image .image-preview {
       width: auto;
       /*height: 300px;*/ }
@@ -9984,3 +10008,45 @@ span.place-item-tag {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center center; }
+
+/*Profile Starts*/
+.about-header {
+  /*background-color: #444;*/
+  height: 230px;
+  overflow: hidden;
+  /*box-shadow: 0 -70px 150px;*/ }
+
+.about-image {
+  width: 100%;
+  /*height: 220px;*/
+  height: 100%;
+  object-fit: cover; }
+
+.profile-media {
+  background: #000;
+  min-height: 237px;
+  overflow: hidden;
+  position: relative; }
+
+.profile-media .profile-background-image {
+  opacity: 0.3;
+  position: absolute;
+  object-cover: fit;
+  top: -100%;
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  margin: auto; }
+
+.profile-media .profile-details {
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  color: #fff;
+  padding: 20px 5% 0 5%; }
+
+.profile-media .profile-details .profile-image {
+  width: 76px;
+  height: 76px;
+  object-cover: fit;
+  border: 4px solid rgba(255, 255, 255, 0.9); }

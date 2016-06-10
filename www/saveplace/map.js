@@ -21,7 +21,7 @@ angular.module('placekoob.controllers')
   map.mapObj = gmapService.createMap('map', map.mapOption);
   map.curMarker = null;
   map.postMarkers = [];
-  map.postInfoWindows = [];
+  // map.postInfoWindows = [];
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
@@ -92,7 +92,7 @@ angular.module('placekoob.controllers')
 	}
 
   map.slidehasChanged = function(index) {
-		map.postMarkers[index].setIcon('img/icon/arrow-point-to-custom.svg');
+		map.postMarkers[index].setIcon('img/icon/dot_active.svg');
 
 		//	선택된 마커가 현재의 지도 안에 있는 지 확인
 		if (!isMarkerContained(map.posts[index].lonLat.lat, map.posts[index].lonLat.lon)) {
@@ -104,11 +104,11 @@ angular.module('placekoob.controllers')
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (map.prevIndex < map.posts.length) {
-      map.postMarkers[map.prevIndex].setIcon('img/icon/arrow-point-to-down-blue.svg');
-      map.postMarkers[map.prevIndex].setZIndex(1000 + map.prevIndex);
-      map.postInfoWindows[map.prevIndex].setZIndex(1000 + map.prevIndex);
+      map.postMarkers[map.prevIndex].setIcon('img/icon/dot_normal.svg');
+      map.postMarkers[map.prevIndex].setZIndex(map.prevIndex);
+      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
 			map.postMarkers[index].setZIndex(9999);
-      map.postInfoWindows[index].setZIndex(9999);
+      // map.postInfoWindows[index].setZIndex(9999);
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		map.prevIndex = index;
@@ -218,15 +218,15 @@ angular.module('placekoob.controllers')
 
       // markers for saved positions
       map.postMarkers = gmapService.deleteMarkers(map.postMarkers);
-      map.postInfoWindows = gmapService.deleteInfoWindows(map.postInfoWindows);
+      // map.postInfoWindows = gmapService.deleteInfoWindows(map.postInfoWindows);
       for(var i = 0; i < posts.length; i++) {
         map.posts[i].id = i;
         map.postMarkers.push(gmapService.createMarker({
           map: map.mapObj,
           position: { lat: map.posts[i].lonLat.lat, lng: map.posts[i].lonLat.lon },
-          icon: (i === 0 ? 'img/icon/arrow-point-to-custom.svg' : 'img/icon/arrow-point-to-down-blue.svg'),
+          icon: (i === 0 ? 'img/icon/dot_active.svg' : 'img/icon/dot_normal.svg'),
           draggable: false,
-          zIndex: 1000 + i
+          zIndex: (i === 0 ? 9999 : i)
         }));
         map.postMarkers[i].addListener('click', (function(i) {
             return function() {
@@ -236,36 +236,36 @@ angular.module('placekoob.controllers')
           })(i)
         );
 
-        var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
-        for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
-          tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>&nbsp;'
-        }
-        tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
-        map.postInfoWindows.push(gmapService.createInfoWindow({
-          content: '<div class="iw-container">'
-					    + '<div class="iw-title">' + posts[i].name + '</div>'
-					    + tagsBlock
-					    + '</div>',
-          maxWidth: 100,
-          zIndex: 1000 + i,
-          disableAutoPan: true
-        }));
-        map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
-        google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
-          var iwOuter = $('.gm-style-iw');
-          var iwBackground = iwOuter.prev();
-
-          iwBackground.children(':nth-child(2)').css({'display' : 'none'});
-          iwBackground.children(':nth-child(4)').css({'display' : 'none'});
-
-          iwOuter.parent().parent().css({left: '15px'});
-
-          iwBackground.children(':nth-child(1)').css({'display' : 'none'});
-          iwBackground.children(':nth-child(3)').css({'display' : 'none'});
-
-          var iwCloseBtn = iwOuter.next();
-          iwCloseBtn.css({'display': 'none'});
-        });
+        // var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
+        // for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
+        //   tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>&nbsp;'
+        // }
+        // tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
+        // map.postInfoWindows.push(gmapService.createInfoWindow({
+        //   content: '<div class="iw-container">'
+				// 	    + '<div class="iw-title">' + posts[i].name + '</div>'
+				// 	    + tagsBlock
+				// 	    + '</div>',
+        //   maxWidth: 100,
+        //   zIndex: 1000 + i,
+        //   disableAutoPan: true
+        // }));
+        // map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
+        // google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
+        //   var iwOuter = $('.gm-style-iw');
+        //   var iwBackground = iwOuter.prev();
+        //
+        //   iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+        //   iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+        //
+        //   iwOuter.parent().parent().css({left: '15px'});
+        //
+        //   iwBackground.children(':nth-child(1)').css({'display' : 'none'});
+        //   iwBackground.children(':nth-child(3)').css({'display' : 'none'});
+        //
+        //   var iwCloseBtn = iwOuter.next();
+        //   iwCloseBtn.css({'display': 'none'});
+        // });
       }
 
       map.scrollToMarker = function() {
