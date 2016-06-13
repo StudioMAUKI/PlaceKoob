@@ -1107,4 +1107,127 @@ angular.module('placekoob.services')
     stop: stop,
     getStatus: getStatus
   }
+}])
+.factory('ogParserService', ['$http', '$q', function($http, $q) {
+
+  function getHead(doc) {
+    var start = doc.indexOf('<head>');
+    var end = doc.indexOf('</head>');
+
+    if (start === -1) {
+      console.error('cannot find <head> in document.');
+      return '';
+    } else {
+      start += 6;
+      console.log('start point : ' + start);
+    }
+    if (end === -1) {
+      console.error('cannot find </head> in document.');
+      return '';
+    } else {
+      console.log('end point : ' + end);
+    }
+    return doc.slice(start, end);
+  }
+
+  function getOGContent(head, property) {
+    var start = head.indexOf(property);
+    var content = 'content=';
+    var end = 0;
+    if (start === -1) {
+      console.warn('cannot find ' + property + '.');
+      return '';
+    } else {
+      // console.log('start index of ' + property + ' : ' + start);
+      start = head.indexOf(content, start);
+      if (start === -1) {
+        console.warn('cannot find content in ' + property);
+        return '';
+      } else {
+        start += content.length + 1;
+        // console.log('This web-doc uses ' + head.charAt(start));
+        if (head.charAt(start - 1) === '"') {
+          end = head.indexOf('"', start);
+        } else {
+          end = head.indexOf('\'', start);
+        }
+
+        if (end === -1) {
+          console.warn('cannot find another "(or \') in content in ' + property);
+          return '';
+        } else {
+          // console.log('end index of ' + property + ' : ' + end);
+          return head.slice(start, end);
+        }
+      }
+    }
+  }
+
+  function convertToSaveURL(url) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      return url;
+    } else {
+      if (url.indexOf('place.kakao.com') !== -1) {
+        return url.replace('https://place.kakao.com/places', '/kplaces');
+      } else if (url.indexOf('blog.naver.com') !== -1) {
+        return url.replace('http://blog.naver.com', '/nblog');
+      } else if (url.indexOf('www.mangoplate.com') !== -1) {
+        return url.replace('https://www.mangoplate.com/restaurants', '/mplate');
+      } else {
+        return '';
+      }
+    }
+  }
+
+  function getOGInfo(url) {
+    var deferred = $q.defer();
+    var ogInfo = {};
+
+    url = convertToSaveURL(url);
+    if (url === '') {
+      console.warn('not supported URL pattern.');
+      ogInfo.title = '브라우저에서 지원하지 않는 URL';
+      ogInfo.image = '/img/icon/404.png';
+      ogInfo.siteName = 'Placekoop Error';
+      ogInfo.url = '';
+      ogInfo.desc = '폰에서도 이러면 진짜 에러임';
+
+      console.dir(ogInfo);
+
+      deferred.resolve(ogInfo);
+    } else {
+      $http({
+        method: 'GET',
+        url: url
+      })
+      .then(function(response) {
+        //console.dir(response);
+        var head = getHead(response.data);
+        console.log(head);
+        if (head === '') {
+          deferred.reject('does not exist <head>...</head>');
+          return;
+        } else {
+          ogInfo.title = getOGContent(head, 'og:title');
+          ogInfo.image = getOGContent(head, 'og:image');
+          ogInfo.siteName = getOGContent(head, 'og:site_name');
+          ogInfo.url = getOGContent(head, 'og:url');
+          ogInfo.desc = getOGContent(head, 'og:description');
+
+          console.dir(ogInfo);
+
+          deferred.resolve(ogInfo);
+        }
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+    }
+
+    return deferred.promise;
+  }
+
+  return {
+    getOGInfo: getOGInfo
+  }
 }]);

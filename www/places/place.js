@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService, ogParserService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -10,6 +10,7 @@ angular.module('placekoob.controllers')
   place.imageHeight = 0;
   place.tag = '';
   place.coverImage = 'img/default.jpg';
+  place.URLs = [];
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
@@ -19,10 +20,21 @@ angular.module('placekoob.controllers')
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {
-              place.imagesForSlide.push(place.post.userPost.images[i].content);
+            place.imagesForSlide.push(place.post.userPost.images[i].content);
           }
           place.coverImage = place.post.userPost.images[0].summary;
           // $scope.$apply();
+        }
+
+        if (place.post.userPost.urls) {
+          for (var i = 0; i < place.post.userPost.urls.length; i++) {
+            ogParserService.getOGInfo(place.post.userPost.urls[i].content)
+            .then(function(ogInfo) {
+              place.URLs.push(ogInfo);
+            }, function(err) {
+              console.error(err);
+            });
+          }
         }
     }, function(err) {
       $ionicPopup.alert({

@@ -94,9 +94,12 @@
 		<div class="button-bar bar-balanced" ng-show="place.post.name" style="margin-top:5px;">
 			<a class="button" ng-click="place.searchPlace()">이 장소 관련 블로그</a>
 		</div>
-		<section class="user-note" ng-repeat="url in place.post.userPost.urls">
+		<section class="user-note" ng-repeat="url in place.URLs">
 			<!-- <a ng-href="{{url.content}}">{{url.content}}</a><br> -->
-			<a href="#" ng-click="place.openLink(url.content)">{{url.content}}</a>
+			{{url.title}}<br>
+			<a href="#" ng-click="place.openLink(url.url)">{{url.url}}</a><br>
+			<img ng-src="{{url.image}}" style="height:200px;"><br>
+			{{url.desc}}<br>
 			<!-- <br>at {{place.postHelper.getTimeString(url.timestamp)}} -->
 		</section>
 	</ion-content>
