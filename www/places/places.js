@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper, StorageService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
@@ -51,7 +51,6 @@ angular.module('placekoob.controllers')
 		places.popOver.hide();
 		if (places.orderingType !== type) {
 			places.orderingType = type;
-			RemoteAPIService.resetCachedPosts('uplaces');
 			places.loadSavedPlace('top')
 			.then(function() {
 				$ionicScrollDelegate.scrollTop();
@@ -97,7 +96,7 @@ angular.module('placekoob.controllers')
 		    })
 				.finally(function(){
 					$ionicListDelegate.closeOptionButtons();
-					places.loadSavedPlace();
+					// places.loadSavedPlace();
 				});
 			} else {
 				$ionicListDelegate.closeOptionButtons();
@@ -117,10 +116,6 @@ angular.module('placekoob.controllers')
 		var lon = curPos.longitude || null;
 		var lat = curPos.latitude || null;
 
-		$ionicLoading.show({
-			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 60000
-		});
 		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
 		.then(function(result) {
 			places.posts = result.assigned;
@@ -130,9 +125,6 @@ angular.module('placekoob.controllers')
 			// console.dir(places.posts);
 		}, function(err) {
 			console.error(err);
-		})
-		.finally(function() {
-			$ionicLoading.hide();
 		});
 
 		return deferred.promise;
@@ -165,15 +157,20 @@ angular.module('placekoob.controllers')
 		}
 	}
 
-	$scope.$on('$ionicView.afterEnter', function() {
-		places.loadSavedPlace('top')
-		.then(function(){
-			places.completedFirstLoading = true;
-		});
-	});
+	// $scope.$on('$ionicView.afterEnter', function() {
+	// 	places.loadSavedPlace('top')
+	// 	.then(function(){
+	// 		places.completedFirstLoading = true;
+	// 	});
+	// });
 
 	if ($stateParams.uplace_uuid) {
 		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
 		$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
 	}
+
+	places.loadSavedPlace('top')
+	.then(function(){
+		places.completedFirstLoading = true;
+	});
 }]);

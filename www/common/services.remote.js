@@ -385,6 +385,7 @@ angular.module('placekoob.services')
     if (position === 'top') {
       offset = 0;
       limit = 20;
+      resetCachedPosts('uplaces');
     } else if (position === 'bottom') {
       offset = cachedUplaces.length;
       limit = 20;
@@ -1267,7 +1268,7 @@ angular.module('placekoob.services')
       url: convertToSaveURL('https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json')
     })
     .then(function(response) {
-      console.dir(response.data);
+      // console.dir(response.data);
       deferred.resolve(response.data.channel.item);
     }, function(err) {
       console.error(err);

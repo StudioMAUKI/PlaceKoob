@@ -59,7 +59,7 @@
       </div>
 		</div>
 		<div class="button-bar bar-stable">
-			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글추가</a>
+			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글</a>
 			<a class="button" ng-click="place.addURL()"><i class="ion-link"></i> URL추가</a>
 			<a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a>
 			<a class="button" ng-click=""><i class="ion-star"></i> 평가</a>
@@ -67,14 +67,7 @@
 		<div class="user-image">
 			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)">
 			<img ng-style="{height:place.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
-			<!-- <div class="user-image-comment" ng-show="image.note">
-				{{image.note}}
-			</div> -->
-			<!-- <div ng-style="{height:place.getImageHeight(), width:place.getImageHeight(), 'padding-left':5}" style="border:1px solid red;display:inline-block;">
-				<i class="ion-plus"></i>
-			</div> -->
 		</div>
-
 
 		<!-- note 영역 -->
 		<div class="card" ng-repeat="note in place.post.userPost.notes">
@@ -88,6 +81,7 @@
 			</div>
 		</div>
 
+		<!-- 저장한 웹 문서 목록 -->
 		<div class="list">
 			<div class="item item-divider">
 		    저장한 웹문서
@@ -98,6 +92,8 @@
 				<p>{{url.desc}}</p>
 			</a>
 		</div>
+
+		<!-- 검색 결과 -->
 		<div class="list">
 			<div class="item item-divider">
 		    관련 블로그
@@ -108,26 +104,17 @@
 				<p>{{result.description}}</p>
 			</a>
 		</div>
-		<!-- <div class="button-bar">
-			<a class="button pk-accent button-icon ion-image" ng-click="place.addPhoto()"> 사진 추가</a>
-			<a class="button pk-accent button-icon ion-link" ng-click="place.addURL()"> URL 추가</a>
-		</div> -->
+
+		<!-- 블로그 더 보기 버튼 -->
 		<div class="button-bar bar-balanced" ng-show="place.post.name" style="margin-top:5px;">
 			<a class="button" ng-click="place.searchPlace()">관련 블로그 더보기</a>
 		</div>
-
-		<!-- <section class="user-note" ng-repeat="url in place.URLs">
-			{{url.title}}<br>
-			<a href="#" ng-click="place.openLink(url.url)">{{url.url}}</a><br>
-			<img ng-src="{{url.image}}" style="height:200px;"><br>
-			{{url.desc}}<br>
-		</section> -->
 	</ion-content>
 	<ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
     <div id="container" class="list list-inset">
       <label id="rounded" class="item item-input chat-input">
         <img src="http://image005.flaticon.com/1/png/512/1/1533.png" height="20px">&nbsp;&nbsp;
-        <input type="text" placeholder="input hashtag" ng-focus="scrollTop()" ng-keydown="place.processTags($event)" ng-model="place.tag">
+        <input type="text" placeholder="태그를 입력하세요" ng-focus="scrollTop()" ng-keydown="place.processTags($event)" ng-model="place.tag">
       </label>
     </div>
   </ion-footer-bar>
