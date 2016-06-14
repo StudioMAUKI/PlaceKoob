@@ -38,7 +38,7 @@ angular.module('placekoob.controllers')
 		if (map.loadedMap) {
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
-			map.loadSavedPlace();
+			// map.loadSavedPlace();
 		}
 	});
 
@@ -283,7 +283,7 @@ angular.module('placekoob.controllers')
           }
         } catch(e) {
           console.error(e);
-        }        
+        }
       };
 
       map.prevIndex = 0;
