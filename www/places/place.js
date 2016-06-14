@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService, ogParserService) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -11,11 +11,12 @@ angular.module('placekoob.controllers')
   place.tag = '';
   place.coverImage = 'img/default.jpg';
   place.URLs = [];
+  place.searchResults = [];
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      console.dir(post);
+      // console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
@@ -26,6 +27,7 @@ angular.module('placekoob.controllers')
           // $scope.$apply();
         }
 
+        place.URLs = [];
         if (place.post.userPost.urls) {
           for (var i = 0; i < place.post.userPost.urls.length; i++) {
             ogParserService.getOGInfo(place.post.userPost.urls[i].content)
@@ -36,6 +38,8 @@ angular.module('placekoob.controllers')
             });
           }
         }
+
+        place.getDaumResult();
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -208,17 +212,12 @@ angular.module('placekoob.controllers')
           })
           .then(function(result){
             // place.loadPlaceInfo();
-            if (place.post.userPost.urls === undefined || place.post.userPost.urls === null || place.post.userPost.urls.length === 0) {
-              place.post.userPost.urls = [{
-                content: URL,
-                timestamp: Date.now()
-              }];
-            } else {
-              place.post.userPost.urls.splice(0, 0, {
-                content: URL,
-                timestamp: Date.now()
-              });
-            }
+            ogParserService.getOGInfo(URL)
+            .then(function(ogInfo) {
+              place.URLs.splice(0, 0, ogInfo);
+            }, function(err) {
+              console.error(err);
+            });
           });
         }, function(err) {
           console.error('Adding URL to the post is failed.');
@@ -339,24 +338,50 @@ angular.module('placekoob.controllers')
     window.open(url, '_system');
   };
 
-  place.searchPlace = function() {
-    var query = '';
+  place.makeKeyword = function() {
+    var keyword = '';
     var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
     console.log('Region : ' + region);
     if (region) {
       var region_items = region.content.split(' ');
       var loopCount = region_items.length >= 4 ? 4 : region_items.length;
       for (var i = 1; i < loopCount; i++) {
-        query += region_items[i] + '+';
+        keyword += region_items[i] + '+';
       }
     }
 
-    query += (place.post.placePost.name.content || place.post.userPost.name.content);
-    console.log('Calculated query : ', query);
-    query = encodeURI(query);
-    console.log('URL encoded query : ', query);
+    keyword += (place.post.placePost.name.content || place.post.userPost.name.content);
+    console.log('Calculated keyword : ', keyword);
+    keyword = encodeURI(keyword);
+    console.log('URL encoded keyword : ', keyword);
 
-    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+    return keyword;
+  }
+
+  place.getDaumResult = function() {
+    daumSearchService.search(place.makeKeyword())
+    .then(function(items) {
+      place.searchResults = items;
+      for (var i = 0; i < place.searchResults.length; i++) {
+        place.searchResults[i].title = place.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+        place.searchResults[i].description = place.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+      }
+      // console.dir(place.searchResults);
+
+    }, function(err) {
+      place.searchResults = [];
+      place.searchResults.push({
+        author: 'MAUKI studio',
+        comment: '',
+        description: JSON.stringify(err),
+        link: '',
+        title: '검색 결과를 얻어 오는데 실패했습니다'
+      })
+    });
+  }
+
+  place.searchPlace = function() {
+    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + place.makeKeyword(), '_system');
   };
 
   place.getImageHeight = function() {

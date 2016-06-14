@@ -926,7 +926,7 @@ angular.module('placekoob.services')
     remoteStorageService.downloadData('uploaded_imgs')
     .then(function(result) {
       uploadedImages = JSON.parse(result.data.value) || [];
-      console.dir(uploadedImages);
+      // console.dir(uploadedImages);
       deferred.resolve();
     }, function(err) {
       deferred.reject(err);
@@ -1111,21 +1111,24 @@ angular.module('placekoob.services')
 .factory('ogParserService', ['$http', '$q', function($http, $q) {
 
   function getHead(doc) {
-    var start = doc.indexOf('<head>');
-    var end = doc.indexOf('</head>');
+    var headStart = '<head';
+    var headEnd = '</head>';
+    var start = doc.indexOf(headStart);
+    var end = doc.indexOf(headEnd);
 
     if (start === -1) {
       console.error('cannot find <head> in document.');
       return '';
     } else {
-      start += 6;
-      console.log('start point : ' + start);
+      // start += 6;
+      // console.log('start point : ' + start);
     }
     if (end === -1) {
       console.error('cannot find </head> in document.');
       return '';
     } else {
-      console.log('end point : ' + end);
+      end += headEnd.length;
+      // console.log('end point : ' + end);
     }
     return doc.slice(start, end);
   }
@@ -1165,14 +1168,27 @@ angular.module('placekoob.services')
 
   function convertToSaveURL(url) {
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-      return url;
+      //  http://blog.naver.com/PostView.nhn?blogId=hyeyooncheon&logNo=220534224926&redirect=Dlog&widgetTypeCall=true
+      //  http://m.blog.naver.com/PostView.nhn?blogId=hyeyooncheon&logNo=220534224926
+
+      //  네이버 블로그의 경우 모바일에서 접근할 때 리다이렉션을 위한 자바스크립트만 내려주고, 다시 이동시키기 때문에
+      //  아예 이동될 페이지의 URL로 고쳐서 직접 접근하도록 한다.
+      if (url.indexOf('http://blog.naver.com') !== -1) {
+        return url.replace('&redirect=Dlog', '').replace('&widgetTypeCall=true', '').replace('blog.naver.com', 'm.blog.naver.com');
+      } else {
+        return url;
+      }
     } else {
       if (url.indexOf('place.kakao.com') !== -1) {
-        return url.replace('https://place.kakao.com/places', '/kplaces');
-      } else if (url.indexOf('blog.naver.com') !== -1) {
+        return url.replace('https://place.kakao.com', '/kplaces');
+      } else if (url.indexOf('http://blog.naver.com') !== -1) {
         return url.replace('http://blog.naver.com', '/nblog');
-      } else if (url.indexOf('www.mangoplate.com') !== -1) {
-        return url.replace('https://www.mangoplate.com/restaurants', '/mplate');
+      } else if (url.indexOf('http://m.blog.naver.com') !== -1) {
+        return url.replace('http://m.blog.naver.com', '/nblog');
+      } else if (url.indexOf('http://www.mangoplate.com') !== -1) {
+        return url.replace('https://www.mangoplate.com', '/mplate');
+      } else if (url.indexOf('http://map.naver.com') !== -1) {
+        return url.replace('http://map.naver.com', '/nmap');
       } else {
         return '';
       }
@@ -1182,9 +1198,11 @@ angular.module('placekoob.services')
   function getOGInfo(url) {
     var deferred = $q.defer();
     var ogInfo = {};
+    var convertedURL = '';
 
-    url = convertToSaveURL(url);
-    if (url === '') {
+    convertedURL = convertToSaveURL(url);
+    console.log('URL : ' + convertedURL);
+    if (convertedURL === '') {
       console.warn('not supported URL pattern.');
       ogInfo.title = '브라우저에서 지원하지 않는 URL';
       ogInfo.image = '/img/icon/404.png';
@@ -1192,29 +1210,30 @@ angular.module('placekoob.services')
       ogInfo.url = '';
       ogInfo.desc = '폰에서도 이러면 진짜 에러임';
 
-      console.dir(ogInfo);
+      // console.dir(ogInfo);
 
       deferred.resolve(ogInfo);
     } else {
       $http({
         method: 'GET',
-        url: url
+        url: convertedURL
       })
       .then(function(response) {
-        //console.dir(response);
+        // console.dir(response);
         var head = getHead(response.data);
-        console.log(head);
+        // console.log(head);
         if (head === '') {
+          console.error('does not exist <head>...</head>');
           deferred.reject('does not exist <head>...</head>');
           return;
         } else {
           ogInfo.title = getOGContent(head, 'og:title');
           ogInfo.image = getOGContent(head, 'og:image');
           ogInfo.siteName = getOGContent(head, 'og:site_name');
-          ogInfo.url = getOGContent(head, 'og:url');
+          ogInfo.url = getOGContent(head, 'og:url') || url;
           ogInfo.desc = getOGContent(head, 'og:description');
 
-          console.dir(ogInfo);
+          // console.dir(ogInfo);
 
           deferred.resolve(ogInfo);
         }
@@ -1230,4 +1249,35 @@ angular.module('placekoob.services')
   return {
     getOGInfo: getOGInfo
   }
+}])
+.factory('daumSearchService', ['$q', '$http', function($q, $http) {
+  function convertToSaveURL(url) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      return url;
+    } else {
+      return url.replace('https://apis.daum.net', '/daum');
+    }
+  }
+
+  function search(keyword) {
+    var deferred = $q.defer();
+
+    $http({
+      method: 'GET',
+      url: convertToSaveURL('https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json')
+    })
+    .then(function(response) {
+      console.dir(response.data);
+      deferred.resolve(response.data.channel.item);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  return {
+    search: search
+  };
 }]);

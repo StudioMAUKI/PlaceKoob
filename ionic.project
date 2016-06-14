@@ -16,15 +16,27 @@
     },
     {
       "path": "/kplaces",
-      "proxyUrl": "https://place.kakao.com/places"
+      "proxyUrl": "https://place.kakao.com"
     },
     {
       "path": "/nblog",
       "proxyUrl": "http://blog.naver.com"
     },
     {
+      "path": "/nblog",
+      "proxyUrl": "http://m.blog.naver.com"
+    },
+    {
       "path": "/mplate",
-      "proxyUrl": "https://www.mangoplate.com/restaurants"
+      "proxyUrl": "https://www.mangoplate.com"
+    },
+    {
+      "path": "/nmap",
+      "proxyUrl": "http://map.naver.com"
+    },
+    {
+      "path": "/daum",
+      "proxyUrl": "https://apis.daum.net"
     }
   ],
   "gulpStartupTasks": [

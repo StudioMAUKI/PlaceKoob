@@ -269,17 +269,21 @@ angular.module('placekoob.controllers')
       }
 
       map.scrollToMarker = function() {
-        var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
-        if (scrolled_pos % window.innerWidth === 0) {
-          //	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
-          var index = scrolled_pos / window.innerWidth;
-          if (map.last_marker_index !== index) {
-            map.last_marker_index = index;
-            window.setTimeout(function() {
-              map.slidehasChanged(index);
-            }, 500);
+        try {
+          var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
+          if (scrolled_pos % window.innerWidth === 0) {
+            //	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
+            var index = scrolled_pos / window.innerWidth;
+            if (map.last_marker_index !== index) {
+              map.last_marker_index = index;
+              window.setTimeout(function() {
+                map.slidehasChanged(index);
+              }, 500);
+            }
           }
-        }
+        } catch(e) {
+          console.error(e);
+        }        
       };
 
       map.prevIndex = 0;
