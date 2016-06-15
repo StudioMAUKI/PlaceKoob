@@ -15,6 +15,12 @@ angular.module('placekoob.controllers')
   place.tagsForUpdate = [];
   place.starPoint = 5;
   place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
+  place.visited = false;
+
+  place.visit = function() {
+    console.log('visit');
+    place.visited = !place.visited;    
+  };
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)

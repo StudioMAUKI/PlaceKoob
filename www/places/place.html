@@ -60,6 +60,14 @@
         </div>
       	<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
       </div>
+			<div class="row like-btn">
+				<div class="col text-right">
+					<div ng-class="place.visited ? 'bg-color-red like-button-with-text':'bg-color-white like-button'" ng-click="place.visit()">
+						<i class="ion-alert" ng-class="place.visited ? 'color-white':'color-red'"></i>
+						<span ng-if="place.visited">가봤다</span>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="button-bar bar-stable">
 			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글</a>
