@@ -26,6 +26,7 @@ angular.module('placekoob.controllers')
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
   map.showInfoWindow = true;
+  map.tags = [];
 
   $scope.$on('$ionicView.loaded', function() {
     map.divToFit();
@@ -436,6 +437,7 @@ angular.module('placekoob.controllers')
 				animation: 'slide-in-up'
 			})
 			.then(function(modal) {
+        map.tags = [];
 				map.saveDlg = modal;
 				map.saveDlg.show();
 			});
@@ -451,6 +453,7 @@ angular.module('placekoob.controllers')
 			animation: 'slide-in-up'
 		})
 		.then(function(modal) {
+      map.tags = [];
 			map.saveDlg = modal;
 			map.saveDlg.show();
 
@@ -514,7 +517,8 @@ angular.module('placekoob.controllers')
 						lat: curPos.latitude
 					},
 					notes: [{
-						content: map.note
+						// content: map.note
+            content: map.convertTagsToNote()
 					}],
 					images: [{
 						content: response.file
@@ -552,7 +556,8 @@ angular.module('placekoob.controllers')
 		});
 		RemoteAPIService.sendUserPost({
 			notes: [{
-				content: map.note
+				// content: map.note
+        content: map.convertTagsToNote()
 			}],
 			urls: [{
 				content: map.URL
@@ -571,7 +576,22 @@ angular.module('placekoob.controllers')
 		});
 	};
 
+  map.convertTagsToNote = function() {
+    return '[NOTE_TAGS]#' + JSON.stringify(map.tags);
+  }
+
   map.showFileForm = function() {
 		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
-	}
+	};
+
+  map.processTags = function($event) {
+    //console.dir($event);
+    var space = 32;
+    var enter = 13;
+    var comma = 188;
+    if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
+      map.tags.push(map.tag);
+      map.tag = '';
+    }
+  };
 }]);

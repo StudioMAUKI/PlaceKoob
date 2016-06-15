@@ -105,7 +105,8 @@ angular.module('placekoob.controllers')
 		}
 	};
 
-	$scope.$on('$ionicView.afterEnter', function() {
-		plNotYet.loadSavedPlace();
-	});
+	// $scope.$on('$ionicView.afterEnter', function() {
+	// 	plNotYet.loadSavedPlace();
+	// });
+	plNotYet.loadSavedPlace();
 }]);

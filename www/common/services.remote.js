@@ -662,32 +662,43 @@ angular.module('placekoob.services')
   function getTagsWithContent(notes) {
     var words = [];
     var output = [];
+    var subTags = [];
     for (var i = 0; i < notes.length; i++) {
-      words = notes[i].content.split(/\s+/);
-      for (var j = 0; j < words.length; j++) {
-        //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
-        //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
-        if (words[j].charAt(0) === '#') {
-          output.push(words[j].substring(1));
+      if (notes[i].content.indexOf('[NOTE_TAGS]') === -1) {
+        words = notes[i].content.split(/\s+/);
+        for (var j = 0; j < words.length; j++) {
+          //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
+          //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
+          if (words[j].charAt(0) === '#') {
+            output.push(words[j].substring(1));
+          }
         }
+      } else {
+        subTags = JSON.parse(notes[i].content.split('#')[1]);
+        output = output.concat(subTags);
       }
     }
     return output;
   }
 
-  function getUserNote(post) {
+  function getDescFromUserNote(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
       return '';
     }
 
-    return getUserNoteByContent(post.userPost.notes[0].content);
+    return getUserNoteByContent(post.userPost.notes);
   }
 
-  function getUserNoteByContent(content) {
-    if (!content || content === '') {
-      return '';
+  function getUserNoteByContent(notes) {
+    for (var i = 0; i < notes.length; i++) {
+      if (notes[i].content.indexOf('[NOTE_TAGS]') === -1) {
+        if (notes[i].content !== '') {
+          return notes[i].content;
+        }
+      }
     }
-    return content.replace(/#/g, '');
+
+    return '';
   }
 
   function getThumbnailURLByFirstImage(post) {
@@ -861,7 +872,7 @@ angular.module('placekoob.services')
     post.datetime = getTimeString(post.modified);
     post.address = getAddress(post);
     post.addrs = getAddresses(post);
-    post.desc = getUserNote(post);
+    post.desc = getDescFromUserNote(post);
     post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
   }
@@ -1183,7 +1194,14 @@ angular.module('placekoob.services')
       if (url.indexOf('place.kakao.com') !== -1) {
         return url.replace('https://place.kakao.com', '/kplaces');
       } else if (url.indexOf('http://blog.naver.com') !== -1) {
-        return url.replace('http://blog.naver.com', '/nblog');
+        if (url.indexOf('PostView.nhn') !== -1) {
+          return url.replace('http://blog.naver.com', '/nblog');
+        } else if (/http:\/\/blog.naver.com\/[a-z]+\/[1-9][0-9]+/.exec(url).length === 1){
+          var params = url.replace('http://blog.naver.com/', '').split('/');
+          return '/nblog/PostView.nhn?blogId=' + params[0] + '&logNo=' + params[1];
+        } else {
+          return '';
+        }
       } else if (url.indexOf('http://m.blog.naver.com') !== -1) {
         return url.replace('http://m.blog.naver.com', '/nblog');
       } else if (url.indexOf('http://www.mangoplate.com') !== -1) {

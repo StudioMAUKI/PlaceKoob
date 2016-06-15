@@ -13,22 +13,22 @@
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="place.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
 		<!-- placePost 영역 -->
-		<div class="about-header" ng-show="place.post.name">
+		<div class="about-header">
 			<div class="profile-media">
         <div class="profile-details">
-					<div class="row">
+					<div class="row" ng-show="place.post.name">
 						<div class="col">
 							<p ng-repeat="addr in place.post.addrs">
 								{{addr}}
 							</p>
 						</div>
 					</div>
-					<div class="row">
+					<div class="row" ng-show="place.post.name">
 						<div class="col">
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
 						</div>
 					</div>
-					<div class="row" style="font-size:30px;color:orange;">
+					<div class="row" style="font-size:30px;color:orange;" ng-show="place.post.name">
 						<div class="col">
 						</div>
 						<div class="col">
@@ -51,7 +51,7 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<span class="place-item-tag-large" ng-repeat="tag in place.post.tags">{{tag}}&nbsp;</span>
+							<span class="place-item-tag-large" ng-repeat="tag in place.post.tags track by $index">{{tag}}&nbsp;</span>
 						</div>
 					</div>
         </div>
@@ -70,7 +70,7 @@
 		</div>
 
 		<!-- note 영역 -->
-		<div class="card" ng-repeat="note in place.post.userPost.notes">
+		<div class="card" ng-repeat="note in place.post.userPost.notes" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1">
 			<div class="row">
 				<div class="col col-20">
 					{{place.postHelper.getTimeString(note.timestamp)}}
@@ -94,7 +94,7 @@
 		</div>
 
 		<!-- 검색 결과 -->
-		<div class="list">
+		<div class="list" ng-show="place.post.name">
 			<div class="item item-divider">
 		    관련 블로그
 		  </div>

@@ -12,11 +12,12 @@ angular.module('placekoob.controllers')
   place.coverImage = 'img/default.jpg';
   place.URLs = [];
   place.searchResults = [];
+  place.tagsForUpdate = [];
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      // console.dir(post);
+      console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
@@ -40,6 +41,7 @@ angular.module('placekoob.controllers')
         }
 
         place.getDaumResult();
+        place.tagsForUpdate = [];
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -158,6 +160,23 @@ angular.module('placekoob.controllers')
         });
       }
     });
+  }
+
+  place.updateTags = function() {
+    if (place.tagsForUpdate.length > 0) {
+      RemoteAPIService.sendUserPost({
+        notes: [{
+          content: '[NOTE_TAGS]#' + JSON.stringify(place.tagsForUpdate)
+        }],
+        uplace_uuid: place.uplace_uuid
+      })
+      .then(function(result){
+
+      }, function(err) {
+        console.error('Updating tags is failed.');
+        console.dir(err);
+      });
+    }
   }
 
   place.addURL= function() {
@@ -340,44 +359,48 @@ angular.module('placekoob.controllers')
 
   place.makeKeyword = function() {
     var keyword = '';
-    var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
-    console.log('Region : ' + region);
-    if (region) {
-      var region_items = region.content.split(' ');
-      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
-      for (var i = 1; i < loopCount; i++) {
-        keyword += region_items[i] + '+';
+    if (place.post.placePost) {
+      var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
+      console.log('Region : ' + region);
+      if (region) {
+        var region_items = region.content.split(' ');
+        var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+        for (var i = 1; i < loopCount; i++) {
+          keyword += region_items[i] + '+';
+        }
       }
+
+      keyword += (place.post.placePost.name.content || place.post.userPost.name.content);
+      console.log('Calculated keyword : ', keyword);
+      keyword = encodeURI(keyword);
+      console.log('URL encoded keyword : ', keyword);
     }
-
-    keyword += (place.post.placePost.name.content || place.post.userPost.name.content);
-    console.log('Calculated keyword : ', keyword);
-    keyword = encodeURI(keyword);
-    console.log('URL encoded keyword : ', keyword);
-
     return keyword;
   }
 
   place.getDaumResult = function() {
-    daumSearchService.search(place.makeKeyword())
-    .then(function(items) {
-      place.searchResults = items;
-      for (var i = 0; i < place.searchResults.length; i++) {
-        place.searchResults[i].title = place.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
-        place.searchResults[i].description = place.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
-      }
-      // console.dir(place.searchResults);
+    var keyword = place.makeKeyword();
+    if (keyword !== '') {
+      daumSearchService.search(keyword)
+      .then(function(items) {
+        place.searchResults = items;
+        for (var i = 0; i < place.searchResults.length; i++) {
+          place.searchResults[i].title = place.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+          place.searchResults[i].description = place.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+        }
+        // console.dir(place.searchResults);
 
-    }, function(err) {
-      place.searchResults = [];
-      place.searchResults.push({
-        author: 'MAUKI studio',
-        comment: '',
-        description: JSON.stringify(err),
-        link: '',
-        title: '검색 결과를 얻어 오는데 실패했습니다'
-      })
-    });
+      }, function(err) {
+        place.searchResults = [];
+        place.searchResults.push({
+          author: 'MAUKI studio',
+          comment: '',
+          description: JSON.stringify(err),
+          link: '',
+          title: '검색 결과를 얻어 오는데 실패했습니다'
+        })
+      });
+    }
   }
 
   place.searchPlace = function() {
@@ -407,6 +430,7 @@ angular.module('placekoob.controllers')
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
       place.post.tags.push(place.tag);
+      place.tagsForUpdate.push(place.tag);
       place.tag = '';
     }
   };
@@ -420,6 +444,10 @@ angular.module('placekoob.controllers')
 
   $scope.$on('$ionicView.afterEnter', function() {
 		place.loadPlaceInfo();
+	});
+
+  $scope.$on('$ionicView.beforeLeave', function() {
+		place.updateTags();
 	});
 }])
 .directive('headerShrink', function($document) {
