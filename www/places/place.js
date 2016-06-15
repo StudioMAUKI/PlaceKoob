@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
+.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -13,6 +13,8 @@ angular.module('placekoob.controllers')
   place.URLs = [];
   place.searchResults = [];
   place.tagsForUpdate = [];
+  place.starPoint = 5;
+  place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
@@ -42,6 +44,8 @@ angular.module('placekoob.controllers')
 
         place.getDaumResult();
         place.tagsForUpdate = [];
+        place.starPoint = post.rating || 5;
+        place.changeStarPoint();
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -74,6 +78,34 @@ angular.module('placekoob.controllers')
         });
       }
 		});
+  }
+
+  place.deleteImage = function(index) {
+    $ionicPopup.confirm({
+			title: '사진 삭제',
+			template: '선택한 사진을 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        console.log('Delete image : ' + index);
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          images:[{
+            content: place.post.userPost.images[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.images.splice(index, 1);
+          place.imagesForSlide.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting note failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    });
   }
 
   place.goBack = function() {
@@ -159,6 +191,36 @@ angular.module('placekoob.controllers')
           });
         });
       }
+    });
+  }
+
+  place.deleteNote = function(index) {
+    console.log('note index : ' + index);
+    $ionicPopup.confirm({
+			title: '댓글 삭제',
+			template: '선택한 댓글을 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          notes:[{
+            content: place.post.userPost.notes[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.notes.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting note failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    })
+    .finally(function() {
+      $ionicListDelegate.closeOptionButtons();
     });
   }
 
@@ -248,6 +310,37 @@ angular.module('placekoob.controllers')
       }
     });
   };
+
+  place.deleteURL = function(index) {
+    console.log('URL index : ' + index);
+    $ionicPopup.confirm({
+			title: '웹문서 삭제',
+			template: '선택한 웹문서를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          urls:[{
+            content: place.post.userPost.urls[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.urls.splice(index, 1);
+          place.URLs.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting URL failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    })
+    .finally(function() {
+      $ionicListDelegate.closeOptionButtons();
+    });
+  }
 
   place.addPhoto = function() {
     $ionicActionSheet.show({
@@ -434,6 +527,52 @@ angular.module('placekoob.controllers')
       place.tag = '';
     }
   };
+
+  place.setStarPoint = function() {
+    place.showModal('/places/star-point-modal.html');
+  };
+
+  place.confirmStarPoint = function() {
+    // console.log('uplace_uuid: ' + place.uplace_uuid);
+    RemoteAPIService.sendUserPost({
+      rating: {
+        content: place.starPoint
+      },
+      lonLat: place.post.lonLat,
+      uplace_uuid: place.uplace_uuid
+    })
+    .then(function(result) {
+      console.dir(result);
+    }, function(err) {
+      console.error('Setting star point to the post is failed.');
+      $ionicPopup.alert({
+        title: 'ERROR: 별점 평가',
+        template: JSON.stringify(err)
+      });
+    })
+    .finally(function() {
+      place.closeModal();
+    });
+  }
+
+  place.changeStarPoint = function() {
+    console.log(place.starPoint);
+    var starPointArray = [
+      ['ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star']
+    ];
+
+    place.starPointIcons = starPointArray[place.starPoint];
+  }
 
   $ionicSlideBoxDelegate.update();
   place.onUserDetailContentScroll = function(){

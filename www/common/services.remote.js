@@ -232,6 +232,23 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function deleteContentInUserPost(delObj) {
+    var deferred = $q.defer();
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/uplaces/',
+      data: JSON.stringify({ remove: JSON.stringify(delObj) })
+    })
+    .then(function(result) {
+      setAllNeedToUpdate();
+      deferred.resolve(result);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
   function uploadImage(fileURI) {
     var deferred = $q.defer();
 
@@ -636,6 +653,7 @@ angular.module('placekoob.services')
     hasEmail: hasEmail,
     sendUserPost: sendUserPost,
     deleteUserPost: deleteUserPost,
+    deleteContentInUserPost: deleteContentInUserPost,
     uploadImage: uploadImage,
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,

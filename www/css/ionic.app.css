@@ -5657,7 +5657,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
   padding: 16px;
   border-width: 1px;
   border-style: solid;
-  font-size: 16px; }
+  font-size: 14px; }
   .item h2 {
     margin: 0 0 2px 0;
     font-size: 16px;
@@ -6588,7 +6588,7 @@ button.item.item-button-right {
 .card,
 .list-inset {
   overflow: hidden;
-  margin: 20px 10px;
+  margin: 10px 5px;
   border-radius: 2px;
   background-color: #fff; }
 
@@ -9362,23 +9362,23 @@ a.button {
  * --------------------------------------------------
  */
 .padding {
-  padding: 10px; }
+  padding: 5px; }
 
 .padding-top,
 .padding-vertical {
-  padding-top: 10px; }
+  padding-top: 5px; }
 
 .padding-right,
 .padding-horizontal {
-  padding-right: 10px; }
+  padding-right: 5px; }
 
 .padding-bottom,
 .padding-vertical {
-  padding-bottom: 10px; }
+  padding-bottom: 5px; }
 
 .padding-left,
 .padding-horizontal {
-  padding-left: 10px; }
+  padding-left: 5px; }
 
 /**
  * Scrollable iFrames
@@ -10058,3 +10058,8 @@ label.chat-input {
       height: 76px;
       object-cover: fit;
       border: 4px solid rgba(255, 255, 255, 0.9); }
+
+.star-point {
+  font-size: 50px;
+  color: #FFC107;
+  text-align: center; }
