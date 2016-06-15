@@ -51,7 +51,7 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<span class="place-item-tag-large" ng-repeat="tag in place.post.tags track by $index">{{tag}}&nbsp;</span>
+							<div class="place-item-tag" ng-repeat="tag in place.post.tags track by $index">{{tag}}&nbsp;</div>
 						</div>
 					</div>
         </div>
@@ -61,7 +61,7 @@
 		<div class="button-bar bar-stable">
 			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글</a>
 			<a class="button" ng-click="place.addURL()"><i class="ion-link"></i> URL추가</a>
-			<a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a>
+			<!-- <a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a> -->
 			<a class="button" ng-click=""><i class="ion-star"></i> 평가</a>
 		</div>
 		<div class="user-image">
@@ -82,7 +82,7 @@
 		</div>
 
 		<!-- 저장한 웹 문서 목록 -->
-		<div class="list">
+		<div class="list" ng-show="place.URLs.length">
 			<div class="item item-divider">
 		    저장한 웹문서
 		  </div>

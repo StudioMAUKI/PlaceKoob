@@ -9791,6 +9791,17 @@ span.place-item-tag {
   background-color: #727272;
   color: #FFFFFF; }
 
+div.place-item-tag {
+  font-size: 85%;
+  display: inline-block;
+  margin: 2px;
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
+  background-color: #727272;
+  color: #FFFFFF; }
+
 span.place-item-tag-large {
   font-size: 100%;
   margin: 2px;

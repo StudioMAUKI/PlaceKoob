@@ -85,6 +85,12 @@ span.place-item-tag {
   @include tag-style();
 }
 
+div.place-item-tag {
+  font-size: 85%;
+  display: inline-block;
+  @include tag-style();
+}
+
 span.place-item-tag-large {
   font-size: 100%;
   @include tag-style();
