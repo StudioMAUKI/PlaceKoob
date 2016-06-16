@@ -10065,6 +10065,12 @@ label.chat-input {
 .bg-color-red {
   background-color: #ff3b30 !important; }
 
+.color-accent {
+  color: #FFC107 !important; }
+
+.bg-color-accent {
+  background-color: #FFC107 !important; }
+
 .color-white {
   color: #ffffff !important; }
 
@@ -10077,8 +10083,14 @@ label.chat-input {
 .bg-color-yellow {
   background-color: #ffcc00 !important; }
 
+.color-green {
+  color: #4CAF50 !important; }
+
+.bg-color-green {
+  background-color: #4CAF50 !important; }
+
 .like-btn {
-  top: 130px;
+  top: 0px;
   display: block;
   position: absolute; }
 
@@ -10093,13 +10105,14 @@ label.chat-input {
   clear: both;
   color: white;
   border: 5px solid #CBD0D3; }
-
-.like-button i {
-  font-size: 40px;
-  margin: 11px 0;
-  display: block; }
+  .like-button i {
+    font-size: 40px;
+    margin: 11px 0;
+    display: block; }
 
 .like-button-with-text {
+  color: white;
+  border: 5px solid #CBD0D3;
   border-radius: 500px;
   width: 70px;
   float: right;
@@ -10107,18 +10120,35 @@ label.chat-input {
   z-index: -200;
   text-align: center;
   overflow: hidden;
-  clear: both;
-  color: white;
-  border: 5px solid #CBD0D3; }
+  clear: both; }
+  .like-button-with-text i {
+    font-size: 35px;
+    margin: 4px 0;
+    display: block;
+    margin-bottom: -3px !important; }
+  .like-button-with-text span {
+    font-size: 13px;
+    font-weight: bold; }
 
-.like-button-with-text i {
-  font-size: 35px;
-  margin: 4px 0;
-  display: block;
-  margin-bottom: -3px !important; }
-
-.like-button-with-text span {
-  font-size: 11px; }
+.like-button-with-text-green {
+  color: #4CAF50;
+  border: 5px solid #4CAF50;
+  border-radius: 500px;
+  width: 70px;
+  float: right;
+  height: 70px;
+  z-index: -200;
+  text-align: center;
+  overflow: hidden;
+  clear: both; }
+  .like-button-with-text-green i {
+    font-size: 35px;
+    margin: 4px 0;
+    display: block;
+    margin-bottom: -3px !important; }
+  .like-button-with-text-green span {
+    font-size: 13px;
+    font-weight: bold; }
 
 .star-point {
   font-size: 50px;

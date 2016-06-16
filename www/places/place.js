@@ -171,8 +171,9 @@ angular.module('placekoob.controllers')
   };
 
   place.addNote = function() {
+    $scope.place.newNote = '';
     var myPopup = $ionicPopup.show({
-      template: '<input type="text" ng-model="place.note">',
+      template: '<input type="text" ng-model="place.newNote">',
       title: '댓글을 입력하세요',
       scope: $scope,
       buttons: [
@@ -181,10 +182,10 @@ angular.module('placekoob.controllers')
           text: '<b>확인</b>',
           type: 'pk-accent',
           onTap: function(e) {
-            if (!$scope.place.note) {
+            if (!$scope.place.newNote) {
               e.preventDefault();
             } else {
-              return $scope.place.note;
+              return $scope.place.newNote;
             }
           }
         }

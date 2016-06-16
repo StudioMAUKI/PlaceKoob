@@ -129,6 +129,12 @@
 .bg-color-red {
   background-color: #ff3b30 !important;
 }
+.color-accent {
+  color: $pk-accent !important;
+}
+.bg-color-accent {
+  background-color: $pk-accent !important;
+}
 .color-white {
   color: #ffffff !important;
 }
@@ -141,51 +147,71 @@
 .bg-color-yellow {
   background-color: #ffcc00 !important;
 }
+.color-green {
+  color: $balanced !important;
+}
+.bg-color-green {
+  background-color: $balanced !important;
+}
 
 .like-btn{
-    top: 130px;
-    display: block;
-    position: absolute;
+  // top: 130px;
+  top: 0px;
+  display: block;
+  position: absolute;
 }
 
 
 .like-button {
-    border-radius: 500px;
-    width: 70px;
-    float: right;
-    height: 70px;
-    z-index: -200;
-    text-align: center;
-    overflow: hidden;
-    clear: both;
-    color: white;
-    border: 5px solid #CBD0D3;
-}
-.like-button i{
+  border-radius: 500px;
+  width: 70px;
+  float: right;
+  height: 70px;
+  z-index: -200;
+  text-align: center;
+  overflow: hidden;
+  clear: both;
+  color: white;
+  border: 5px solid #CBD0D3;
+  i {
     font-size: 40px;
     margin: 11px 0;
     display: block;
+  }
 }
-.like-button-with-text {
-    border-radius: 500px;
-    width: 70px;
-    float: right;
-    height: 70px;
-    z-index: -200;
-    text-align: center;
-    overflow: hidden;
-    clear: both;
-    color: white;
-    border: 5px solid #CBD0D3;
-}
-.like-button-with-text i{
+
+@mixin like-style() {
+  border-radius: 500px;
+  width: 70px;
+  float: right;
+  height: 70px;
+  z-index: -200;
+  text-align: center;
+  overflow: hidden;
+  clear: both;
+
+  i {
     font-size: 35px;
     margin: 4px 0;
     display: block;
     margin-bottom: -3px !important;
+  }
+  span {
+    font-size: 13px;
+    font-weight: bold;
+  }
 }
-.like-button-with-text span{
-    font-size: 11px;
+
+.like-button-with-text {
+  color: white;
+  border: 5px solid #CBD0D3;
+  @include like-style();
+}
+
+.like-button-with-text-green {
+  color: $balanced;
+  border: 5px solid $balanced;
+  @include like-style();
 }
 
 .star-point {

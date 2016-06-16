@@ -34,21 +34,6 @@
 						<div class="col" ng-repeat="icon in place.starPointIcons track by $index">
 			        <i class="{{icon}}"></i>
 			      </div>
-						<!-- <div class="col">
-							<i class="ion-ios-star"></i>
-						</div>
-						<div class="col">
-							<i class="ion-ios-star"></i>
-						</div>
-						<div class="col">
-							<i class="ion-ios-star"></i>
-						</div>
-						<div class="col">
-							<i class="ion-ios-star-half"></i>
-						</div>
-						<div class="col">
-							<i class="ion-ios-star-outline"></i>
-						</div> -->
 						<div class="col">
 						</div>
 					</div>
@@ -62,8 +47,10 @@
       </div>
 			<div class="row like-btn">
 				<div class="col text-right">
-					<div ng-class="place.visited ? 'bg-color-red like-button-with-text':'bg-color-white like-button'" ng-click="place.visit()">
-						<i class="ion-alert" ng-class="place.visited ? 'color-white':'color-red'"></i>
+					<div ng-class="place.visited ? 'bg-color-accent like-button-with-text':'bg-color-white like-button-with-text-green'" ng-click="place.visit()">
+						<i ng-if="!place.visited" class="ion-help" ng-class="'color-green'"></i>
+						<i ng-if="place.visited" class="ion-alert" ng-class="'color-white'"></i>
+						<span ng-if="!place.visited">가고파</span>
 						<span ng-if="place.visited">가봤다</span>
 					</div>
 				</div>
