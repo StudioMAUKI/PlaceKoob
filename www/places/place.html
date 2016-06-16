@@ -1,14 +1,14 @@
 <ion-view>
 	<ion-header-bar class="pk-primary" align-title="center">
 		<div class="buttons">
-	    <button class="button-clear button-icon ion-chevron-left ion-arrow-left pk-primary" ng-click="place.goBack()">
-	      뒤로
+	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-primary" ng-click="place.goBack()" nav-direction="back">
+	      목록
 	    </button>
 		</div>
 		<h1 class="title">{{place.post.name || '등록 대기중'}}</h1>
 		<div class="buttons">
 			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
-	    <button class="button-clear button-icon ion-more pk-primary" ng-click="place.deletePlace()"></button>
+	    <button class="button-clear button-icon ion-ios-trash-outline pk-primary" ng-click="place.deletePlace()"></button>
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="place.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">

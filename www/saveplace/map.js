@@ -279,7 +279,7 @@ angular.module('placekoob.controllers')
               map.last_marker_index = index;
               window.setTimeout(function() {
                 map.slidehasChanged(index);
-              }, 500);
+              }, 100);
             }
           }
         } catch(e) {
@@ -301,7 +301,8 @@ angular.module('placekoob.controllers')
 		if (uplace_uuid === '')
 			return;
 		console.log('goPlace : ' + uplace_uuid);
-		$state.go('tab.places', {uplace_uuid: uplace_uuid});
+		// $state.go('tab.places', {uplace_uuid: uplace_uuid});
+    $state.go('tab.place', {uplace_uuid: uplace_uuid});
 	}
 
   map.jumpToSlide = function(index) {
@@ -376,15 +377,10 @@ angular.module('placekoob.controllers')
 	};
 
 	map.showPlaceDlg = function(index) {
-		map.selectedPlace = map.posts[index];
-		$ionicModal.fromTemplateUrl('places/placemodal.html', {
-			scope: $scope,
-			animation: 'splat'
-		})
-		.then(function(modal) {
-			map.placeDlg = modal;
-			map.placeDlg.show();
-		});
+    map.closeListDlg();
+    setTimeout(function() {
+      map.goPlace(map.posts[index].uplace_uuid);
+    }, 500);
 	};
 
 	map.closePlaceDlg = function() {
