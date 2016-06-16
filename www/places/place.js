@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
+.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $stateParams, $state, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -81,7 +81,7 @@ angular.module('placekoob.controllers')
         template: '해당하는 장소 정보를 불러올 수 없습니다.'
       })
       .then(function() {
-        $ionicHistory.goBack();
+        place.goBack();
       });
     });
   }
@@ -100,7 +100,7 @@ angular.module('placekoob.controllers')
             template: '삭제되었습니다'
           })
           .then(function() {
-            $ionicHistory.goBack();
+            place.goBack();
           });
         }, function(err) {
           console.error(err);
@@ -139,7 +139,7 @@ angular.module('placekoob.controllers')
 
   place.goBack = function() {
     console.log('Move Back');
-    $ionicHistory.goBack();
+    $state.go('tab.places');
   };
 
   place.showImagesWithFullScreen = function(index) {
