@@ -27,7 +27,17 @@ angular.module('placekoob.config', [])
       }
     }
   })
-  .state('tab.places', {
+	.state('tab.places-home', {
+    url: '/places-home',
+    views: {
+      'places-home': {
+        templateUrl: 'places/places-home.html',
+        controller: 'placesHomeCtrl',
+        controllerAs: 'placesHome'
+      }
+    }
+  })
+	.state('tab.places', {
     url: '/places?uplace_uuid',
     views: {
       'places': {
