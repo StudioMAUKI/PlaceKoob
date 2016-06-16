@@ -1,26 +1,25 @@
 <ion-view>
-	<ion-header-bar class="pk-primary" align-title="center">
+	<ion-header-bar class="pk-dark-primary" align-title="center">
 		<div class="buttons">
-	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-primary" ng-click="place.goBack()" nav-direction="back">
+	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="place.goBack()" nav-direction="back">
 	      목록
 	    </button>
 		</div>
 		<h1 class="title">{{place.post.name || '등록 대기중'}}</h1>
 		<div class="buttons">
 			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
-	    <button class="button-clear button-icon ion-ios-trash-outline pk-primary" ng-click="place.deletePlace()"></button>
+	    <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="place.deletePlace()"></button>
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="place.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
 		<!-- placePost 영역 -->
 		<div class="about-header">
 			<div class="profile-media">
+				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
-					<div class="row" ng-show="place.post.name">
-						<div class="col">
-							<p ng-repeat="addr in place.post.addrs">
+					<div class="row" ng-show="place.post.name" ng-repeat="addr in place.post.addrs">
+						<div class="col"  ng-click="place.goToMap(place.post.lonLat)">
 								{{addr}}
-							</p>
 						</div>
 					</div>
 					<div class="row" ng-show="place.post.name">
@@ -43,7 +42,7 @@
 						</div>
 					</div>
         </div>
-      	<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
+      	<!-- <img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;"> -->
       </div>
 			<div class="row like-btn">
 				<div class="col text-right">

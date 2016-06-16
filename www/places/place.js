@@ -41,7 +41,7 @@ angular.module('placekoob.controllers')
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      // console.dir(post);
+      console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
@@ -614,6 +614,15 @@ angular.module('placekoob.controllers')
     ];
 
     place.starPointIcons = starPointArray[place.starPoint];
+  }
+
+  place.goToMap = function(lonLat) {
+    console.log('goToMap : ' + JSON.stringify(lonLat));
+    //  이거 타임아웃 안해주면, 에러남!!
+    setTimeout(function() {
+      $state.go('tab.map');
+      $scope.$emit('map.changeCenter.request', lonLat);
+    }, 100);
   }
 
   $ionicSlideBoxDelegate.update();

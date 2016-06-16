@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService) {
+.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService) {
   var map = this;
   map.prevIndex = 0;
 	map.last_marker_index = -1;
@@ -40,6 +40,13 @@ angular.module('placekoob.controllers')
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
 			// map.loadSavedPlace();
+      // if ($stateParams.lat && $stateParams.lon) {
+      //   console.info('Change the center of map.');
+      //   map.mapObj.setCenter({
+      //     lat: parseFloat($stateParams.lat),
+      //     lng: parseFloat($stateParams.lon)
+      //   });
+      // }
 		}
 	});
 
@@ -48,12 +55,23 @@ angular.module('placekoob.controllers')
     map.enabled = false;
   });
 
+  $scope.$on('map.changeCenter', function(event, lonLat) {
+    console.log('map.map.changeCenter : ' + JSON.stringify(lonLat));
+    setTimeout(function() {
+      map.mapObj.setCenter({
+        lat: lonLat.lat,
+        lng: lonLat.lon
+      })
+    }, 500);
+  });
+
   map.showAlert = function(title, msg) {
 		return $ionicPopup.alert({ title: title, template: msg });
 	};
 
   // 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	map.divToFit = function() {
+    console.log('call divToFit');
 		var documentHeight = $(document).height();
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
     var buttonBarHeight = document.getElementsByClassName('button-bar')[0].clientHeight || 50;
@@ -138,6 +156,7 @@ angular.module('placekoob.controllers')
 	};
 
   map.loadMap = function() {
+    console.log('call loadMap');
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
 			duration: 10000
