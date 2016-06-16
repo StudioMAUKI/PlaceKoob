@@ -4,7 +4,7 @@
 	  <h1 class="title">이 장소는 몇 점입니까?</h1>
 	  <button class="button button-icon button-clear ion-checkmark" ng-click="place.confirmStarPoint()"></button>
 	</ion-header-bar>
-	<ion-content scroll="false">
+	<ion-content>
     <div class="row">
       <div class="col"></div>
     </div>
@@ -19,21 +19,6 @@
       <div class="col" ng-repeat="icon in place.starPointIcons track by $index">
         <i class="{{icon}}"></i>
       </div>
-      <!-- <div class="col">
-        <i class="ion-ios-star"></i>
-      </div>
-      <div class="col">
-        <i class="ion-ios-star"></i>
-      </div>
-      <div class="col">
-        <i class="ion-ios-star"></i>
-      </div>
-      <div class="col">
-        <i class="ion-ios-star-half"></i>
-      </div>
-      <div class="col">
-        <i class="ion-ios-star-outline"></i>
-      </div> -->
       <div class="col">
       </div>
     </div>

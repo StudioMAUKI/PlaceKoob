@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', 'starPointIconService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService, starPointIconService) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
@@ -12,6 +12,7 @@ angular.module('placekoob.controllers')
 	places.itemWidth = window.innerWidth + 'px';
 	places.completedFirstLoading = false;
 	places.totalCount = 0;
+	places.SPS = starPointIconService;
 
 	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {

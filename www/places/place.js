@@ -19,7 +19,23 @@ angular.module('placekoob.controllers')
 
   place.visit = function() {
     console.log('visit');
-    place.visited = !place.visited;    
+    place.visited = !place.visited;
+    RemoteAPIService.sendUserPost({
+      visit: {
+        content: place.visited
+      },
+      lonLat: place.post.lonLat,
+      uplace_uuid: place.uplace_uuid
+    })
+    .then(function(result) {
+
+    }, function(err) {
+      console.error('Set visiting status to the place is failed.');
+      $ionicPopup.alert({
+        title: 'ERROR: Marking visited',
+        template: JSON.stringify(err)
+      });
+    });
   };
 
   place.loadPlaceInfo = function() {
@@ -50,8 +66,15 @@ angular.module('placekoob.controllers')
 
         place.getDaumResult();
         place.tagsForUpdate = [];
-        place.starPoint = post.rating || 5;
+        place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
         place.changeStarPoint();
+
+        place.visited = post.userPost.visit? post.userPost.visit.content : false;
+        if (place.visited === false) {
+          if (post.userPost.rating) {
+            place.visited = true;
+          }
+        }
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -535,8 +558,17 @@ angular.module('placekoob.controllers')
   };
 
   place.setStarPoint = function() {
-    place.showModal('/places/star-point-modal.html');
+    console.log('setStarPoint');
+    place.showModal('places/star-point-modal.html');
   };
+
+  place.onTapStarPoint = function(event) {
+    // if(ionic.Platform.isIOS()) {
+    //   place.starPoint = (event.target.max / event.target.offsetWidth)*(event.gesture.touches[0].screenX - event.target.offsetLeft);
+    //   console.log('starPoint : ' + place.starPoint);
+    // }
+    place.changeStarPoint();
+  }
 
   place.confirmStarPoint = function() {
     // console.log('uplace_uuid: ' + place.uplace_uuid);
@@ -548,7 +580,10 @@ angular.module('placekoob.controllers')
       uplace_uuid: place.uplace_uuid
     })
     .then(function(result) {
-      console.dir(result);
+      // console.dir(result);
+      if (place.visited === false) {
+        place.visit();
+      }
     }, function(err) {
       console.error('Setting star point to the post is failed.');
       $ionicPopup.alert({
@@ -562,7 +597,7 @@ angular.module('placekoob.controllers')
   }
 
   place.changeStarPoint = function() {
-    console.log(place.starPoint);
+    // console.log(place.starPoint);
     var starPointArray = [
       ['ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
       ['ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
