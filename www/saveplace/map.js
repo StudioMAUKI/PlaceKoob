@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', function($scope, $ionicPopup, $state, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService) {
+.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService) {
   var map = this;
   map.prevIndex = 0;
 	map.last_marker_index = -1;
@@ -21,11 +21,12 @@ angular.module('placekoob.controllers')
   map.mapObj = gmapService.createMap('map', map.mapOption);
   map.curMarker = null;
   map.postMarkers = [];
-  map.postInfoWindows = [];
+  // map.postInfoWindows = [];
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
   map.showInfoWindow = true;
+  map.tags = [];
 
   $scope.$on('$ionicView.loaded', function() {
     map.divToFit();
@@ -38,7 +39,14 @@ angular.module('placekoob.controllers')
 		if (map.loadedMap) {
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
-			map.loadSavedPlace();
+			// map.loadSavedPlace();
+      // if ($stateParams.lat && $stateParams.lon) {
+      //   console.info('Change the center of map.');
+      //   map.mapObj.setCenter({
+      //     lat: parseFloat($stateParams.lat),
+      //     lng: parseFloat($stateParams.lon)
+      //   });
+      // }
 		}
 	});
 
@@ -47,12 +55,23 @@ angular.module('placekoob.controllers')
     map.enabled = false;
   });
 
+  $scope.$on('map.changeCenter', function(event, lonLat) {
+    console.log('map.map.changeCenter : ' + JSON.stringify(lonLat));
+    setTimeout(function() {
+      map.mapObj.setCenter({
+        lat: lonLat.lat,
+        lng: lonLat.lon
+      })
+    }, 500);
+  });
+
   map.showAlert = function(title, msg) {
 		return $ionicPopup.alert({ title: title, template: msg });
 	};
 
   // 컨텐츠 영역에 지도를 꽉 채우기 위한 함수 (중요!!!)
 	map.divToFit = function() {
+    console.log('call divToFit');
 		var documentHeight = $(document).height();
 		var barHeight = document.getElementsByTagName('ion-header-bar')[0].clientHeight || 44;
     var buttonBarHeight = document.getElementsByClassName('button-bar')[0].clientHeight || 50;
@@ -92,7 +111,7 @@ angular.module('placekoob.controllers')
 	}
 
   map.slidehasChanged = function(index) {
-		map.postMarkers[index].setIcon('img/icon/arrow-point-to-custom.svg');
+		map.postMarkers[index].setIcon('img/icon/dot_active.svg');
 
 		//	선택된 마커가 현재의 지도 안에 있는 지 확인
 		if (!isMarkerContained(map.posts[index].lonLat.lat, map.posts[index].lonLat.lon)) {
@@ -104,11 +123,11 @@ angular.module('placekoob.controllers')
 
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (map.prevIndex < map.posts.length) {
-      map.postMarkers[map.prevIndex].setIcon('img/icon/arrow-point-to-down-blue.svg');
-      map.postMarkers[map.prevIndex].setZIndex(1000 + map.prevIndex);
-      map.postInfoWindows[map.prevIndex].setZIndex(1000 + map.prevIndex);
+      map.postMarkers[map.prevIndex].setIcon('img/icon/dot_normal.svg');
+      map.postMarkers[map.prevIndex].setZIndex(map.prevIndex);
+      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
 			map.postMarkers[index].setZIndex(9999);
-      map.postInfoWindows[index].setZIndex(9999);
+      // map.postInfoWindows[index].setZIndex(9999);
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
 		map.prevIndex = index;
@@ -137,6 +156,7 @@ angular.module('placekoob.controllers')
 	};
 
   map.loadMap = function() {
+    console.log('call loadMap');
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
 			duration: 10000
@@ -218,15 +238,15 @@ angular.module('placekoob.controllers')
 
       // markers for saved positions
       map.postMarkers = gmapService.deleteMarkers(map.postMarkers);
-      map.postInfoWindows = gmapService.deleteInfoWindows(map.postInfoWindows);
+      // map.postInfoWindows = gmapService.deleteInfoWindows(map.postInfoWindows);
       for(var i = 0; i < posts.length; i++) {
         map.posts[i].id = i;
         map.postMarkers.push(gmapService.createMarker({
           map: map.mapObj,
           position: { lat: map.posts[i].lonLat.lat, lng: map.posts[i].lonLat.lon },
-          icon: (i === 0 ? 'img/icon/arrow-point-to-custom.svg' : 'img/icon/arrow-point-to-down-blue.svg'),
+          icon: (i === 0 ? 'img/icon/dot_active.svg' : 'img/icon/dot_normal.svg'),
           draggable: false,
-          zIndex: 1000 + i
+          zIndex: (i === 0 ? 9999 : i)
         }));
         map.postMarkers[i].addListener('click', (function(i) {
             return function() {
@@ -236,51 +256,57 @@ angular.module('placekoob.controllers')
           })(i)
         );
 
-        var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
-        for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
-          tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>&nbsp;'
-        }
-        tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
-        map.postInfoWindows.push(gmapService.createInfoWindow({
-          content: '<div class="iw-container">'
-					    + '<div class="iw-title">' + posts[i].name + '</div>'
-					    + tagsBlock
-					    + '</div>',
-          maxWidth: 100,
-          zIndex: 1000 + i,
-          disableAutoPan: true
-        }));
-        map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
-        google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
-          var iwOuter = $('.gm-style-iw');
-          var iwBackground = iwOuter.prev();
-
-          iwBackground.children(':nth-child(2)').css({'display' : 'none'});
-          iwBackground.children(':nth-child(4)').css({'display' : 'none'});
-
-          iwOuter.parent().parent().css({left: '15px'});
-
-          iwBackground.children(':nth-child(1)').css({'display' : 'none'});
-          iwBackground.children(':nth-child(3)').css({'display' : 'none'});
-
-          var iwCloseBtn = iwOuter.next();
-          iwCloseBtn.css({'display': 'none'});
-        });
+        // var tagsBlock = posts[i].tags.length > 0 ? '<div class="iw-content">' : '';
+        // for (var j = 0; j < Math.min(posts[i].tags.length, 2); j++) {
+        //   tagsBlock += '<span class="tag">' + posts[i].tags[j] + '</span>&nbsp;'
+        // }
+        // tagsBlock += posts[i].tags.length > 0 ? '</div>' : '';
+        // map.postInfoWindows.push(gmapService.createInfoWindow({
+        //   content: '<div class="iw-container">'
+				// 	    + '<div class="iw-title">' + posts[i].name + '</div>'
+				// 	    + tagsBlock
+				// 	    + '</div>',
+        //   maxWidth: 100,
+        //   zIndex: 1000 + i,
+        //   disableAutoPan: true
+        // }));
+        // map.postInfoWindows[i].open(map.mapObj, map.postMarkers[i]);
+        // google.maps.event.addListener(map.postInfoWindows[i], 'domready', function() {
+        //   var iwOuter = $('.gm-style-iw');
+        //   var iwBackground = iwOuter.prev();
+        //
+        //   iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+        //   iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+        //
+        //   iwOuter.parent().parent().css({left: '15px'});
+        //
+        //   iwBackground.children(':nth-child(1)').css({'display' : 'none'});
+        //   iwBackground.children(':nth-child(3)').css({'display' : 'none'});
+        //
+        //   var iwCloseBtn = iwOuter.next();
+        //   iwCloseBtn.css({'display': 'none'});
+        // });
       }
 
       map.scrollToMarker = function() {
-        var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
-        if (scrolled_pos % window.innerWidth === 0) {
-          //	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
-          var index = scrolled_pos / window.innerWidth;
-          if (map.last_marker_index !== index) {
-            map.last_marker_index = index;
-            window.setTimeout(function() {
-              map.slidehasChanged(index);
-            }, 500);
+        try {
+          var scrolled_pos = $ionicScrollDelegate.$getByHandle('mapScroll').getScrollPosition().left;
+          if (scrolled_pos % window.innerWidth === 0) {
+            //	동일 스크롤 위치에 대한 이벤트가 연달아 두번 발생해서 처리함 (왜 그럴까..?)
+            var index = scrolled_pos / window.innerWidth;
+            if (map.last_marker_index !== index) {
+              map.last_marker_index = index;
+              window.setTimeout(function() {
+                map.slidehasChanged(index);
+              }, 100);
+            }
           }
+        } catch(e) {
+          console.error(e);
         }
       };
+
+      map.prevIndex = 0;
       deferred.resolve(true);
     }, function(err) {
       console.error(err);
@@ -294,7 +320,8 @@ angular.module('placekoob.controllers')
 		if (uplace_uuid === '')
 			return;
 		console.log('goPlace : ' + uplace_uuid);
-		$state.go('tab.places', {uplace_uuid: uplace_uuid});
+		// $state.go('tab.places', {uplace_uuid: uplace_uuid});
+    $state.go('tab.place', {uplace_uuid: uplace_uuid});
 	}
 
   map.jumpToSlide = function(index) {
@@ -369,15 +396,10 @@ angular.module('placekoob.controllers')
 	};
 
 	map.showPlaceDlg = function(index) {
-		map.selectedPlace = map.posts[index];
-		$ionicModal.fromTemplateUrl('places/placemodal.html', {
-			scope: $scope,
-			animation: 'splat'
-		})
-		.then(function(modal) {
-			map.placeDlg = modal;
-			map.placeDlg.show();
-		});
+    map.closeListDlg();
+    setTimeout(function() {
+      map.goPlace(map.posts[index].uplace_uuid);
+    }, 500);
 	};
 
 	map.closePlaceDlg = function() {
@@ -430,6 +452,7 @@ angular.module('placekoob.controllers')
 				animation: 'slide-in-up'
 			})
 			.then(function(modal) {
+        map.tags = [];
 				map.saveDlg = modal;
 				map.saveDlg.show();
 			});
@@ -445,6 +468,7 @@ angular.module('placekoob.controllers')
 			animation: 'slide-in-up'
 		})
 		.then(function(modal) {
+      map.tags = [];
 			map.saveDlg = modal;
 			map.saveDlg.show();
 
@@ -501,13 +525,15 @@ angular.module('placekoob.controllers')
 		.then(function(curPos) {
 			RemoteAPIService.uploadImage(map.attatchedImage)
 			.then(function(response) {
+        console.log('response file: ' + response.file);
 				RemoteAPIService.sendUserPost({
 					lonLat: {
 						lon: curPos.longitude,
 						lat: curPos.latitude
 					},
 					notes: [{
-						content: map.note
+						// content: map.note
+            content: map.convertTagsToNote()
 					}],
 					images: [{
 						content: response.file
@@ -517,6 +543,7 @@ angular.module('placekoob.controllers')
 					addr3: { content: StorageService.get('addr3') || null },
 				})
 				.then(function(result) {
+          console.dir(result);
 					$ionicLoading.hide();
 					map.closeSaveDlg();
 					map.scrollToSavedPlace(result.data.uplace_uuid);
@@ -544,7 +571,8 @@ angular.module('placekoob.controllers')
 		});
 		RemoteAPIService.sendUserPost({
 			notes: [{
-				content: map.note
+				// content: map.note
+        content: map.convertTagsToNote()
 			}],
 			urls: [{
 				content: map.URL
@@ -563,7 +591,22 @@ angular.module('placekoob.controllers')
 		});
 	};
 
+  map.convertTagsToNote = function() {
+    return '[NOTE_TAGS]#' + JSON.stringify(map.tags);
+  }
+
   map.showFileForm = function() {
 		return (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid());
-	}
+	};
+
+  map.processTags = function($event) {
+    //console.dir($event);
+    var space = 32;
+    var enter = 13;
+    var comma = 188;
+    if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
+      map.tags.push(map.tag);
+      map.tag = '';
+    }
+  };
 }]);

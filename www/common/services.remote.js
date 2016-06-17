@@ -232,6 +232,23 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function deleteContentInUserPost(delObj) {
+    var deferred = $q.defer();
+    $http({
+      method: 'POST',
+      url: getServerURL() + '/uplaces/',
+      data: JSON.stringify({ remove: JSON.stringify(delObj) })
+    })
+    .then(function(result) {
+      setAllNeedToUpdate();
+      deferred.resolve(result);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  }
+
   function uploadImage(fileURI) {
     var deferred = $q.defer();
 
@@ -385,6 +402,7 @@ angular.module('placekoob.services')
     if (position === 'top') {
       offset = 0;
       limit = 20;
+      resetCachedPosts('uplaces');
     } else if (position === 'bottom') {
       offset = cachedUplaces.length;
       limit = 20;
@@ -635,6 +653,7 @@ angular.module('placekoob.services')
     hasEmail: hasEmail,
     sendUserPost: sendUserPost,
     deleteUserPost: deleteUserPost,
+    deleteContentInUserPost: deleteContentInUserPost,
     uploadImage: uploadImage,
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
@@ -651,44 +670,53 @@ angular.module('placekoob.services')
 }])
 .factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
   function getTags(post) {
-    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
+    if (!post.userPost || !post.userPost.notes || post.userPost.notes.length === 0) {
       return [];
     }
 
-    return getTagsWithContent(post.userPost.notes[0].content);
+    return getTagsWithContent(post.userPost.notes);
   }
 
-  function getTagsWithContent(content) {
-    if (!content || content === '') {
-        return [];
-    }
-
-    var words = content.split(/\s+/);
+  function getTagsWithContent(notes) {
+    var words = [];
     var output = [];
-    for (var i = 0; i < words.length; i++) {
-      //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
-      //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
-      if (words[i].charAt(0) === '#') {
-        output.push(words[i].substring(1));
+    var subTags = [];
+    for (var i = 0; i < notes.length; i++) {
+      if (notes[i].content.indexOf('[NOTE_TAGS]') === -1) {
+        words = notes[i].content.split(/\s+/);
+        for (var j = 0; j < words.length; j++) {
+          //  !!! 이거 열라 중요함! iOS 9.0 이상을 제외한 현재의 모바일 브라우저는 string.prototype.startsWith를 지원안함!
+          //  덕분에 안드로이드에서는 태그가 작동안하던 버그가 있었음.
+          if (words[j].charAt(0) === '#') {
+            output.push(words[j].substring(1));
+          }
+        }
+      } else {
+        subTags = JSON.parse(notes[i].content.split('#')[1]);
+        output = output.concat(subTags);
       }
     }
-
     return output;
   }
 
-  function getUserNote(post) {
+  function getDescFromUserNote(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length == 0 || post.userPost.notes[0].content === '') {
       return '';
     }
 
-    return getUserNoteByContent(post.userPost.notes[0].content);
+    return getUserNoteByContent(post.userPost.notes);
   }
 
-  function getUserNoteByContent(content) {
-    if (!content || content === '') {
-      return '';
+  function getUserNoteByContent(notes) {
+    for (var i = 0; i < notes.length; i++) {
+      if (notes[i].content.indexOf('[NOTE_TAGS]') === -1) {
+        if (notes[i].content !== '') {
+          return notes[i].content;
+        }
+      }
     }
-    return content.replace(/#/g, '');
+
+    return '';
   }
 
   function getThumbnailURLByFirstImage(post) {
@@ -723,27 +751,74 @@ angular.module('placekoob.services')
 
   function getAddress(post) {
     // 주소는 공식 포스트의 주소를 우선한다.
+    var addr = '';
     if (post.placePost) {
       if (post.placePost.addr1 && post.placePost.addr1.content !== '') {
-        return post.placePost.addr1.content;
-      } else if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
-        return post.placePost.addr2.content;
-      } else if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
-        return post.placePost.addr3.content;
+        addr = post.placePost.addr1.content;
       }
-    }
-
-    if (post.userPost) {
+      if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
+        if (addr.length === 0) {
+          addr = post.placePost.addr2.content;
+        } else {
+          addr += ', ' + post.placePost.addr2.content;
+        }
+      }
+      if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
+        if (addr.length === 0) {
+          addr = post.placePost.addr3.content;
+        } else {
+          addr += ', ' + post.placePost.addr3.content;
+        }
+      }
+    } else if (post.userPost) {
       if (post.userPost.addr1 && post.userPost.addr1.content !== '') {
-        return post.userPost.addr1.content;
-      } else if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
-        return post.userPost.addr2.content;
-      } else if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
-        return post.userPost.addr3.content;
+        addr = post.userPost.addr1.content;
+      }
+      if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
+        if (addr.length === 0) {
+          addr = post.userPost.addr2.content;
+        } else {
+          addr += ', ' + post.userPost.addr2.content;
+        }
+      }
+      if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
+        if (addr.length === 0) {
+          addr = post.userPost.addr3.content;
+        } else {
+          addr += ', ' + post.userPost.addr3.content;
+        }
       }
     }
 
-    return '';
+    return addr;
+  }
+
+  function getAddresses(post) {
+    // 주소는 공식 포스트의 주소를 우선한다.
+    var addrs = [];
+    if (post.placePost) {
+      if (post.placePost.addr1 && post.placePost.addr1.content !== '') {
+        addrs.push(post.placePost.addr1.content);
+      }
+      if (post.placePost.addr2 && post.placePost.addr2.content !== '') {
+        addrs.push(post.placePost.addr2.content);
+      }
+      if (post.placePost.addr3 && post.placePost.addr3.content !== '') {
+        addrs.push(post.placePost.addr3.content);
+      }
+    } else if (post.userPost) {
+      if (post.userPost.addr1 && post.userPost.addr1.content !== '') {
+        addrs.push(post.userPost.addr1.content);
+      }
+      if (post.userPost.addr2 && post.userPost.addr2.content !== '') {
+        addrs.push(post.userPost.addr2.content);
+      }
+      if (post.userPost.addr3 && post.userPost.addr3.content !== '') {
+        addrs.push(post.userPost.addr3.content);
+      }
+    }
+
+    return addrs;
   }
 
   function getPhoneNo(post) {
@@ -763,7 +838,21 @@ angular.module('placekoob.services')
   }
 
   function getTimeString(timestamp) {
-    return new Date(timestamp).toLocaleDateString();
+    var timegap = (Date.now() - timestamp) / 1000;
+    //console.info('timegap : ' + timegap);
+    if (timegap < 3600) {
+      var min = parseInt(timegap / 60);
+      if (min === 0) {
+        return '방금';
+      } else {
+        return parseInt(timegap / 60) + '분 전';
+      }
+    } else if (timegap < 24 * 3600) {
+      return parseInt(timegap / 3600) + '시간 전';
+    } else {
+      return parseInt(timegap / 86400) + '일 전';
+    }
+    // return new Date(timestamp).toLocaleDateString();
   }
 
   function calcDistance(lat1, lon1, lat2, lon2)
@@ -800,7 +889,8 @@ angular.module('placekoob.services')
     post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
     post.address = getAddress(post);
-    post.desc = getUserNote(post);
+    post.addrs = getAddresses(post);
+    post.desc = getDescFromUserNote(post);
     post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
   }
@@ -817,6 +907,15 @@ angular.module('placekoob.services')
     }
   }
 
+  function getReadablePhoneNo(phoneNo) {
+    if (typeof phoneNo === 'string') {
+      phoneNo = '0' + phoneNo.replace('+82', '');
+      return phoneNo.replace(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,"$1-$2-$3");
+    } else {
+      return null;
+    }
+  }
+
   return {
     getTagsWithContent: getTagsWithContent,
     getImageURL: getImageURL,
@@ -825,7 +924,8 @@ angular.module('placekoob.services')
     decoratePost: decoratePost,
     decoratePosts: decoratePosts,
     updateDistance: updateDistance,
-    calcDistance: calcDistance
+    calcDistance: calcDistance,
+    getReadablePhoneNo: getReadablePhoneNo
   }
 }])
 .factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', 'RemoteAPIService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService, RemoteAPIService) {
@@ -856,7 +956,7 @@ angular.module('placekoob.services')
     remoteStorageService.downloadData('uploaded_imgs')
     .then(function(result) {
       uploadedImages = JSON.parse(result.data.value) || [];
-      console.dir(uploadedImages);
+      // console.dir(uploadedImages);
       deferred.resolve();
     }, function(err) {
       deferred.reject(err);
@@ -1037,4 +1137,184 @@ angular.module('placekoob.services')
     stop: stop,
     getStatus: getStatus
   }
+}])
+.factory('ogParserService', ['$http', '$q', function($http, $q) {
+
+  function getHead(doc) {
+    var headStart = '<head';
+    var headEnd = '</head>';
+    var start = doc.indexOf(headStart);
+    var end = doc.indexOf(headEnd);
+
+    if (start === -1) {
+      console.error('cannot find <head> in document.');
+      return '';
+    } else {
+      // start += 6;
+      // console.log('start point : ' + start);
+    }
+    if (end === -1) {
+      console.error('cannot find </head> in document.');
+      return '';
+    } else {
+      end += headEnd.length;
+      // console.log('end point : ' + end);
+    }
+    return doc.slice(start, end);
+  }
+
+  function getOGContent(head, property) {
+    var start = head.indexOf(property);
+    var content = 'content=';
+    var end = 0;
+    if (start === -1) {
+      console.warn('cannot find ' + property + '.');
+      return '';
+    } else {
+      // console.log('start index of ' + property + ' : ' + start);
+      start = head.indexOf(content, start);
+      if (start === -1) {
+        console.warn('cannot find content in ' + property);
+        return '';
+      } else {
+        start += content.length + 1;
+        // console.log('This web-doc uses ' + head.charAt(start));
+        if (head.charAt(start - 1) === '"') {
+          end = head.indexOf('"', start);
+        } else {
+          end = head.indexOf('\'', start);
+        }
+
+        if (end === -1) {
+          console.warn('cannot find another "(or \') in content in ' + property);
+          return '';
+        } else {
+          // console.log('end index of ' + property + ' : ' + end);
+          return head.slice(start, end);
+        }
+      }
+    }
+  }
+
+  function convertToSaveURL(url) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      //  http://blog.naver.com/PostView.nhn?blogId=hyeyooncheon&logNo=220534224926&redirect=Dlog&widgetTypeCall=true
+      //  http://m.blog.naver.com/PostView.nhn?blogId=hyeyooncheon&logNo=220534224926
+
+      //  네이버 블로그의 경우 모바일에서 접근할 때 리다이렉션을 위한 자바스크립트만 내려주고, 다시 이동시키기 때문에
+      //  아예 이동될 페이지의 URL로 고쳐서 직접 접근하도록 한다.
+      if (url.indexOf('http://blog.naver.com') !== -1) {
+        return url.replace('&redirect=Dlog', '').replace('&widgetTypeCall=true', '').replace('blog.naver.com', 'm.blog.naver.com');
+      } else {
+        return url;
+      }
+    } else {
+      if (url.indexOf('place.kakao.com') !== -1) {
+        return url.replace('https://place.kakao.com', '/kplaces');
+      } else if (url.indexOf('http://blog.naver.com') !== -1) {
+        if (url.indexOf('PostView.nhn') !== -1) {
+          return url.replace('http://blog.naver.com', '/nblog');
+        } else if (/http:\/\/blog.naver.com\/[a-z]+\/[1-9][0-9]+/.exec(url).length === 1){
+          var params = url.replace('http://blog.naver.com/', '').split('/');
+          return '/nblog/PostView.nhn?blogId=' + params[0] + '&logNo=' + params[1];
+        } else {
+          return '';
+        }
+      } else if (url.indexOf('http://m.blog.naver.com') !== -1) {
+        return url.replace('http://m.blog.naver.com', '/nblog');
+      } else if (url.indexOf('http://www.mangoplate.com') !== -1) {
+        return url.replace('https://www.mangoplate.com', '/mplate');
+      } else if (url.indexOf('http://map.naver.com') !== -1) {
+        return url.replace('http://map.naver.com', '/nmap');
+      } else {
+        return '';
+      }
+    }
+  }
+
+  function getOGInfo(url) {
+    var deferred = $q.defer();
+    var ogInfo = {};
+    var convertedURL = '';
+
+    convertedURL = convertToSaveURL(url);
+    console.log('URL : ' + convertedURL);
+    if (convertedURL === '') {
+      console.warn('not supported URL pattern.');
+      ogInfo.title = '브라우저에서 지원하지 않는 URL';
+      ogInfo.image = '/img/icon/404.png';
+      ogInfo.siteName = 'Placekoop Error';
+      ogInfo.url = '';
+      ogInfo.desc = '폰에서도 이러면 진짜 에러임';
+
+      // console.dir(ogInfo);
+
+      deferred.resolve(ogInfo);
+    } else {
+      $http({
+        method: 'GET',
+        url: convertedURL
+      })
+      .then(function(response) {
+        // console.dir(response);
+        var head = getHead(response.data);
+        // console.log(head);
+        if (head === '') {
+          console.error('does not exist <head>...</head>');
+          deferred.reject('does not exist <head>...</head>');
+          return;
+        } else {
+          ogInfo.title = getOGContent(head, 'og:title');
+          ogInfo.image = getOGContent(head, 'og:image');
+          ogInfo.siteName = getOGContent(head, 'og:site_name');
+          ogInfo.url = getOGContent(head, 'og:url') || url;
+          ogInfo.desc = getOGContent(head, 'og:description');
+
+          // console.dir(ogInfo);
+
+          deferred.resolve(ogInfo);
+        }
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+    }
+
+    return deferred.promise;
+  }
+
+  return {
+    getOGInfo: getOGInfo
+  }
+}])
+.factory('daumSearchService', ['$q', '$http', function($q, $http) {
+  function convertToSaveURL(url) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      return url;
+    } else {
+      return url.replace('https://apis.daum.net', '/daum');
+    }
+  }
+
+  function search(keyword) {
+    var deferred = $q.defer();
+
+    $http({
+      method: 'GET',
+      url: convertToSaveURL('https://apis.daum.net/search/blog?apikey=f4e2c3f6c532baf54ec80e81f08fc1a1&q=' + keyword + '&output=json')
+    })
+    .then(function(response) {
+      // console.dir(response.data);
+      deferred.resolve(response.data.channel.item);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
+  return {
+    search: search
+  };
 }]);

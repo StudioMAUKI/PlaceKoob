@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('importUserCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$ionicLoading', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicListDelegate, $q, $ionicLoading, RemoteAPIService, StorageService) {
+.controller('importUserCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicListDelegate, $q, RemoteAPIService, StorageService) {
 	var importUser = this;
 	importUser.totalCount = 0;
 	importUser.iplaces = [];
@@ -46,11 +46,6 @@ angular.module('placekoob.controllers')
 	importUser.loadIplaces = function() {
 		var deferred = $q.defer();
 
-		$ionicLoading.show({
-			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 60000
-		});
-		console.log('importUser.loadIplaces..');
 		var curPos = StorageService.get('curPos');
 		RemoteAPIService.getIplaces(curPos.latitude, curPos.longitude)
 		.then(function(results) {
@@ -59,9 +54,6 @@ angular.module('placekoob.controllers')
 			deferred.resolve();
 		}, function(err) {
 			deferred.reject(err);
-		})
-		.finally(function() {
-			$ionicLoading.hide();
 		});
 
 		return deferred.promise;
@@ -106,5 +98,5 @@ angular.module('placekoob.controllers')
 		});
 	}
 
-	$scope.$on('$ionicView.afterEnter', importUser.loadIplaces);
+	importUser.loadIplaces();
 }]);

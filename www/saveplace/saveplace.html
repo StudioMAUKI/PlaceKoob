@@ -1,5 +1,5 @@
 <ion-modal-view>
-	<ion-header-bar class="pk-dark-primary" align-title="center">
+	<ion-header-bar class="pk-primary" align-title="center">
 		<button class="button button-icon button-clear ion-close" ng-click="map.closeSaveDlg()"></button>
 	  <h1 class="title">현재 위치를 저장합니다</h1>
 	  <button class="button button-icon button-clear ion-checkmark" ng-click="map.confirmSave()"></button>
@@ -10,9 +10,22 @@
 		</div>
 		<!-- for BrowserTest-->
 		<input type="file" file-model="map.browserFile" ng-show="map.showFileForm()">
-		<label class="item item-input item-stacked-label">
+		<!-- <label class="item item-input item-stacked-label">
   		<span class="input-label">Note</span>
 			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="map.note"></textarea>
-		</label>
+		</label> -->
+		<div class="row">
+			<div class="col place-tags-container">
+				<span class="place-item-tag-large" ng-repeat="tag in map.tags track by $index">{{tag}}&nbsp;</span>
+			</div>
+		</div>
 	</ion-content>
+	<ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+    <div id="container" class="list list-inset">
+      <label id="rounded" class="item item-input chat-input">
+        <img src="http://image005.flaticon.com/1/png/512/1/1533.png" height="20px">&nbsp;&nbsp;
+        <input type="text" placeholder="태그를 입력하세요" ng-focus="scrollTop()" ng-keydown="map.processTags($event)" ng-model="map.tag">
+      </label>
+    </div>
+  </ion-footer-bar>
 </ion-modal-view>

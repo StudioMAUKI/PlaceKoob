@@ -297,7 +297,8 @@ angular.module('placekoob.services', [])
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
 			$cordovaImagePicker.getPictures({
 	      maximumImagesCount: reqCount,
-	      width: 1280,
+	      quality: 70,
+        width: 1280,
 				height: 1280
 	    }).
 	    then(function(imageURIs) {
@@ -434,4 +435,25 @@ angular.module('placekoob.services', [])
     deleteInfoWindow: deleteInfoWindow,
     deleteInfoWindows: deleteInfoWindows
   };
+}])
+.factory('starPointIconService', [function() {
+  var starPointArray = [
+    ['ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half'],
+    ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star']
+  ];
+
+  return {
+    get : function(index) {
+      return starPointArray[index];
+    }
+  }
 }]);

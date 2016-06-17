@@ -1,22 +1,78 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$ionicHistory', '$stateParams', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', 'RemoteAPIService', 'PostHelper', 'PhotoService', function($scope, $ionicHistory, $stateParams, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, RemoteAPIService, PostHelper, PhotoService) {
+.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $stateParams, $state, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
   place.zoomMin = 1;
   place.imagesForSlide = [];
   place.imageHeight = 0;
+  place.tag = '';
+  place.coverImage = 'img/default.jpg';
+  place.URLs = [];
+  place.searchResults = [];
+  place.tagsForUpdate = [];
+  place.starPoint = 5;
+  place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
+  place.visited = false;
+
+  place.visit = function() {
+    console.log('visit');
+    place.visited = !place.visited;
+    RemoteAPIService.sendUserPost({
+      visit: {
+        content: place.visited
+      },
+      lonLat: place.post.lonLat,
+      uplace_uuid: place.uplace_uuid
+    })
+    .then(function(result) {
+
+    }, function(err) {
+      console.error('Set visiting status to the place is failed.');
+      $ionicPopup.alert({
+        title: 'ERROR: Marking visited',
+        template: JSON.stringify(err)
+      });
+    });
+  };
 
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
+      console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
           for (var i = 0; i < place.post.userPost.images.length; i++) {
-              place.imagesForSlide.push(place.post.userPost.images[i].content);
+            place.imagesForSlide.push(place.post.userPost.images[i].content);
+          }
+          place.coverImage = place.post.userPost.images[0].summary;
+          // $scope.$apply();
+        }
+
+        place.URLs = [];
+        if (place.post.userPost.urls) {
+          for (var i = 0; i < place.post.userPost.urls.length; i++) {
+            ogParserService.getOGInfo(place.post.userPost.urls[i].content)
+            .then(function(ogInfo) {
+              place.URLs.push(ogInfo);
+            }, function(err) {
+              console.error(err);
+            });
+          }
+        }
+
+        place.getDaumResult();
+        place.tagsForUpdate = [];
+        place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
+        place.changeStarPoint();
+
+        place.visited = post.userPost.visit? post.userPost.visit.content : false;
+        if (place.visited === false) {
+          if (post.userPost.rating) {
+            place.visited = true;
           }
         }
     }, function(err) {
@@ -25,7 +81,7 @@ angular.module('placekoob.controllers')
         template: '해당하는 장소 정보를 불러올 수 없습니다.'
       })
       .then(function() {
-        $ionicHistory.goBack();
+        place.goBack();
       });
     });
   }
@@ -44,7 +100,7 @@ angular.module('placekoob.controllers')
             template: '삭제되었습니다'
           })
           .then(function() {
-            $ionicHistory.goBack();
+            place.goBack();
           });
         }, function(err) {
           console.error(err);
@@ -53,9 +109,37 @@ angular.module('placekoob.controllers')
 		});
   }
 
+  place.deleteImage = function(index) {
+    $ionicPopup.confirm({
+			title: '사진 삭제',
+			template: '선택한 사진을 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        console.log('Delete image : ' + index);
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          images:[{
+            content: place.post.userPost.images[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.images.splice(index, 1);
+          place.imagesForSlide.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting note failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    });
+  }
+
   place.goBack = function() {
     console.log('Move Back');
-    $ionicHistory.goBack();
+    $state.go('tab.places');
   };
 
   place.showImagesWithFullScreen = function(index) {
@@ -85,6 +169,107 @@ angular.module('placekoob.controllers')
       $ionicSlideBoxDelegate.enableSlide(false);
     }
   };
+
+  place.addNote = function() {
+    $scope.place.newNote = '';
+    var myPopup = $ionicPopup.show({
+      template: '<input type="text" ng-model="place.newNote">',
+      title: '댓글을 입력하세요',
+      scope: $scope,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: '<b>확인</b>',
+          type: 'pk-accent',
+          onTap: function(e) {
+            if (!$scope.place.newNote) {
+              e.preventDefault();
+            } else {
+              return $scope.place.newNote;
+            }
+          }
+        }
+      ]
+    });
+
+    myPopup.then(function(note) {
+      console.log('Tapped!', note);
+      if (note !== undefined) {
+        RemoteAPIService.sendUserPost({
+          notes: [{
+            content: note
+          }],
+          uplace_uuid: place.uplace_uuid
+        })
+        .then(function(result) {
+          if (place.post.userPost.notes === undefined || place.post.userPost.notes === null || place.post.userPost.notes.length === 0) {
+            place.post.userPost.notes = [{
+              content: note,
+              timestamp: Date.now()
+            }];
+          } else {
+            place.post.userPost.notes.splice(0, 0, {
+              content: note,
+              timestamp: Date.now()
+            });
+          }
+        }, function(err) {
+          console.error('Adding URL to the post is failed.');
+          $ionicPopup.alert({
+            title: 'ERROR: Add URL',
+            template: JSON.stringify(err)
+          });
+        });
+      }
+    });
+  }
+
+  place.deleteNote = function(index) {
+    console.log('note index : ' + index);
+    $ionicPopup.confirm({
+			title: '댓글 삭제',
+			template: '선택한 댓글을 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          notes:[{
+            content: place.post.userPost.notes[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.notes.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting note failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    })
+    .finally(function() {
+      $ionicListDelegate.closeOptionButtons();
+    });
+  }
+
+  place.updateTags = function() {
+    if (place.tagsForUpdate.length > 0) {
+      RemoteAPIService.sendUserPost({
+        notes: [{
+          content: '[NOTE_TAGS]#' + JSON.stringify(place.tagsForUpdate)
+        }],
+        uplace_uuid: place.uplace_uuid
+      })
+      .then(function(result){
+
+      }, function(err) {
+        console.error('Updating tags is failed.');
+        console.dir(err);
+      });
+    }
+  }
 
   place.addURL= function() {
     // An elaborate, custom popup
@@ -137,7 +322,13 @@ angular.module('placekoob.controllers')
             template: 'URL이 추가되었습니다.'
           })
           .then(function(result){
-            place.loadPlaceInfo();
+            // place.loadPlaceInfo();
+            ogParserService.getOGInfo(URL)
+            .then(function(ogInfo) {
+              place.URLs.splice(0, 0, ogInfo);
+            }, function(err) {
+              console.error(err);
+            });
           });
         }, function(err) {
           console.error('Adding URL to the post is failed.');
@@ -149,6 +340,37 @@ angular.module('placekoob.controllers')
       }
     });
   };
+
+  place.deleteURL = function(index) {
+    console.log('URL index : ' + index);
+    $ionicPopup.confirm({
+			title: '웹문서 삭제',
+			template: '선택한 웹문서를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        RemoteAPIService.deleteContentInUserPost({
+          uplace_uuid: place.uplace_uuid,
+          urls:[{
+            content: place.post.userPost.urls[index].content
+          }]
+        })
+        .then(function(result) {
+          place.post.userPost.urls.splice(index, 1);
+          place.URLs.splice(index, 1);
+        }, function(err) {
+          console.error('Deleting URL failed.');
+          console.dir(err);
+        })
+        .finally(function() {
+          $ionicListDelegate.closeOptionButtons();
+        });
+      }
+    })
+    .finally(function() {
+      $ionicListDelegate.closeOptionButtons();
+    });
+  }
 
   place.addPhoto = function() {
     $ionicActionSheet.show({
@@ -177,8 +399,16 @@ angular.module('placekoob.controllers')
       					uplace_uuid: place.uplace_uuid
       				})
       				.then(function(result) {
-      					$ionicLoading.hide();
-                place.loadPlaceInfo();
+                $ionicLoading.hide();
+                // place.loadPlaceInfo();
+                if (place.post.userPost.images === undefined || place.post.userPost.images === null || place.post.userPost.images.length === 0) {
+                  place.post.userPost.images = [result.data.userPost.images[0]];
+                  place.imagesForSlide = [result.data.userPost.images[0].content];
+                  place.coverImage = result.data.userPost.images[0].summary;
+                } else {
+                  place.post.userPost.images.splice(0, 0, result.data.userPost.images[0]);
+                  place.imagesForSlide.splice(0, 0, result.data.userPost.images[0].content);
+                }
       				}, function(err) {
                 $ionicLoading.hide();
       					$ionicPopup.alert({
@@ -213,8 +443,16 @@ angular.module('placekoob.controllers')
         					uplace_uuid: place.uplace_uuid
         				})
         				.then(function(result) {
-                  place.loadPlaceInfo();
+                  // place.loadPlaceInfo();
                   $ionicLoading.hide();
+                  if (place.post.userPost.images === undefined || place.post.userPost.images === null || place.post.userPost.images.length === 0) {
+                    place.post.userPost.images = [result.data.userPost.images[0]];
+                    place.imagesForSlide = [result.data.userPost.images[0].content];
+                    place.coverImage = result.data.userPost.images[0].summary;
+                  } else {
+                    place.post.userPost.images.splice(0, 0, result.data.userPost.images[0]);
+                    place.imagesForSlide.splice(0, 0, result.data.userPost.images[0].content);
+                  }
         				}, function(err) {
                   $ionicLoading.hide();
         					$ionicPopup.alert({
@@ -242,31 +480,61 @@ angular.module('placekoob.controllers')
     window.open(url, '_system');
   };
 
-  place.searchPlace = function() {
-    var query = '';
-    var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
-    console.log('Region : ' + region);
-    if (region) {
-      var region_items = region.content.split(' ');
-      var loopCount = region_items.length >= 4 ? 4 : region_items.length;
-      for (var i = 1; i < loopCount; i++) {
-        query += region_items[i] + '+';
+  place.makeKeyword = function() {
+    var keyword = '';
+    if (place.post.placePost) {
+      var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
+      console.log('Region : ' + region);
+      if (region) {
+        var region_items = region.content.split(' ');
+        var loopCount = region_items.length >= 4 ? 4 : region_items.length;
+        for (var i = 1; i < loopCount; i++) {
+          keyword += region_items[i] + '+';
+        }
       }
+
+      keyword += (place.post.placePost.name.content || place.post.userPost.name.content);
+      console.log('Calculated keyword : ', keyword);
+      keyword = encodeURI(keyword);
+      console.log('URL encoded keyword : ', keyword);
     }
+    return keyword;
+  }
 
-    query += (place.post.placePost.name.content || place.post.userPost.name.content);
-    console.log('Calculated query : ', query);
-    query = encodeURI(query);
-    console.log('URL encoded query : ', query);
+  place.getDaumResult = function() {
+    var keyword = place.makeKeyword();
+    if (keyword !== '') {
+      daumSearchService.search(keyword)
+      .then(function(items) {
+        place.searchResults = items;
+        for (var i = 0; i < place.searchResults.length; i++) {
+          place.searchResults[i].title = place.searchResults[i].title.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+          place.searchResults[i].description = place.searchResults[i].description.replace(/<b>/g, '').replace(/&lt;b&gt;/g, '').replace(/&lt;\/b&gt;/g, '').replace(/&quot;/g, '"');
+        }
+        // console.dir(place.searchResults);
 
-    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + query, '_system');
+      }, function(err) {
+        place.searchResults = [];
+        place.searchResults.push({
+          author: 'MAUKI studio',
+          comment: '',
+          description: JSON.stringify(err),
+          link: '',
+          title: '검색 결과를 얻어 오는데 실패했습니다'
+        })
+      });
+    }
+  }
+
+  place.searchPlace = function() {
+    window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + place.makeKeyword(), '_system');
   };
 
   place.getImageHeight = function() {
     var images = document.getElementsByClassName('user-image');
     for (var i = 0; i < images.length; i++) {
       if (images[i].clientWidth) {
-        return parseInt(images[i].clientWidth / 3);
+        return parseInt((images[i].clientWidth - 20) / 3);
       }
     }
     return 0;
@@ -276,7 +544,119 @@ angular.module('placekoob.controllers')
     //   place.imageHeight = parseInt($('.user-image').width()/3);
     // }
     // return place.imageHeight;
+  };
+
+  place.processTags = function($event) {
+    // console.dir($event);
+    var space = 32;
+    var enter = 13;
+    var comma = 188;
+    if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
+      place.post.tags.push(place.tag);
+      place.tagsForUpdate.push(place.tag);
+      place.tag = '';
+    }
+  };
+
+  place.setStarPoint = function() {
+    console.log('setStarPoint');
+    place.showModal('places/star-point-modal.html');
+  };
+
+  place.onTapStarPoint = function(event) {
+    // if(ionic.Platform.isIOS()) {
+    //   place.starPoint = (event.target.max / event.target.offsetWidth)*(event.gesture.touches[0].screenX - event.target.offsetLeft);
+    //   console.log('starPoint : ' + place.starPoint);
+    // }
+    place.changeStarPoint();
   }
 
-  place.loadPlaceInfo();
-}]);
+  place.confirmStarPoint = function() {
+    // console.log('uplace_uuid: ' + place.uplace_uuid);
+    RemoteAPIService.sendUserPost({
+      rating: {
+        content: place.starPoint
+      },
+      lonLat: place.post.lonLat,
+      uplace_uuid: place.uplace_uuid
+    })
+    .then(function(result) {
+      // console.dir(result);
+      if (place.visited === false) {
+        place.visit();
+      }
+    }, function(err) {
+      console.error('Setting star point to the post is failed.');
+      $ionicPopup.alert({
+        title: 'ERROR: 별점 평가',
+        template: JSON.stringify(err)
+      });
+    })
+    .finally(function() {
+      place.closeModal();
+    });
+  }
+
+  place.changeStarPoint = function() {
+    // console.log(place.starPoint);
+    var starPointArray = [
+      ['ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-outline'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star-half'],
+      ['ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star', 'ion-ios-star']
+    ];
+
+    place.starPointIcons = starPointArray[place.starPoint];
+  }
+
+  place.goToMap = function(lonLat) {
+    console.log('goToMap : ' + JSON.stringify(lonLat));
+    //  이거 타임아웃 안해주면, 에러남!!
+    setTimeout(function() {
+      $state.go('tab.map');
+      $scope.$emit('map.changeCenter.request', lonLat);
+    }, 100);
+  }
+
+  $ionicSlideBoxDelegate.update();
+  place.onUserDetailContentScroll = function(){
+    var scrollDelegate = $ionicScrollDelegate.$getByHandle('userDetailContent');
+    var scrollView = scrollDelegate.getScrollView();
+    $scope.$broadcast('userDetailContent.scroll', scrollView);
+  }
+
+  $scope.$on('$ionicView.afterEnter', function() {
+		place.loadPlaceInfo();
+	});
+
+  $scope.$on('$ionicView.beforeLeave', function() {
+		place.updateTags();
+	});
+}])
+.directive('headerShrink', function($document) {
+  return {
+    restrict: 'A',
+    link: function($scope, $element, $attr) {
+      var resizeFactor, scrollFactor, blurFactor;
+      var header = $document[0].body.querySelector('.about-header');
+      $scope.$on('userDetailContent.scroll', function(event,scrollView) {
+        if (scrollView.__scrollTop >= 0) {
+          scrollFactor = scrollView.__scrollTop/3.5;
+          header.style[ionic.CSS.TRANSFORM] = 'translate3d(0, +' + scrollFactor + 'px, 0)';
+        } else if (scrollView.__scrollTop > -70) {
+          resizeFactor = -scrollView.__scrollTop/100 + 0.99;
+          // blurFactor = -scrollView.__scrollTop/50;
+          header.style[ionic.CSS.TRANSFORM] = 'scale('+resizeFactor+','+resizeFactor+')';
+          // header.style.webkitFilter = 'blur('+blurFactor+'px)';
+        }
+      });
+    }
+  }
+});

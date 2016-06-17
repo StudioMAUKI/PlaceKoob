@@ -1,7 +1,7 @@
 <!-- start : real contents area -->
 <ion-view title="목록으로 보기">
-	<ion-header-bar class="pk-primary" align-title="center">
-		<button class="button button-icon icon ion-chevron-left pk-primary" ng-click="plNotYet.goBack()">Back</button>
+	<ion-header-bar class="pk-dark-primary" align-title="center">
+		<button class="button button-icon icon ion-chevron-left pk-dark-primary" ng-click="plNotYet.goBack()">Back</button>
 		<h1 class="title">저장한 목록</h1>
 		<!-- <button class="button button-icon button-clear ion-connection-bars pk-primary
 		" ng-click="plNotYet.popOverOrdering($event)"></button> -->
@@ -15,10 +15,11 @@
 		  </div>
 			<ion-item collection-repeat="post in plNotYet.posts" item-width="plNotYet.itemWidth" item-height="plNotYet.itemHeight" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
-				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
-				&nbsp;-&nbsp;<span class="place-item-addr">{{post.datetime}}</span><br>
-				<span class="place-item-addr">{{post.address}}</span><br>
-				<div class="place-item-note">{{post.desc}}</div><br>
+				<!-- <span class="place-item-name"><strong>{{post.name}}</strong></span><br> -->
+				<!-- &nbsp;-&nbsp; -->
+				<p class="place-item-addr">{{post.datetime}}에 저장</p>
+				<!-- <span class="place-item-addr">{{post.address}}</span><br> -->
+				<!-- <div class="place-item-note">{{post.desc}}</div><br> -->
 				<span class="place-item-tag" ng-repeat="tag in post.tags track by $index">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="plNotYet.onItemDelete(post)">
       	</ion-delete-button>
