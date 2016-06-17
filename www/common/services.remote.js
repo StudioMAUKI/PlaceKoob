@@ -384,6 +384,23 @@ angular.module('placekoob.services')
     }
   }
 
+  function getRegionsOfMine() {
+    var deferred = $q.defer();
+
+    $http({
+      method: 'GET',
+      url: getServerURL() + '/uplaces/regions/'
+    })
+    .then(function(response) {
+      deferred.resolve(response.data);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    })
+
+    return deferred.promise;
+  }
+
   function getPostsOfMine(position, orderBy, lon, lat) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
@@ -655,6 +672,7 @@ angular.module('placekoob.services')
     deleteUserPost: deleteUserPost,
     deleteContentInUserPost: deleteContentInUserPost,
     uploadImage: uploadImage,
+    getRegionsOfMine: getRegionsOfMine,
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
     getPost: getPost,
