@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesHomeCtrl', ['$scope', 'RemoteAPIService', function($scope, RemoteAPIService) {
+.controller('placesHomeCtrl', ['$scope', '$state', 'RemoteAPIService', function($scope, $state, RemoteAPIService) {
 	console.log('placesHomeCtrl is called.');
 	var placesHome = this;
 	var remote = RemoteAPIService;
@@ -12,5 +12,9 @@ angular.module('placekoob.controllers')
 	}, function(err) {
 		console.error(err);
 	});
+
+	placesHome.openFullList = function(){
+		$state.go('tab.places');
+	};
 
 }]);

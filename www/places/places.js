@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', 'starPointIconService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService, starPointIconService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', 'StorageService', 'starPointIconService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper, StorageService, starPointIconService) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
@@ -117,6 +117,11 @@ angular.module('placekoob.controllers')
 		var lon = curPos.longitude || null;
 		var lat = curPos.latitude || null;
 
+		if (places.completedFirstLoading === false) {
+			$ionicLoading.show({
+				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
+			});
+		}
 		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
 		.then(function(result) {
 			places.posts = result.assigned;
@@ -126,6 +131,13 @@ angular.module('placekoob.controllers')
 			// console.dir(places.posts);
 		}, function(err) {
 			console.error(err);
+			deferred.reject(err);
+		})
+		.finally(function() {
+			if (places.completedFirstLoading === false) {
+				$ionicLoading.hide();
+				places.completedFirstLoading = true;
+			}
 		});
 
 		return deferred.promise;
@@ -170,8 +182,5 @@ angular.module('placekoob.controllers')
 		$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
 	}
 
-	places.loadSavedPlace('top')
-	.then(function(){
-		places.completedFirstLoading = true;
-	});
+	places.loadSavedPlace('top');
 }]);

@@ -9,6 +9,9 @@
 		<ion-list>
       <ion-item class="item-divider">
 				총 123개의 장소가 저장되어 있습니다.
+				<span class="item-note">
+					<a ng-click="placesHome.openFullList()" href="#">전체보기</a>
+				</span>
 			</ion-item>
     </ion-list>
 		<!-- <ion-infinite-scroll ng-if="!places.isEndOfList()" on-infinite="places.doRefresh('bottom')" immediate-check="false" distance="1%">
