@@ -62,21 +62,10 @@
 			<a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a>
 		</div>
 		<div class="user-image">
-			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">
+			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight || place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">
 			<img ng-style="{height:place.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
 		</div>
 
-		<!-- note 영역 -->
-		<!-- <div class="card" ng-repeat="note in place.post.userPost.notes" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1">
-			<div class="row">
-				<div class="col col-20">
-					{{place.postHelper.getTimeString(note.timestamp)}}
-				</div>
-				<div class="col">
-					{{note.content}}
-				</div>
-			</div>
-		</div> -->
 		<ion-list>
 			<ion-item class="card" ng-repeat="note in place.post.userPost.notes track by $index" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1" on-hold="place.deleteNote($index)">
 				<div class="row">
@@ -94,16 +83,6 @@
 		</ion-list>
 
 		<!-- 저장한 웹 문서 목록 -->
-		<!-- <div class="list" ng-show="place.URLs.length">
-			<div class="item item-divider">
-		    저장한 웹문서
-		  </div>
-			<a ng-repeat="url in place.URLs" class="item item-thumbnail-left" href="#" ng-click="place.openLink(url.url)">
-				<img ng-src="{{url.image}}">
-				<h2>{{url.title}}</h2>
-				<p>{{url.desc}}</p>
-			</a>
-		</div> -->
 		<ion-list ng-show="place.URLs.length">
 			<ion-item class="item-divider">
 				저장한 웹문서

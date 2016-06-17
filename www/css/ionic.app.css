@@ -10154,3 +10154,28 @@ label.chat-input {
   font-size: 50px;
   color: #FFC107;
   text-align: center; }
+
+.region-list {
+  max-width: 100%;
+  background-color: #FFFFFF; }
+  .region-list .region {
+    padding-top: 5px;
+    padding-left: 5px;
+    display: inline-block;
+    position: relative; }
+    .region-list .region .region-title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(200, 200, 200, 0.5);
+      padding: 5px 10px 5px 10px;
+      border-radius: 5px; }
+    .region-list .region .region-count {
+      position: absolute;
+      bottom: 10px;
+      right: 5px;
+      background-color: #db0000;
+      padding: 5px 10px 5px 10px;
+      border-radius: 100px;
+      border: 2px solid white;
+      color: white; }

@@ -16,6 +16,7 @@ angular.module('placekoob.controllers')
   place.starPoint = 5;
   place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
   place.visited = false;
+  place.calculatedHeight = 0;
 
   place.visit = function() {
     console.log('visit');
@@ -41,7 +42,7 @@ angular.module('placekoob.controllers')
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      console.dir(post);
+      // console.dir(post);
         place.post = post;
         if (place.post.userPost.images) {
           place.imagesForSlide = [];
@@ -534,16 +535,11 @@ angular.module('placekoob.controllers')
     var images = document.getElementsByClassName('user-image');
     for (var i = 0; i < images.length; i++) {
       if (images[i].clientWidth) {
-        return parseInt((images[i].clientWidth - 20) / 3);
+        place.calculatedHeight = parseInt((images[i].clientWidth - 20) / 3);
+        return place.calculatedHeight;
       }
     }
     return 0;
-    // if (!place.imageHeight) {
-    //   console.log('.user-image width: ' + $('.user-image').width()/3);
-    //   // $('.image-preview').css({height: parseInt($('.user-image').width()/3)});
-    //   place.imageHeight = parseInt($('.user-image').width()/3);
-    // }
-    // return place.imageHeight;
   };
 
   place.processTags = function($event) {

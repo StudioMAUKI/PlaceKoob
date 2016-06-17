@@ -392,6 +392,7 @@ angular.module('placekoob.services')
       url: getServerURL() + '/uplaces/regions/'
     })
     .then(function(response) {
+      PostHelper.decorateRegions(response.data);
       deferred.resolve(response.data);
     }, function(err) {
       console.error(err);
@@ -686,7 +687,7 @@ angular.module('placekoob.services')
     dropIplace: dropIplace
   }
 }])
-.factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
+.factory('PostHelper', ['RESTServer', 'StorageService', 'MapService', function(RESTServer, StorageService, MapService) {
   function getTags(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length === 0) {
       return [];
@@ -919,6 +920,37 @@ angular.module('placekoob.services')
     }
   }
 
+  function convertRadiusToString(r) {
+    if (r < 1000) {
+      return '주변';
+    } else {
+      return '주변 ' + ((r + (1000 - r % 1000)) / 1000) + 'km';
+    }
+  }
+
+  function convertRegionToString(region) {
+    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon)
+    .then(function(addr) {
+      // region.name
+      // console.dir(addr);
+      var a = addr.region.split(' ');
+      region.name = a[a.length - 1];
+    }, function(err) {
+      console.error(JSON.stringify(err));
+    });
+  }
+
+  function decorateRegion(region) {
+    region.radiusName = convertRadiusToString(region.radius);
+    convertRegionToString(region);
+  }
+
+  function decorateRegions(regions) {
+    for (var i = 0; i < regions.length; i++) {
+      decorateRegion(regions[i]);
+    }
+  }
+
   function updateDistance(posts, curPos) {
     for (var i = 0; i < posts.length; i++) {
       posts[i].distance_from_origin = getDistance(posts[i], curPos);
@@ -941,6 +973,8 @@ angular.module('placekoob.services')
     getTimeString: getTimeString,
     decoratePost: decoratePost,
     decoratePosts: decoratePosts,
+    decorateRegion: decorateRegion,
+    decorateRegions: decorateRegions,
     updateDistance: updateDistance,
     calcDistance: calcDistance,
     getReadablePhoneNo: getReadablePhoneNo
