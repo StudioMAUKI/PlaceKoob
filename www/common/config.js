@@ -28,7 +28,7 @@ angular.module('placekoob.config', [])
     }
   })
 	.state('tab.places', {
-    url: '/places?latitude&longitude&radius&rname',
+    url: '/places?latitude&longitude&radius&rname&limit',
     views: {
       'places': {
         templateUrl: 'places/places.html',
@@ -40,7 +40,7 @@ angular.module('placekoob.config', [])
 	.state('tab.home-places', {
     url: '/home-places',
     views: {
-      'home-places': {
+      'places': {
         templateUrl: 'places/places-home.html',
         controller: 'placesHomeCtrl',
         controllerAs: 'placesHome'

@@ -2,7 +2,10 @@
 <ion-view title="목록으로 보기">
 	<ion-header-bar class="pk-dark-primary" align-title="center">
 		<!-- <button class="button button-icon icon ion-ios-minus-outline pk-primary" ng-click="places.showDelete = !places.showDelete"></button> -->
-		<h1 class="title">장소 목록 보기</h1>
+		<button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="places.goBack()" nav-direction="back">
+			목록 홈
+		</button>
+		<h1 class="title">{{places.regionName === '' ? '전체 목록' : places.regionName}}</h1>
 		<button class="button button-icon button-clear ion-connection-bars pk-dark-primary
 		" ng-click="places.popOverOrdering($event)"></button>
 	</ion-header-bar>
@@ -12,7 +15,7 @@
 		<a class="button button-small button-full button-stable" style="text-align:right;border-radius:20px;background-color:#CFD8DC;padding-right:10px;" ng-href="#/places-not-yet" ng-show="places.notYetCount > 0 && places.regionName === ''">{{places.notYetCount}}개의 저장한 장소가 정보화 대기중입니다. <i class="ion-arrow-right-c"></i></a>
 		<ion-list show-delete="places.showDelete">
 			<div class="item item-divider">
-		    {{places.regionName}}총 {{places.totalCount}}개의 장소를 정렬합니다.
+		    {{places.totalCount}}개의 장소를 정렬합니다.
 		  </div>
 			<ion-item collection-repeat="post in places.posts" item-width="places.itemWidth" item-height="places.itemHeight" href="#/places/{{post.uplace_uuid}}" nav-direction="forward">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">

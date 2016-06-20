@@ -44,7 +44,8 @@ angular.module('placekoob.controllers')
 			latitude: placesHome.regions[index].lonLat.lat,
 			longitude: placesHome.regions[index].lonLat.lon,
 			radius: placesHome.regions[index].radius,
-			rname: encodeURI(placesHome.regions[index].name + ' ' + placesHome.regions[index].radiusName)
+			rname: encodeURI(placesHome.regions[index].name + ' ' + placesHome.regions[index].radiusName),
+			limit: placesHome.regions[index].count
 		});
 	}
 }]);

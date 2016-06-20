@@ -402,7 +402,7 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getPostsOfMine(position, orderBy, lon, lat, radius) {
+  function getPostsOfMine(position, orderBy, lon, lat, radius, maxLimit) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
     position = position || 'top';
@@ -415,6 +415,7 @@ angular.module('placekoob.services')
       lon = lon || null;
       lat = lat || null;
       radius = radius || 0;
+      maxLimit = maxLimit || 0;
     // }
 
     var offset, limit;

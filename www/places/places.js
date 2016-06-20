@@ -13,7 +13,12 @@ angular.module('placekoob.controllers')
 	places.completedFirstLoading = false;
 	places.totalCount = 0;
 	places.SPS = starPointIconService;
-	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) + ', ' : '';
+	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) : '';
+
+	places.goBack = function() {
+    console.log('Move Back');
+    $state.go('tab.home-places');
+  };
 
 	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
@@ -82,18 +87,21 @@ angular.module('placekoob.controllers')
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
 		var pos = position || 'top';
-		var lon, lat, radius;
+		var lon, lat, radius, limit;
 
 		console.dir($stateParams);
 		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
 			lat = parseFloat($stateParams.latitude);
 			lon = parseFloat($stateParams.longitude);
 			radius = parseInt($stateParams.radius);
+			radius = radius || 100;
+			limit = parseInt($stateParams.limit);
 		} else {
 			var curPos = StorageService.get('curPos');
 			lon = curPos.longitude || null;
 			lat = curPos.latitude || null;
 			radius = 0;
+			limit = 0;
 		}
 
 		if (places.completedFirstLoading === false) {
@@ -101,7 +109,7 @@ angular.module('placekoob.controllers')
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
-		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius)
+		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
 		.then(function(result) {
 			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;
