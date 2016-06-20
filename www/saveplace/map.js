@@ -7,31 +7,35 @@ angular.module('placekoob.controllers')
 	map.last_marker_index = -1;
 	map.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	map.lastMapCenter = {};
+  map.lastZoom = 15;
 	map.enabled = true;
   map.mapOption = {
+    //  이 센터 값을 준다고 해서, 지도가 정확히 이 지점을 중심으로 두게끔 로딩하지 않는다
+    //  왜 이지랄인지는 모르겠는데, 근처 어디쯤으로 로딩하기 때문에 정확히 위치를 잡기 위해서는
+    //  다시 setCenter를 호출해야 한다. ㅆㅂ
 		center: {
       lat: map.last_coords.latitude,
       lng: map.last_coords.longitude
     },
-		zoom: 15,
+		zoom: map.lastZoom,
 		zoomControl: false,
 		mapTypeControl: false,
 		streetViewControl: false
 	};
   map.mapObj = gmapService.createMap('map', map.mapOption);
+  google.maps.event.addListenerOnce(map.mapObj, 'idle', function() {
+    console.log('Google map is fully loaded.');
+    map.divToFit();
+    map.loadMap();
+  });
   map.curMarker = null;
   map.postMarkers = [];
-  // map.postInfoWindows = [];
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
   map.showInfoWindow = true;
+  // map.postInfoWindows = [];
   map.tags = [];
-
-  $scope.$on('$ionicView.loaded', function() {
-    map.divToFit();
-    map.loadMap();
-  });
 
   $scope.$on('$ionicView.afterEnter', function() {
 		console.log('$ionicView.afterEnter');
@@ -39,14 +43,6 @@ angular.module('placekoob.controllers')
 		if (map.loadedMap) {
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
-			// map.loadSavedPlace();
-      // if ($stateParams.lat && $stateParams.lon) {
-      //   console.info('Change the center of map.');
-      //   map.mapObj.setCenter({
-      //     lat: parseFloat($stateParams.lat),
-      //     lng: parseFloat($stateParams.lon)
-      //   });
-      // }
 		}
 	});
 
@@ -82,6 +78,8 @@ angular.module('placekoob.controllers')
         - buttonBarHeight
         - tabHeight// 137 : height = document - bar - tab_bar
 		});
+    //  이거 꼭 해줘야 지도가 제대로 그려짐. (안그러면 걍 회색으로 나옴)
+    google.maps.event.trigger(map.mapObj, 'resize');
 	};
 
 
@@ -156,6 +154,10 @@ angular.module('placekoob.controllers')
 
 		map.getCurrentPosition()
     .then(function(pos){
+      // var pos = {
+      //   latitude: 37.4000164,
+      //   longitude: 127.10406169999999
+      // };
       map.mapObj.setCenter({
         lat: pos.latitude,
         lng: pos.longitude
@@ -163,21 +165,25 @@ angular.module('placekoob.controllers')
 			map.lastMapCenter.latitude = pos.latitude;
 			map.lastMapCenter.longitude = pos.longitude;
       map.mapObj.addListener('zoom_changed', function() {
-        // console.log('map: zoom_changed');
-        console.log('Zoom_Level: ' + map.mapObj.getZoom());
-        map.loadSavedPlace();
+        var curZoom = map.mapObj.getZoom();
+        if (map.lastZoom !== curZoom) {
+          map.lastZoom = curZoom;
+          console.log('zoom_changed: ' + map.lastZoom);
+          map.loadSavedPlace();
+        }
       });
       map.mapObj.addListener('center_changed', function() {
         if (map.enabled) {
           var mapCenter = map.mapObj.getCenter();
           var ne = map.mapObj.getBounds().getNorthEast();
           var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
-          console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
+          // console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
           // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
 					var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
 					if (dist > maxDist * 0.7) {
 						map.lastMapCenter.latitude = mapCenter.lat();
 						map.lastMapCenter.longitude = mapCenter.lng();
+            console.log('center_changed');
 						map.loadSavedPlace();
 					}
 				}
@@ -200,6 +206,7 @@ angular.module('placekoob.controllers')
       });
 
       map.loadedMap = true;
+      //  아래쪽 resize 이벤트를 발생시키지 않으면 지도가 회색으로 나옴(why? -_-)
       google.maps.event.trigger(map.mapObj, 'resize');
       console.log('map loaded');
       map.loadSavedPlace();
@@ -320,6 +327,7 @@ angular.module('placekoob.controllers')
 	};
 
   map.scrollToSavedPlace = function(uplace_uuid) {
+    console.log('scrollToSavedPlace');
     map.loadSavedPlace()
 		.then(function() {
 			//	방금 저장한 장소로 핀과 슬라이드를 이동 시킴
