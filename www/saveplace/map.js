@@ -135,24 +135,16 @@ angular.module('placekoob.controllers')
 	}
 
   map.getCurrentPosition = function() {
-    var deferred = $q.defer();
+		var deferred = $q.defer();
 		MapService.getCurrentPosition()
 		.then(function(pos){
-			map.getCurrentAddress(pos.latitude, pos.longitude);
 			RemoteAPIService.updateCurPos(pos);
+			MapService.getCurrentAddress(pos.latitude, pos.longitude);
 			deferred.resolve(pos);
 		}, function(err) {
 			deferred.reject(err);
 		});
-
-    return deferred.promise;
-	};
-
-  map.getCurrentAddress = function(latitude, longitude) {
-		MapService.getCurrentAddress(latitude, longitude)
-		.then(function(addrs) {
-			map.address = addrs.roadAddress.name || addrs.jibunAddress.name || addrs.region || '';
-		});
+		return deferred.promise;
 	};
 
   map.loadMap = function() {
@@ -201,7 +193,6 @@ angular.module('placekoob.controllers')
       map.curMarker.addListener('dragend', function(event) {
         console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
         map.mapObj.setCenter(event.latLng);
-        map.getCurrentAddress(event.latLng.lat(), event.latLng.lng());
         StorageService.set('curPos', {
           latitude: event.latLng.lat(),
           longitude: event.latLng.lng()
@@ -494,21 +485,6 @@ angular.module('placekoob.controllers')
 		map.images = [];
 		map.note = '';
 		map.URL = '';
-	};
-
-  map.getCurrentPosition = function() {
-		var deferred = $q.defer();
-		MapService.getCurrentPosition()
-		.then(function(pos){
-			RemoteAPIService.updateCurPos(pos);
-			MapService.getCurrentAddress(pos.latitude, pos.longitude)
-			.finally(function() {
-				deferred.resolve(pos);	//	주소를 얻지 못해도 정상이라고 리턴시킨다!!
-			});
-		}, function(err) {
-			deferred.reject(err);
-		});
-		return deferred.promise;
 	};
 
   map.confirmSave = function() {

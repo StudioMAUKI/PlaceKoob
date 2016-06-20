@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('importImageCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$ionicLoading', '$cordovaFile', '$timeout', 'RemoteAPIService', 'StorageService', 'remoteStorageService', 'imageImporter', function($scope, $ionicPopup, $ionicListDelegate, $q, $ionicLoading, $cordovaFile, $timeout, RemoteAPIService, StorageService, remoteStorageService, imageImporter) {
+.controller('importImageCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$cordovaFile', '$timeout', 'RemoteAPIService', 'StorageService', 'remoteStorageService', 'imageImporter', function($scope, $ionicPopup, $ionicListDelegate, $q, $cordovaFile, $timeout, RemoteAPIService, StorageService, remoteStorageService, imageImporter) {
 	var importImage = this;
 	importImage.started = false;
 	importImage.paused = false;

@@ -1,12 +1,13 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $q, $ionicListDelegate, RemoteAPIService, PostHelper) {
+.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper) {
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
 	plNotYet.itemHeight = '99px';
 	plNotYet.itemWidth = window.innerWidth + 'px';
+	plNotYet.completedFirstLoading = false;
 
 	plNotYet.goBack = function() {
 		$state.go('tab.places');
@@ -78,6 +79,12 @@ angular.module('placekoob.controllers')
 	plNotYet.loadSavedPlace = function(position) {
 		var deferred = $q.defer();
 		var pos = position || 'top';
+
+		if (plNotYet.completedFirstLoading === false) {
+			$ionicLoading.show({
+				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
+			});
+		}
 		RemoteAPIService.getPostsOfMine(pos)
 		.then(function(result) {
 			plNotYet.posts = result.waiting;
@@ -85,6 +92,13 @@ angular.module('placekoob.controllers')
 			// console.dir(plNotYet.posts);
 		}, function(err) {
 			console.err(err);
+			deferred.reject(err);
+		})
+		.finally(function() {
+			if (plNotYet.completedFirstLoading === false) {
+				plNotYet.completedFirstLoading = true;
+				$ionicLoading.hide();
+			}
 		});
 
 		return deferred.promise;

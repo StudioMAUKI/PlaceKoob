@@ -31,7 +31,7 @@
 						<a ng-click="map.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>
 						&nbsp;&nbsp;
 						<span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span><br>
-						<span class="place-desc">{{$index === 0 ? map.address : post.address}}</span><br>
+						<span class="place-desc">{{post.address}}</span><br>
 						<span class="place-note">
 							<strong>{{post.desc}}</strong>
 						</span>

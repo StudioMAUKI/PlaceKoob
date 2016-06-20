@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'StorageService', 'starPointIconService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, RemoteAPIService, PostHelper, StorageService, starPointIconService) {
+.controller('placesCtrl', ['$scope', '$ionicScrollDelegate', '$ionicPopover', '$ionicPopup', '$state', '$stateParams', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', 'StorageService', 'starPointIconService', function($scope, $ionicScrollDelegate, $ionicPopover, $ionicPopup, $state, $stateParams, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper, StorageService, starPointIconService) {
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
-	places.orderingType = 0;
+	places.orderingType = $stateParams.latitude && $stateParams.longitude && $stateParams.radius ? 2 : 0;
 	places.showDelete = false;
 	places.notYetCount = 0;
 	places.itemHeight = '99px';
@@ -13,6 +13,12 @@ angular.module('placekoob.controllers')
 	places.completedFirstLoading = false;
 	places.totalCount = 0;
 	places.SPS = starPointIconService;
+	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) : '';
+
+	places.goBack = function() {
+    console.log('Move Back');
+    $state.go('tab.home-places');
+  };
 
 	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
@@ -28,26 +34,6 @@ angular.module('placekoob.controllers')
 		return places.orderingType === orderingType;
 	}
 
-	function sortByDate(a, b) {
-		return a.created - b.created;
-	}
-	function sortByDistance(a, b) {
-		return a.distance_from_origin - b.distance_from_origin;
-	}
-
-	function sortPosts(type, isAsc, preventDuple, delegationFunc) {
-		if (preventDuple) {
-			if (places.orderingType == type) {
-				return;
-			}
-		}
-		places.orderingType = type;
-		var ascFactor = isAsc ? 1 : -1;
-		places.posts.sort(function(a, b) {
-			return delegationFunc(a, b) * ascFactor;
-		})
-	}
-
 	places.changeOrderingType = function(type) {
 		places.popOver.hide();
 		if (places.orderingType !== type) {
@@ -58,18 +44,6 @@ angular.module('placekoob.controllers')
 			});
 		}
 	}
-	places.orderByDate = function(isRecent) {
-		if (isRecent)
-		console.log("places.orderByDate(" + isRecent + ") is invoked.");
-		places.popOver.hide();
-		sortPosts(0 + (isRecent ? 0 : 1), !isRecent, true, sortByDate);
-	};
-
-	places.orderByDistance = function(isNear) {
-		console.log('places.orderByDistance is invoked.');
-		places.popOver.hide();
-		sortPosts(2 + (isNear? 0: 1), isNear, true, sortByDistance);
-	};
 
 	places.onItemDelete = function(post) {
 		console.log('onItemDelete is invoked, but not implemented yet.');
@@ -113,11 +87,29 @@ angular.module('placekoob.controllers')
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
 		var pos = position || 'top';
-		var curPos = StorageService.get('curPos');
-		var lon = curPos.longitude || null;
-		var lat = curPos.latitude || null;
+		var lon, lat, radius, limit;
 
-		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
+		console.dir($stateParams);
+		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
+			lat = parseFloat($stateParams.latitude);
+			lon = parseFloat($stateParams.longitude);
+			radius = parseInt($stateParams.radius);
+			radius = radius || 100;
+			limit = parseInt($stateParams.limit);
+		} else {
+			var curPos = StorageService.get('curPos');
+			lon = curPos.longitude || null;
+			lat = curPos.latitude || null;
+			radius = 0;
+			limit = 0;
+		}
+
+		if (places.completedFirstLoading === false) {
+			$ionicLoading.show({
+				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
+			});
+		}
+		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
 		.then(function(result) {
 			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;
@@ -126,6 +118,13 @@ angular.module('placekoob.controllers')
 			// console.dir(places.posts);
 		}, function(err) {
 			console.error(err);
+			deferred.reject(err);
+		})
+		.finally(function() {
+			if (places.completedFirstLoading === false) {
+				$ionicLoading.hide();
+				places.completedFirstLoading = true;
+			}
 		});
 
 		return deferred.promise;
@@ -165,13 +164,10 @@ angular.module('placekoob.controllers')
 	// 	});
 	// });
 
-	if ($stateParams.uplace_uuid) {
-		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
-		$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
-	}
+	// if ($stateParams.uplace_uuid) {
+	// 	console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
+	// 	$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
+	// }
 
-	places.loadSavedPlace('top')
-	.then(function(){
-		places.completedFirstLoading = true;
-	});
+	places.loadSavedPlace('top');
 }]);

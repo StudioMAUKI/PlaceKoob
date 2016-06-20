@@ -1,10 +1,11 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('importUserCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicListDelegate, $q, RemoteAPIService, StorageService) {
+.controller('importUserCtrl', ['$scope', '$ionicPopup', '$ionicListDelegate', '$q', '$ionicLoading', 'RemoteAPIService', 'StorageService', function($scope, $ionicPopup, $ionicListDelegate, $q, $ionicLoading, RemoteAPIService, StorageService) {
 	var importUser = this;
 	importUser.totalCount = 0;
 	importUser.iplaces = [];
+	importUser.completedFirstLoading = false;
 
 	importUser.isEndOfList = function() {
 		return true;
@@ -45,8 +46,13 @@ angular.module('placekoob.controllers')
 
 	importUser.loadIplaces = function() {
 		var deferred = $q.defer();
-
 		var curPos = StorageService.get('curPos');
+
+		if (importUser.completedFirstLoading === false) {
+			$ionicLoading.show({
+				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
+			});
+		}
 		RemoteAPIService.getIplaces(curPos.latitude, curPos.longitude)
 		.then(function(results) {
 			importUser.iplaces = results.iplaces;
@@ -54,6 +60,12 @@ angular.module('placekoob.controllers')
 			deferred.resolve();
 		}, function(err) {
 			deferred.reject(err);
+		})
+		.finally(function() {
+			if (importUser.completedFirstLoading === false) {
+				$ionicLoading.hide();
+				importUser.completedFirstLoading = true;
+			}
 		});
 
 		return deferred.promise;

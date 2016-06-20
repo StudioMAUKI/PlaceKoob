@@ -384,18 +384,39 @@ angular.module('placekoob.services')
     }
   }
 
-  function getPostsOfMine(position, orderBy, lon, lat) {
+  function getRegionsOfMine() {
+    var deferred = $q.defer();
+
+    $http({
+      method: 'GET',
+      url: getServerURL() + '/uplaces/regions/'
+    })
+    .then(function(response) {
+      PostHelper.decorateRegions(response.data);
+      deferred.resolve(response.data);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    })
+
+    return deferred.promise;
+  }
+
+  function getPostsOfMine(position, orderBy, lon, lat, radius, maxLimit) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
     position = position || 'top';
     orderBy = orderBy || '-modified';
-    if (orderBy === '-modified' || orderBy === 'modified') {
-      lon = null;
-      lat = null;
-    } else {
+    // if (orderBy === '-modified' || orderBy === 'modified') {
+    //   lon = null;
+    //   lat = null;
+    //   radius = 0;
+    // } else {
       lon = lon || null;
       lat = lat || null;
-    }
+      radius = radius || 0;
+      maxLimit = maxLimit || 0;
+    // }
 
     var offset, limit;
 
@@ -430,7 +451,7 @@ angular.module('placekoob.services')
           order_by: orderBy,
           lon: lon,
           lat: lat,
-          r: 0
+          r: radius
         }
       })
       .then(function(response) {
@@ -655,6 +676,7 @@ angular.module('placekoob.services')
     deleteUserPost: deleteUserPost,
     deleteContentInUserPost: deleteContentInUserPost,
     uploadImage: uploadImage,
+    getRegionsOfMine: getRegionsOfMine,
     getPostsOfMine: getPostsOfMine,
     getPostsWithPlace: getPostsWithPlace,
     getPost: getPost,
@@ -668,7 +690,7 @@ angular.module('placekoob.services')
     dropIplace: dropIplace
   }
 }])
-.factory('PostHelper', ['RESTServer', 'StorageService', function(RESTServer, StorageService) {
+.factory('PostHelper', ['RESTServer', 'StorageService', 'MapService', function(RESTServer, StorageService, MapService) {
   function getTags(post) {
     if (!post.userPost || !post.userPost.notes || post.userPost.notes.length === 0) {
       return [];
@@ -901,6 +923,37 @@ angular.module('placekoob.services')
     }
   }
 
+  function convertRadiusToString(r) {
+    if (r < 1000) {
+      return '주변';
+    } else {
+      return '주변 ' + ((r + (1000 - r % 1000)) / 1000) + 'km';
+    }
+  }
+
+  function convertRegionToString(region) {
+    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon)
+    .then(function(addr) {
+      // region.name
+      // console.dir(addr);
+      var a = addr.region.split(' ');
+      region.name = a[a.length - 1];
+    }, function(err) {
+      console.error(JSON.stringify(err));
+    });
+  }
+
+  function decorateRegion(region) {
+    region.radiusName = convertRadiusToString(region.radius);
+    convertRegionToString(region);
+  }
+
+  function decorateRegions(regions) {
+    for (var i = 0; i < regions.length; i++) {
+      decorateRegion(regions[i]);
+    }
+  }
+
   function updateDistance(posts, curPos) {
     for (var i = 0; i < posts.length; i++) {
       posts[i].distance_from_origin = getDistance(posts[i], curPos);
@@ -923,6 +976,8 @@ angular.module('placekoob.services')
     getTimeString: getTimeString,
     decoratePost: decoratePost,
     decoratePosts: decoratePosts,
+    decorateRegion: decorateRegion,
+    decorateRegions: decorateRegions,
     updateDistance: updateDistance,
     calcDistance: calcDistance,
     getReadablePhoneNo: getReadablePhoneNo
