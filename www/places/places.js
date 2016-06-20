@@ -5,7 +5,7 @@ angular.module('placekoob.controllers')
 	var places = this;
 	places.postHelper = PostHelper;
 	places.orderingTypeName = ['-modified', 'modified', 'distance_from_origin', '-distance_from_origin'];
-	places.orderingType = 0;
+	places.orderingType = $stateParams.latitude && $stateParams.longitude && $stateParams.radius ? 2 : 0;
 	places.showDelete = false;
 	places.notYetCount = 0;
 	places.itemHeight = '99px';
@@ -13,6 +13,7 @@ angular.module('placekoob.controllers')
 	places.completedFirstLoading = false;
 	places.totalCount = 0;
 	places.SPS = starPointIconService;
+	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) + ', ' : '';
 
 	places.popOverOrdering = function(event) {
 		$ionicPopover.fromTemplateUrl('popover-ordering.html', {
@@ -28,26 +29,6 @@ angular.module('placekoob.controllers')
 		return places.orderingType === orderingType;
 	}
 
-	function sortByDate(a, b) {
-		return a.created - b.created;
-	}
-	function sortByDistance(a, b) {
-		return a.distance_from_origin - b.distance_from_origin;
-	}
-
-	function sortPosts(type, isAsc, preventDuple, delegationFunc) {
-		if (preventDuple) {
-			if (places.orderingType == type) {
-				return;
-			}
-		}
-		places.orderingType = type;
-		var ascFactor = isAsc ? 1 : -1;
-		places.posts.sort(function(a, b) {
-			return delegationFunc(a, b) * ascFactor;
-		})
-	}
-
 	places.changeOrderingType = function(type) {
 		places.popOver.hide();
 		if (places.orderingType !== type) {
@@ -58,18 +39,6 @@ angular.module('placekoob.controllers')
 			});
 		}
 	}
-	places.orderByDate = function(isRecent) {
-		if (isRecent)
-		console.log("places.orderByDate(" + isRecent + ") is invoked.");
-		places.popOver.hide();
-		sortPosts(0 + (isRecent ? 0 : 1), !isRecent, true, sortByDate);
-	};
-
-	places.orderByDistance = function(isNear) {
-		console.log('places.orderByDistance is invoked.');
-		places.popOver.hide();
-		sortPosts(2 + (isNear? 0: 1), isNear, true, sortByDistance);
-	};
 
 	places.onItemDelete = function(post) {
 		console.log('onItemDelete is invoked, but not implemented yet.');

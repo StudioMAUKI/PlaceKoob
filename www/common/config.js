@@ -28,7 +28,7 @@ angular.module('placekoob.config', [])
     }
   })
 	.state('tab.places', {
-    url: '/places?latitude&longitude&radius',
+    url: '/places?latitude&longitude&radius&rname',
     views: {
       'places': {
         templateUrl: 'places/places.html',

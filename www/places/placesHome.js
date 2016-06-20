@@ -43,7 +43,8 @@ angular.module('placekoob.controllers')
 		$state.go('tab.places', {
 			latitude: placesHome.regions[index].lonLat.lat,
 			longitude: placesHome.regions[index].lonLat.lon,
-			radius: placesHome.regions[index].radius
+			radius: placesHome.regions[index].radius,
+			rname: encodeURI(placesHome.regions[index].name + ' ' + placesHome.regions[index].radiusName)
 		});
 	}
 }]);
