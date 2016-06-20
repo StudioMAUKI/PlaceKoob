@@ -15,7 +15,7 @@
 			</ion-item>
     </ion-list>
 		<div class="region-list">
-			<div class="region" ng-repeat="region in placesHome.regions track by $index">
+			<div class="region" ng-repeat="region in placesHome.regions track by $index" ng-click="placesHome.goToPlaces($index)">
 				<span class="region-title">{{region.name}} {{region.radiusName}}</span>
 				<span class="region-count">{{region.count}}</span>
 				<img class="region-img" ng-style="{height:placesHome.calculatedHeight || placesHome.getImageHeight()}"  src="img/add_photo.svg">

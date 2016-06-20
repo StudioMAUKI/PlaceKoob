@@ -113,16 +113,26 @@ angular.module('placekoob.controllers')
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
 		var pos = position || 'top';
-		var curPos = StorageService.get('curPos');
-		var lon = curPos.longitude || null;
-		var lat = curPos.latitude || null;
+		var lon, lat, radius;
+
+		console.dir($stateParams);
+		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
+			lat = parseFloat($stateParams.latitude);
+			lon = parseFloat($stateParams.longitude);
+			radius = parseInt($stateParams.radius);
+		} else {
+			var curPos = StorageService.get('curPos');
+			lon = curPos.longitude || null;
+			lat = curPos.latitude || null;
+			radius = 0;
+		}
 
 		if (places.completedFirstLoading === false) {
 			$ionicLoading.show({
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
-		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat)
+		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius)
 		.then(function(result) {
 			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;
@@ -177,10 +187,10 @@ angular.module('placekoob.controllers')
 	// 	});
 	// });
 
-	if ($stateParams.uplace_uuid) {
-		console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
-		$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
-	}
+	// if ($stateParams.uplace_uuid) {
+	// 	console.log('PlaceID를 넘겨 받음 : ' + $stateParams.uplace_uuid);
+	// 	$state.go('tab.place', {uplace_uuid: $stateParams.uplace_uuid});
+	// }
 
 	places.loadSavedPlace('top');
 }]);

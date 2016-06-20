@@ -402,18 +402,20 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getPostsOfMine(position, orderBy, lon, lat) {
+  function getPostsOfMine(position, orderBy, lon, lat, radius) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
     position = position || 'top';
     orderBy = orderBy || '-modified';
-    if (orderBy === '-modified' || orderBy === 'modified') {
-      lon = null;
-      lat = null;
-    } else {
+    // if (orderBy === '-modified' || orderBy === 'modified') {
+    //   lon = null;
+    //   lat = null;
+    //   radius = 0;
+    // } else {
       lon = lon || null;
       lat = lat || null;
-    }
+      radius = radius || 0;
+    // }
 
     var offset, limit;
 
@@ -448,7 +450,7 @@ angular.module('placekoob.services')
           order_by: orderBy,
           lon: lon,
           lat: lat,
-          r: 0
+          r: radius
         }
       })
       .then(function(response) {

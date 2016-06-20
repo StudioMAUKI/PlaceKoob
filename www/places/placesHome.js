@@ -37,4 +37,13 @@ angular.module('placekoob.controllers')
     }
     return 0;
   };
+
+	placesHome.goToPlaces = function(index) {
+		console.log('Places index : ' + index);
+		$state.go('tab.places', {
+			latitude: placesHome.regions[index].lonLat.lat,
+			longitude: placesHome.regions[index].lonLat.lon,
+			radius: placesHome.regions[index].radius
+		});
+	}
 }]);
