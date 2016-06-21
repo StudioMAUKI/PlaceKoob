@@ -134,13 +134,16 @@ angular.module('placekoob.controllers')
 
   map.getCurrentPosition = function() {
 		var deferred = $q.defer();
+    // console.log('before MapService.getCurrentPosition()');
 		MapService.getCurrentPosition()
 		.then(function(pos){
+      // console.log('after MapService.getCurrentPosition()');
+      console.dir(pos);
 			RemoteAPIService.updateCurPos(pos);
 			MapService.getCurrentAddress(pos.latitude, pos.longitude);
 			deferred.resolve(pos);
 		}, function(err) {
-			deferred.reject(err);
+      deferred.reject(err);
 		});
 		return deferred.promise;
 	};

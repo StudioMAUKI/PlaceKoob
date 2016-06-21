@@ -136,6 +136,7 @@ angular.module('placekoob.services', [])
 
   function getCurrentPosition() {
     return $q(function(resolve, reject) {
+      // console.info('in MapService.getCurrentPosition()');
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           pos.latitude = position.coords.latitude;
@@ -144,11 +145,24 @@ angular.module('placekoob.services', [])
           console.info('Original position is (' + pos.latitude + ', ' + pos.longitude + ').');
 
           resolve(pos);
-        }, function() {
+        }, function(err) {
+          console.error('MapService.getCurrentPosition() is failed.');
+          console.dir(err);
+          // PositionError
+          // code:3
+          // message:"Timeout expired"
+          // __proto__:
+          // PositionError
+          // 	PERMISSION_DENIED:1
+          // 	POSITION_UNAVAILABLE:2
+          // 	TIMEOUT:3
           pos.latitude = 37.403425;
           pos.longitude = 127.105783;
 
           resolve(pos);
+        }, {
+          timeout: 10000,
+          enableHighAccuracy: true
         });
       } else {
         reject('Browser doesn\'t support Geolocation');
