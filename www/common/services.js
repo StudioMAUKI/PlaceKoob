@@ -133,6 +133,7 @@ angular.module('placekoob.services', [])
 }])
 .factory('MapService', ['$q', 'StorageService', function($q, StorageService) {
   var pos = { latitude: 0.0, longitude: 0.0 };
+  var warchID = null;
 
   function getCurrentPosition() {
     return $q(function(resolve, reject) {
@@ -161,14 +162,44 @@ angular.module('placekoob.services', [])
 
           resolve(pos);
         }, {
-          timeout: 10000,
-          enableHighAccuracy: true
+          timeout: 60000
+          // enableHighAccuracy: true
         });
       } else {
         reject('Browser doesn\'t support Geolocation');
       }
     });
   };
+
+  function watchCurrentPosition(success, fail) {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(function(position) {
+        pos.latitude = position.coords.latitude;
+        pos.longitude = position.coords.longitude;
+        StorageService.set('curPos', pos);
+        console.info('Changed position is (' + pos.latitude + ', ' + pos.longitude + ').');
+
+        success(pos);
+      }, function(err) {
+        console.error('MapService.watchCurrentPosition() is failed.');
+        console.dir(err);
+        fail(err);
+      }, {
+        timeout: 60000
+        // enableHighAccuracy: true
+      });
+    } else {
+      return -1;
+    }
+  }
+
+  function clearWatch() {
+    if (watchID != null) {
+      if (navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchID);
+      }
+    }
+  }
 
   function getCurrentAddress(latitude, longitude) {
     var deferred = $q.defer();
@@ -202,7 +233,9 @@ angular.module('placekoob.services', [])
 
   return {
     getCurrentPosition: getCurrentPosition,
-    getCurrentAddress: getCurrentAddress
+    getCurrentAddress: getCurrentAddress,
+    watchCurrentPosition: watchCurrentPosition,
+    clearWatch: clearWatch
   };
 }])
 .factory('CacheService', [function() {

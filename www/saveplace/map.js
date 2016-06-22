@@ -6,6 +6,7 @@ angular.module('placekoob.controllers')
   map.prevIndex = 0;
 	map.last_marker_index = -1;
 	map.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
+  map.initPos = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	map.lastMapCenter = {};
   map.lastZoom = 15;
 	map.enabled = true;
@@ -36,6 +37,7 @@ angular.module('placekoob.controllers')
   map.showInfoWindow = true;
   // map.postInfoWindows = [];
   map.tags = [];
+  map.customViewMode = false;
 
   $scope.$on('$ionicView.afterEnter', function() {
 		console.log('$ionicView.afterEnter');
@@ -51,14 +53,40 @@ angular.module('placekoob.controllers')
     map.enabled = false;
   });
 
+  $scope.$on('$ionicView.unloaded', function() {
+    console.info('mapView is unloaded');
+    MapService.clearWatch();
+  });
+
   $scope.$on('map.changeCenter', function(event, lonLat) {
     console.log('map.map.changeCenter : ' + JSON.stringify(lonLat));
+    map.customViewMode = true;
     setTimeout(function() {
       map.mapObj.setCenter({
         lat: lonLat.lat,
         lng: lonLat.lon
       })
     }, 500);
+  });
+
+  $scope.$on('map.position.update', function(event, pos) {
+    map.initPos = pos;
+    if (map.customViewMode === false) {
+      // console.info('New position info is updated.');
+      if (map.curMarker) {
+        map.curMarker.setPosition({
+          lat: pos.latitude,
+          lng: pos.longitude
+        });
+
+        map.mapObj.setCenter({
+          lat: pos.latitude,
+          lng: pos.longitude
+        });
+      }
+    } else {
+      console.info('New position info is updated, but current view mode is customViewMode.');
+    }
   });
 
   map.showAlert = function(title, msg) {
@@ -138,7 +166,7 @@ angular.module('placekoob.controllers')
 		MapService.getCurrentPosition()
 		.then(function(pos){
       // console.log('after MapService.getCurrentPosition()');
-      console.dir(pos);
+      // console.dir(pos);
 			RemoteAPIService.updateCurPos(pos);
 			MapService.getCurrentAddress(pos.latitude, pos.longitude);
 			deferred.resolve(pos);
@@ -150,75 +178,62 @@ angular.module('placekoob.controllers')
 
   map.loadMap = function() {
     console.log('call loadMap');
-		$ionicLoading.show({
-			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 10000
-		});
-
-		map.getCurrentPosition()
-    .then(function(pos){
-      // var pos = {
-      //   latitude: 37.4000164,
-      //   longitude: 127.10406169999999
-      // };
-      map.mapObj.setCenter({
-        lat: pos.latitude,
-        lng: pos.longitude
-      });
-			map.lastMapCenter.latitude = pos.latitude;
-			map.lastMapCenter.longitude = pos.longitude;
-      map.mapObj.addListener('zoom_changed', function() {
-        var curZoom = map.mapObj.getZoom();
-        if (map.lastZoom !== curZoom) {
-          map.lastZoom = curZoom;
-          console.log('zoom_changed: ' + map.lastZoom);
-          map.loadSavedPlace();
-        }
-      });
-      map.mapObj.addListener('center_changed', function() {
-        if (map.enabled) {
-          var mapCenter = map.mapObj.getCenter();
-          var ne = map.mapObj.getBounds().getNorthEast();
-          var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
-          // console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
-          // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
-					var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
-					if (dist > maxDist * 0.7) {
-						map.lastMapCenter.latitude = mapCenter.lat();
-						map.lastMapCenter.longitude = mapCenter.lng();
-            console.log('center_changed');
-						map.loadSavedPlace();
-					}
+    map.mapObj.setCenter({
+      lat: map.initPos.latitude,
+      lng: map.initPos.longitude
+    });
+		map.lastMapCenter.latitude = map.initPos.latitude;
+		map.lastMapCenter.longitude = map.initPos.longitude;
+    map.mapObj.addListener('zoom_changed', function() {
+      var curZoom = map.mapObj.getZoom();
+      if (map.lastZoom !== curZoom) {
+        map.lastZoom = curZoom;
+        console.log('zoom_changed: ' + map.lastZoom);
+        map.loadSavedPlace();
+      }
+    });
+    map.mapObj.addListener('center_changed', function() {
+      if (map.enabled) {
+        var mapCenter = map.mapObj.getCenter();
+        var ne = map.mapObj.getBounds().getNorthEast();
+        var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
+        // console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
+        // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
+				var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
+				if (dist > maxDist * 0.7) {
+					map.lastMapCenter.latitude = mapCenter.lat();
+					map.lastMapCenter.longitude = mapCenter.lng();
+          console.log('center_changed');
+					map.loadSavedPlace();
 				}
-      });
+			}
+    });
+    map.mapObj.addListener('dragend', function() {
+      console.info('map dragend event');
+      map.customViewMode = true;
+    });
 
-      map.curMarker = gmapService.deleteMarker(map.curMarker);
-      map.curMarker = gmapService.createMarker({
-        map: map.mapObj,
-        position: { lat: pos.latitude, lng: pos.longitude },
-        draggable: true,
-        zIndex: 9999
+    map.curMarker = gmapService.deleteMarker(map.curMarker);
+    map.curMarker = gmapService.createMarker({
+      map: map.mapObj,
+      position: { lat: map.initPos.latitude, lng: map.initPos.longitude },
+      draggable: true,
+      zIndex: 9999
+    });
+    map.curMarker.addListener('dragend', function(event) {
+      console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
+      map.mapObj.setCenter(event.latLng);
+      StorageService.set('curPos', {
+        latitude: event.latLng.lat(),
+        longitude: event.latLng.lng()
       });
-      map.curMarker.addListener('dragend', function(event) {
-        console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
-        map.mapObj.setCenter(event.latLng);
-        StorageService.set('curPos', {
-          latitude: event.latLng.lat(),
-          longitude: event.latLng.lng()
-        });
-      });
+    });
 
-      map.loadedMap = true;
-      //  아래쪽 resize 이벤트를 발생시키지 않으면 지도가 회색으로 나옴(why? -_-)
-      google.maps.event.trigger(map.mapObj, 'resize');
-      console.log('map loaded');
-      map.loadSavedPlace();
-    }, function(err){
-      map.showAlert('Warning!', err);
-    })
-		.finally(function() {
-			$ionicLoading.hide();
-		});
+    map.loadedMap = true;
+    //  resize 이벤트를 발생시키지 않으면 지도가 회색으로 나옴(why? -_-)
+    google.maps.event.trigger(map.mapObj, 'resize');
+    console.log('map loaded');
+    map.loadSavedPlace();
 	};
 
   map.loadSavedPlace = function() {
@@ -347,9 +362,10 @@ angular.module('placekoob.controllers')
   };
 
   map.refresh = function() {
+    map.customViewMode = false;
     $ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 60000
+			duration: 10000
 		});
 		map.getCurrentPosition()
     .then(function(pos){
@@ -370,6 +386,15 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicLoading.hide();
     });
+    // var curpos = map.curMarker.getPosition();
+    // map.curMarker.setPosition({
+    //   lat: curpos.lat() + 0.0005,
+    //   lng: curpos.lng() + 0.0005
+    // });
+    // map.mapObj.setCenter({
+    //   lat: curpos.lat() + 0.0005,
+    //   lng: curpos.lng() + 0.0005
+    // });
   }
 
   map.toggleInfoWindow = function() {
