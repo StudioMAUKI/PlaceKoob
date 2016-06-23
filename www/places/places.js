@@ -163,7 +163,7 @@ angular.module('placekoob.controllers')
 		var lonLat = {
 			lat: places.latitude,
 			lon: places.longitude
-		}
+		};
     console.log('goToMap : ' + JSON.stringify(lonLat));
     //  이거 타임아웃 안해주면, 에러남!!
     setTimeout(function() {
