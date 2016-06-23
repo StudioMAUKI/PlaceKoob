@@ -655,6 +655,7 @@ angular.module('placekoob.services')
       url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(response) {
+      // console.dir(response.data);
       PostHelper.decoratePost(response.data);
       deferred.resolve(response.data);
     }, function(err) {

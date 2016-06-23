@@ -10091,6 +10091,7 @@ label.chat-input {
 
 .like-btn {
   top: 130px;
+  right: 10px;
   display: block;
   position: absolute; }
 
@@ -10149,6 +10150,10 @@ label.chat-input {
   .like-button-with-text-green span {
     font-size: 13px;
     font-weight: bold; }
+
+.star-points-container {
+  font-size: 30px;
+  color: #FFC107; }
 
 .star-point {
   font-size: 50px;

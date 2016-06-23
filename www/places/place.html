@@ -27,10 +27,10 @@
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
 						</div>
 					</div>
-					<div class="row" style="font-size:30px;color:orange;">
+					<div class="row star-points-container">
 						<div class="col">
 						</div>
-						<div class="col" ng-repeat="icon in place.starPointIcons track by $index">
+						<div class="col" ng-repeat="icon in place.starPointIcons track by $index" ng-click="place.setStarPoint()">
 			        <i class="{{icon}}"></i>
 			      </div>
 						<div class="col">
@@ -38,14 +38,14 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index">{{tag.content}}&nbsp;</div>
+							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">{{tag.content}}&nbsp;</div>
 						</div>
 					</div>
         </div>
       	<!-- <img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;"> -->
       </div>
-			<div class="row like-btn">
-				<div class="col text-right">
+			<div class="like-btn">
+				<div class="text-right">
 					<div ng-class="place.visited ? 'bg-color-accent like-button-with-text':'bg-color-white like-button-with-text-green'" ng-click="place.visit()">
 						<i ng-if="!place.visited" class="ion-help" ng-class="'color-green'"></i>
 						<i ng-if="place.visited" class="ion-alert" ng-class="'color-white'"></i>
@@ -59,7 +59,7 @@
 			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글</a>
 			<a class="button" ng-click="place.addURL()"><i class="ion-link"></i> URL추가</a>
 			<!-- <a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a> -->
-			<a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a>
+			<!-- <a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a> -->
 		</div>
 		<div class="user-image">
 			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight || place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">

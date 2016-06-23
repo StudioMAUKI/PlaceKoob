@@ -619,7 +619,11 @@ angular.module('placekoob.controllers')
     var enter = 13;
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
-      map.tags.push(map.tag);
+      if (map.tag.length > 0) {
+        map.tags.push(map.tag);
+      } else {
+        console.warn('입력 받은 태그의 길이가 0임.');
+      }
       map.tag = '';
     }
   };

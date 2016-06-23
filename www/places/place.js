@@ -570,6 +570,11 @@ angular.module('placekoob.controllers')
     place.showModal('places/star-point-modal.html');
   };
 
+  place.showTagCloud = function() {
+    console.log('showTagCloud');
+    place.showModal('places/star-point-modal.html');
+  }
+
   place.onTapStarPoint = function(event) {
     // if(ionic.Platform.isIOS()) {
     //   place.starPoint = (event.target.max / event.target.offsetWidth)*(event.gesture.touches[0].screenX - event.target.offsetLeft);
