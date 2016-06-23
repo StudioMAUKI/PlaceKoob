@@ -534,8 +534,9 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
 			duration: 60000
 		});
-		map.getCurrentPosition()
-		.then(function(curPos) {
+		// map.getCurrentPosition()
+		// .then(function(curPos) {
+      var curPos = StorageService.get('curPos');
 			RemoteAPIService.uploadImage(map.attatchedImage)
 			.then(function(response) {
         console.log('response file: ' + response.file);
@@ -571,10 +572,10 @@ angular.module('placekoob.controllers')
 				$ionicLoading.hide();
 				map.showAlert('오류: 이미지 업로드', err);
 			});
-		}, function(err) {
-			$ionicLoading.hide();
-			map.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
-		});
+		// }, function(err) {
+		// 	$ionicLoading.hide();
+		// 	map.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
+		// });
 	};
 
   map.confirmSaveURL = function() {
