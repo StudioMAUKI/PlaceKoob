@@ -283,7 +283,7 @@ angular.module('placekoob.controllers')
         uplace_uuid: place.uplace_uuid
       })
       .then(function(result){
-
+        place.tagsForUpdate = [];
       }, function(err) {
         console.error('Updating tags is failed.');
         console.dir(err);
@@ -585,7 +585,7 @@ angular.module('placekoob.controllers')
 		.then(function(res){
 			if (res) {
         place.tagsForUpdate.push('-' + place.post.userPost.tags[index].content);
-        place.post.userPost.tags.splice(index, 1);        
+        place.post.userPost.tags.splice(index, 1);
       }
     });
   }

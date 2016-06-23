@@ -16,8 +16,12 @@
 		<ion-list show-delete="places.showDelete">
 			<ion-item class="item-divider">
 				{{places.totalCount}}개의 장소를 정렬합니다.
+				<span class="item-note" ng-show="places.regionName">
+					<a ng-click="places.goToMap()" href="#">지도보기</a>
+					<!-- <div class="button button-icon button-clear ion-map" ng-click="places.goToMap()"></div> -->
+				</span>
 			</ion-item>
-			<ion-item collection-repeat="post in places.posts" class="item-thumbnail-left" href="#/places/{{post.uplace_uuid}}">
+			<ion-item collection-repeat="post in places.posts" class="item-thumbnail-left" href="#/places/{{post.uplace_uuid}}" nav-direction="forward">
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<h2>{{post.name}}({{post.distance_from_origin}})	<i class="{{icon}}" ng-repeat="icon in places.SPS.get(post.userPost.rating.content) track by $index"></i></h2>
 				<span class="place-item-addr">{{post.address}}</span><br>

@@ -18,7 +18,7 @@
 				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
 					<div class="row" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs">
-						<div class="col"  ng-click="place.goToMap(place.post.lonLat)">
+						<div class="col" ng-click="place.goToMap(place.post.lonLat)">
 								{{addr}}
 						</div>
 					</div>
