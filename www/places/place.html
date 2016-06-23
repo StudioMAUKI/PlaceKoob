@@ -17,12 +17,12 @@
 			<div class="profile-media">
 				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
-					<div class="row" ng-show="place.post.name" ng-repeat="addr in place.post.addrs">
+					<div class="row" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs">
 						<div class="col"  ng-click="place.goToMap(place.post.lonLat)">
 								{{addr}}
 						</div>
 					</div>
-					<div class="row" ng-show="place.post.name">
+					<div class="row" ng-show="place.post.phoneNo">
 						<div class="col">
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
 						</div>

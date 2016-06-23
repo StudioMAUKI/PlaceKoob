@@ -91,7 +91,7 @@ angular.module('placekoob.controllers')
 			deferred.resolve();
 			// console.dir(plNotYet.posts);
 		}, function(err) {
-			console.err(err);
+			console.error(err);
 			deferred.reject(err);
 		})
 		.finally(function() {
@@ -102,6 +102,10 @@ angular.module('placekoob.controllers')
 		});
 
 		return deferred.promise;
+	};
+
+	plNotYet.isEndOfList = function() {
+		return RemoteAPIService.isEndOfList('uplaces');
 	};
 
 	plNotYet.doRefresh = function(direction) {

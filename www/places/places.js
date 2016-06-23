@@ -89,7 +89,7 @@ angular.module('placekoob.controllers')
 		var pos = position || 'top';
 		var lon, lat, radius, limit;
 
-		console.dir($stateParams);
+		// console.dir($stateParams);
 		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
 			lat = parseFloat($stateParams.latitude);
 			lon = parseFloat($stateParams.longitude);

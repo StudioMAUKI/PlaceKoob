@@ -13,26 +13,38 @@
 			<div class="item item-divider">
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
-			<ion-item collection-repeat="post in plNotYet.posts" item-width="plNotYet.itemWidth" item-height="plNotYet.itemHeight" href="#/places/{{post.uplace_uuid}}">
+			<ion-item collection-repeat="post in plNotYet.posts" class="item-thumbnail-left" href="#/places/{{post.uplace_uuid}}">
+				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
+				<h2>{{post.datetime}}에 저장<span ng-show="post.distance_from_origin">({{post.distance_from_origin}})</span>	<i class="{{icon}}" ng-repeat="icon in plNotYet.SPS.get(post.userPost.rating.content) track by $index"></i></h2>
+				<span class="place-item-addr">{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.tags track by $index">{{tag}}</span>
+				<ion-option-button class="button-assertive" ng-click="plNotYet.delete(post)">
+        	Delete
+      	</ion-option-button>
+				<ion-option-button class="button-energized" ng-click="plNotYet.share(post)">
+        	Share
+      	</ion-option-button>
+			</ion-item>
+
+			<!-- <ion-item collection-repeat="post in plNotYet.posts" item-width="plNotYet.itemWidth" item-height="plNotYet.itemHeight" href="#/places/{{post.uplace_uuid}}">
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
-				<!-- <span class="place-item-name"><strong>{{post.name}}</strong></span><br> -->
-				<!-- &nbsp;-&nbsp; -->
 				<p class="place-item-addr">{{post.datetime}}에 저장</p>
-				<!-- <span class="place-item-addr">{{post.address}}</span><br> -->
-				<!-- <div class="place-item-note">{{post.desc}}</div><br> -->
+				<span class="place-item-addr">{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.tags track by $index">{{tag}}</span>
 				<ion-delete-button class="ion-minus-circled" ng-click="plNotYet.onItemDelete(post)">
       	</ion-delete-button>
 				<ion-option-button class="button-assertive" ng-click="plNotYet.delete(post)">
         	Delete
       	</ion-option-button>
-      	<!-- <ion-option-button class="button-energized" ng-click="plNotYet.share(post)">
+      	<ion-option-button class="button-energized" ng-click="plNotYet.share(post)">
         	Share
-      	</ion-option-button> -->
-			</ion-item>
+      	</ion-option-button>
+			</ion-item> -->
 		</ion-list>
-		<!-- <ion-infinite-scroll ng-if="!plNotYet.endOfList" on-infinite="plNotYet.doRefresh('bottom')" distance="1%">
-	  </ion-infinite-scroll> -->
+		<ion-infinite-scroll ng-if="!plNotYet.isEndOfList()" on-infinite="plNotYet.doRefresh('bottom')" immediate-check="false" distance="1%">
+	  </ion-infinite-scroll>
 	</ion-content>
 </ion-view>
 <!-- end : real contents area -->
