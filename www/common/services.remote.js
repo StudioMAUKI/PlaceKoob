@@ -923,6 +923,12 @@ angular.module('placekoob.services')
     if (!post.userPost.tags) {
       post.userPost.tags = [];
     }
+    post.visited = post.userPost.visit? post.userPost.visit.content : false;
+    if (post.visited === false) {
+      if (post.userPost.rating) {
+        post.visited = true;
+      }
+    }
   }
 
   function decoratePosts(posts) {

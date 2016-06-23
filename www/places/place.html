@@ -17,6 +17,7 @@
 			<div class="profile-media">
 				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
+					<h4 class="title" style="color:white;">{{place.post.name || '등록 대기중'}}</h4>
 					<div class="row" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs">
 						<div class="col" ng-click="place.goToMap(place.post.lonLat)">
 								{{addr}}

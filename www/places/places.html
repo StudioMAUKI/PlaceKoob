@@ -23,7 +23,11 @@
 			</ion-item>
 			<ion-item collection-repeat="post in places.posts" class="item-thumbnail-left" href="#/places/{{post.uplace_uuid}}" nav-direction="forward">
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
-				<h2>{{post.name}}({{post.distance_from_origin}})	<i class="{{icon}}" ng-repeat="icon in places.SPS.get(post.userPost.rating.content) track by $index"></i></h2>
+				<h2>
+					{{post.name}}({{post.distance_from_origin}})
+					<i class="ion-ios-bookmarks" style="color:#4875e9;" ng-show="!post.visited"></i>
+					<i class="{{icon}}" style="color:#FFC107;" ng-repeat="icon in places.SPS.get(post.userPost.rating.content) track by $index"></i>
+				</h2>
 				<span class="place-item-addr">{{post.address}}</span><br>
 				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
