@@ -714,8 +714,13 @@ angular.module('placekoob.services')
           }
         }
       } else {
-        subTags = JSON.parse(notes[i].content.split('#')[1]);
-        output = output.concat(subTags);
+        try{
+          console.log(notes[i].content);
+          subTags = JSON.parse(notes[i].content.split('#')[1]);
+          output = output.concat(subTags);
+        } catch (e) {
+          console.error(e.message);
+        }
       }
     }
     return output;
@@ -913,8 +918,10 @@ angular.module('placekoob.services')
     post.address = getAddress(post);
     post.addrs = getAddresses(post);
     post.desc = getDescFromUserNote(post);
-    post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
+    if (!post.userPost.tags) {
+      post.userPost.tags = [];
+    }
   }
 
   function decoratePosts(posts) {

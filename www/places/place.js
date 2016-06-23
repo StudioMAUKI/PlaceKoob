@@ -18,6 +18,14 @@ angular.module('placekoob.controllers')
   place.visited = false;
   place.calculatedHeight = 0;
 
+  $scope.$on('$ionicView.afterEnter', function() {
+		place.loadPlaceInfo();
+	});
+
+  $scope.$on('$ionicView.beforeLeave', function() {
+		place.updateTags();
+	});
+
   place.visit = function() {
     console.log('visit');
     place.visited = !place.visited;
@@ -25,7 +33,6 @@ angular.module('placekoob.controllers')
       visit: {
         content: place.visited
       },
-      lonLat: place.post.lonLat,
       uplace_uuid: place.uplace_uuid
     })
     .then(function(result) {
@@ -42,40 +49,40 @@ angular.module('placekoob.controllers')
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      // console.dir(post);
-        place.post = post;
-        if (place.post.userPost.images) {
-          place.imagesForSlide = [];
-          for (var i = 0; i < place.post.userPost.images.length; i++) {
-            place.imagesForSlide.push(place.post.userPost.images[i].content);
-          }
-          place.coverImage = place.post.userPost.images[0].summary;
-          // $scope.$apply();
+      console.dir(post);
+      place.post = post;
+      if (place.post.userPost.images) {
+        place.imagesForSlide = [];
+        for (var i = 0; i < place.post.userPost.images.length; i++) {
+          place.imagesForSlide.push(place.post.userPost.images[i].content);
         }
+        place.coverImage = place.post.userPost.images[0].summary;
+        // $scope.$apply();
+      }
 
-        place.URLs = [];
-        if (place.post.userPost.urls) {
-          for (var i = 0; i < place.post.userPost.urls.length; i++) {
-            ogParserService.getOGInfo(place.post.userPost.urls[i].content)
-            .then(function(ogInfo) {
-              place.URLs.push(ogInfo);
-            }, function(err) {
-              console.error(err);
-            });
-          }
+      place.URLs = [];
+      if (place.post.userPost.urls) {
+        for (var i = 0; i < place.post.userPost.urls.length; i++) {
+          ogParserService.getOGInfo(place.post.userPost.urls[i].content)
+          .then(function(ogInfo) {
+            place.URLs.push(ogInfo);
+          }, function(err) {
+            console.error(err);
+          });
         }
+      }
 
-        place.getDaumResult();
-        place.tagsForUpdate = [];
-        place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
-        place.changeStarPoint();
+      place.getDaumResult();
+      place.tagsForUpdate = [];
+      place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
+      place.changeStarPoint();
 
-        place.visited = post.userPost.visit? post.userPost.visit.content : false;
-        if (place.visited === false) {
-          if (post.userPost.rating) {
-            place.visited = true;
-          }
+      place.visited = post.userPost.visit? post.userPost.visit.content : false;
+      if (place.visited === false) {
+        if (post.userPost.rating) {
+          place.visited = true;
         }
+      }
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -85,7 +92,7 @@ angular.module('placekoob.controllers')
         place.goBack();
       });
     });
-  }
+  };
 
   place.deletePlace = function() {
     $ionicPopup.confirm({
@@ -108,7 +115,7 @@ angular.module('placekoob.controllers')
         });
       }
 		});
-  }
+  };
 
   place.deleteImage = function(index) {
     $ionicPopup.confirm({
@@ -136,7 +143,7 @@ angular.module('placekoob.controllers')
         });
       }
     });
-  }
+  };
 
   place.goBack = function() {
     console.log('Move Back');
@@ -146,7 +153,7 @@ angular.module('placekoob.controllers')
   place.showImagesWithFullScreen = function(index) {
     place.activeSlide = index;
     place.showModal('places/image-zoomview.html');
-  }
+  };
 
   place.showModal = function(templateURL) {
     $ionicModal.fromTemplateUrl(templateURL, {
@@ -155,7 +162,7 @@ angular.module('placekoob.controllers')
       place.modal = modal;
       place.modal.show();
     });
-  }
+  };
 
   place.closeModal = function() {
     place.modal.hide();
@@ -223,7 +230,7 @@ angular.module('placekoob.controllers')
         });
       }
     });
-  }
+  };
 
   place.deleteNote = function(index) {
     console.log('note index : ' + index);
@@ -253,7 +260,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicListDelegate.closeOptionButtons();
     });
-  }
+  };
 
   place.updateTags = function() {
     if (place.tagsForUpdate.length > 0) {
@@ -270,7 +277,7 @@ angular.module('placekoob.controllers')
         console.dir(err);
       });
     }
-  }
+  };
 
   place.addURL= function() {
     // An elaborate, custom popup
@@ -371,7 +378,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicListDelegate.closeOptionButtons();
     });
-  }
+  };
 
   place.addPhoto = function() {
     $ionicActionSheet.show({
@@ -500,7 +507,7 @@ angular.module('placekoob.controllers')
       console.log('URL encoded keyword : ', keyword);
     }
     return keyword;
-  }
+  };
 
   place.getDaumResult = function() {
     var keyword = place.makeKeyword();
@@ -525,7 +532,7 @@ angular.module('placekoob.controllers')
         })
       });
     }
-  }
+  };
 
   place.searchPlace = function() {
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + place.makeKeyword(), '_system');
@@ -548,8 +555,12 @@ angular.module('placekoob.controllers')
     var enter = 13;
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
-      place.post.tags.push(place.tag);
-      place.tagsForUpdate.push(place.tag);
+      if (place.tag.length > 0) {
+        place.post.userPost.tags.push({content:place.tag});
+        place.tagsForUpdate.push(place.tag);
+      } else {
+        console.warn('입력 받은 태그의 길이가 0임.');
+      }
       place.tag = '';
     }
   };
@@ -565,7 +576,7 @@ angular.module('placekoob.controllers')
     //   console.log('starPoint : ' + place.starPoint);
     // }
     place.changeStarPoint();
-  }
+  };
 
   place.confirmStarPoint = function() {
     // console.log('uplace_uuid: ' + place.uplace_uuid);
@@ -573,7 +584,6 @@ angular.module('placekoob.controllers')
       rating: {
         content: place.starPoint
       },
-      lonLat: place.post.lonLat,
       uplace_uuid: place.uplace_uuid
     })
     .then(function(result) {
@@ -591,7 +601,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       place.closeModal();
     });
-  }
+  };
 
   place.changeStarPoint = function() {
     // console.log(place.starPoint);
@@ -610,7 +620,7 @@ angular.module('placekoob.controllers')
     ];
 
     place.starPointIcons = starPointArray[place.starPoint];
-  }
+  };
 
   place.goToMap = function(lonLat) {
     console.log('goToMap : ' + JSON.stringify(lonLat));
@@ -619,22 +629,14 @@ angular.module('placekoob.controllers')
       $state.go('tab.map');
       $scope.$emit('map.changeCenter.request', lonLat);
     }, 100);
-  }
+  };
 
   $ionicSlideBoxDelegate.update();
   place.onUserDetailContentScroll = function(){
     var scrollDelegate = $ionicScrollDelegate.$getByHandle('userDetailContent');
     var scrollView = scrollDelegate.getScrollView();
     $scope.$broadcast('userDetailContent.scroll', scrollView);
-  }
-
-  $scope.$on('$ionicView.afterEnter', function() {
-		place.loadPlaceInfo();
-	});
-
-  $scope.$on('$ionicView.beforeLeave', function() {
-		place.updateTags();
-	});
+  };
 }])
 .directive('headerShrink', function($document) {
   return {

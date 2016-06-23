@@ -27,7 +27,7 @@
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
 						</div>
 					</div>
-					<div class="row" style="font-size:30px;color:orange;" ng-show="place.post.name">
+					<div class="row" style="font-size:30px;color:orange;">
 						<div class="col">
 						</div>
 						<div class="col" ng-repeat="icon in place.starPointIcons track by $index">
@@ -38,7 +38,7 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in place.post.tags track by $index">{{tag}}&nbsp;</div>
+							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index">{{tag.content}}&nbsp;</div>
 						</div>
 					</div>
         </div>
