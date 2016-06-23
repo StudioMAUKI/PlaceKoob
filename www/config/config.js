@@ -39,7 +39,7 @@ angular.module('placekoob.controllers')
       console.log("Foursquare 꺼졌음");
       SocialService.foursquare.token = '';
     }
-  }
+  };
 
   config.requestUserInfo = function() {
     console.log("The request URL is " + SocialService.foursquare.getUserInfoURL('lists'));
@@ -49,14 +49,14 @@ angular.module('placekoob.controllers')
     }, function(error) {
       console.log("Error -> " + error);
     });
-  }
+  };
 
 	config.connectOther = function() {
 		config.google = false;
 		config.naver = false;
 		config.libraries = false;
 		config.contacts = false;
-	}
+	};
 
 	config.logout = function() {
 		RemoteAPIService.logoutUser(0);
@@ -72,11 +72,16 @@ angular.module('placekoob.controllers')
 				$state.go('register');
 			}
 		});
-	}
+	};
 
 	config.setDevMode = function (){
 		StorageService.set('devmode', config.devmode);
 		// 환경 바뀌면 로그아웃 해야 함
 		config.logout();
-	}
+	};
+
+	config.goBack = function() {
+    console.log('Move Back');
+    $state.go('tab.config-home');
+  };
 }]);

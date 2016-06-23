@@ -27,16 +27,6 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.places', {
-    url: '/places?latitude&longitude&radius&rname&limit',
-    views: {
-      'places': {
-        templateUrl: 'places/places.html',
-        controller: 'placesCtrl',
-        controllerAs: 'places'
-      }
-    }
-  })
 	.state('tab.home-places', {
     url: '/home-places',
     views: {
@@ -44,6 +34,16 @@ angular.module('placekoob.config', [])
         templateUrl: 'places/places-home.html',
         controller: 'placesHomeCtrl',
         controllerAs: 'placesHome'
+      }
+    }
+  })
+	.state('tab.places', {
+    url: '/places?latitude&longitude&radius&rname&limit',
+    views: {
+      'places': {
+        templateUrl: 'places/places.html',
+        controller: 'placesCtrl',
+        controllerAs: 'places'
       }
     }
   })
@@ -107,11 +107,21 @@ angular.module('placekoob.config', [])
       }
     }
   })
-  .state('tab.config', {
+  .state('tab.config-home', {
     url: '/config',
     views: {
       'config': {
         templateUrl: 'config/config.html',
+        controller: 'configCtrl',
+        controllerAs: 'config'
+      }
+    }
+  })
+	.state('tab.config-import', {
+    url: '/config/import',
+    views: {
+      'config': {
+        templateUrl: 'config/config-import.html',
         controller: 'configCtrl',
         controllerAs: 'config'
       }

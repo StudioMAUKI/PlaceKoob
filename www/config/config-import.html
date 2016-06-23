@@ -1,0 +1,27 @@
+<ion-view title="가져오기">
+	<ion-header-bar class="pk-dark-primary" align-title="center">
+    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="config.goBack()" nav-direction="back">
+      이전
+    </button>
+		<h1 class="title">가져오기</h1>
+	</ion-header-bar>
+	<ion-content>
+		<ion-list>
+      <ion-toggle  ng-model="config.foursquare" ng-change="config.connectFoursqaure()">
+        <i class="icon ion-social-foursquare"></i> Foursquare
+      </ion-toggle>
+			<!-- <ion-toggle  ng-model="config.google" ng-change="config.connectOther()">
+        <i class="icon ion-social-google"></i> Google maps
+      </ion-toggle> -->
+			<!-- <ion-toggle  ng-model="config.naver" ng-change="config.connectOther()">
+        <i class="icon ion-chatbox"></i> NAVER Blog
+      </ion-toggle> -->
+			<ion-toggle  ng-model="config.libraries" ng-change="config.connectOther()">
+        <i class="icon ion-images"></i> Photo libraries
+      </ion-toggle>
+			<ion-toggle  ng-model="config.contacts" ng-change="config.connectOther()">
+        <i class="icon ion-person-stalker"></i> User
+      </ion-toggle>
+    </ion-list>
+	</ion-content>
+</ion-view>
