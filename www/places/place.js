@@ -17,6 +17,7 @@ angular.module('placekoob.controllers')
   place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
   place.visited = false;
   place.calculatedHeight = 0;
+  place.buttonColor = ['stable', 'positive', 'calm', 'balanced', 'energized', 'assertive', 'royal', 'dark'];
 
   $scope.$on('$ionicView.afterEnter', function() {
 		place.loadPlaceInfo();
@@ -25,6 +26,12 @@ angular.module('placekoob.controllers')
   $scope.$on('$ionicView.beforeLeave', function() {
 		place.updateTags();
 	});
+
+  place.getTagColor = function() {
+    var random = Math.random();
+    console.log('random value: ' + random);
+    return 'button-' + place.buttonColor[Math.floor(random*1000)%place.buttonColor.length];
+  }
 
   place.visit = function() {
     console.log('visit');
@@ -70,6 +77,10 @@ angular.module('placekoob.controllers')
             console.error(err);
           });
         }
+      }
+
+      for (var i = 0; i < place.post.userPost.tags.length; i++) {
+        place.post.userPost.tags[i].color = place.getTagColor();
       }
 
       place.getDaumResult();
@@ -166,7 +177,8 @@ angular.module('placekoob.controllers')
 
   place.closeModal = function() {
     place.modal.hide();
-    place.modal.remove()
+    place.modal.remove();
+    console.dir(place.tagsForUpdate);
   };
 
   place.updateSlideStatus = function(slide) {
@@ -556,7 +568,7 @@ angular.module('placekoob.controllers')
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
       if (place.tag.length > 0) {
-        place.post.userPost.tags.push({content:place.tag});
+        place.post.userPost.tags.push({content:place.tag, color:place.getTagColor()});
         place.tagsForUpdate.push(place.tag);
       } else {
         console.warn('입력 받은 태그의 길이가 0임.');
@@ -565,6 +577,19 @@ angular.module('placekoob.controllers')
     }
   };
 
+  place.deleteTag = function(index) {
+    $ionicPopup.confirm({
+			title: '태그 삭제',
+			template: '#' + place.post.userPost.tags[index].content + ' 태그를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        place.tagsForUpdate.push('-' + place.post.userPost.tags[index].content);
+        place.post.userPost.tags.splice(index, 1);        
+      }
+    });
+  }
+
   place.setStarPoint = function() {
     console.log('setStarPoint');
     place.showModal('places/star-point-modal.html');
@@ -572,7 +597,7 @@ angular.module('placekoob.controllers')
 
   place.showTagCloud = function() {
     console.log('showTagCloud');
-    place.showModal('places/star-point-modal.html');
+    place.showModal('places/tag-cloud-modal.html');
   }
 
   place.onTapStarPoint = function(event) {

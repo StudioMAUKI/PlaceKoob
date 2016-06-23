@@ -38,7 +38,8 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">{{tag.content}}&nbsp;</div>
+							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">#{{tag.content}}</div>
+							<!-- <button class="button button-energized button-small button-outline" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">#{{tag.content}}</button> -->
 						</div>
 					</div>
         </div>
