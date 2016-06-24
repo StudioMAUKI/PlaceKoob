@@ -139,6 +139,11 @@ angular.module('placekoob.controllers')
 
   map.slidehasChanged = function(index) {
 		map.postMarkers[index].setIcon('img/icon/dot_active.svg');
+    // map.postMarkers[index].setOptions({
+    //   fillColor: '#FFC107',
+    //   strokeColor: '#FFC107',
+    //   zIndex:9999
+    // });
 
 		//	선택된 마커가 현재의 지도 안에 있는 지 확인
 		if (!isMarkerContained(map.posts[index].lonLat.lat, map.posts[index].lonLat.lon)) {
@@ -151,9 +156,15 @@ angular.module('placekoob.controllers')
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (map.prevIndex < map.posts.length) {
       map.postMarkers[map.prevIndex].setIcon('img/icon/dot_normal.svg');
+      // map.postMarkers[map.prevIndex].setOptions({
+      //   fillColor: '#2e4a94',
+      //   strokeColor: '#4875e9',
+      //   zIndex: map.prevIndex
+      // });
       map.postMarkers[map.prevIndex].setZIndex(map.prevIndex);
-      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
 			map.postMarkers[index].setZIndex(9999);
+
+      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
       // map.postInfoWindows[index].setZIndex(9999);
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
@@ -265,6 +276,13 @@ angular.module('placekoob.controllers')
           draggable: false,
           zIndex: (i === 0 ? 9999 : i)
         }));
+        // map.postMarkers.push(gmapService.createMarker2({
+        //   zIndex: (i === 0 ? 9999 : i),
+        //   fillColor: (i === 0 ? '#FFC107' : null),
+        //   strokeColor: (i === 0 ? '#FFC107' : null),
+        //   center: { lat: map.posts[i].lonLat.lat, lng: map.posts[i].lonLat.lon },
+        //   map: map.mapObj
+        // }));
         map.postMarkers[i].addListener('click', (function(i) {
             return function() {
               console.log('marker click : ' + i);

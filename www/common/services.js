@@ -447,6 +447,20 @@ angular.module('placekoob.services', [])
     return new google.maps.Marker(markerOption);
   }
 
+  function createMarker2(markerOption) {
+    return new google.maps.Circle({
+      zIndex: markerOption.zIndex || 100,
+      fillColor: markerOption.fillColor || '#2e4a94',
+      fillOpacity: markerOption.fillOpacity || 0.2,
+      strokeColor: markerOption.strokeColor || '#4875e9',
+      strokeWeight: markerOption.strokeWeight || 2,
+      strokeOpacity: markerOption.strokeOpacity || 0.9,
+      radius: markerOption.radius || 30,
+      center: markerOption.center,
+      map: markerOption.map
+    });
+  }
+
   function deleteMarker(markerObj) {
     if (markerObj) {
       markerObj.setMap(null);
@@ -481,6 +495,7 @@ angular.module('placekoob.services', [])
   return {
     createMap: createMap,
     createMarker: createMarker,
+    createMarker2: createMarker2,
     deleteMarker: deleteMarker,
     deleteMarkers: deleteMarkers,
     createInfoWindow: createInfoWindow,
