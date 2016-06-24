@@ -371,11 +371,16 @@ angular.module('placekoob.services', [])
     var deferred = $q.defer();
 
     PhotoEngine.photoList(function(results) {
-      var data = JSON.parse(results.data);
-      if (results.error === '0') {
-        deferred.resolve(data);
-      } else {
-        deferred.reject(data);
+      try {
+        var data = JSON.parse(results.data);
+        if (results.error === '0') {
+          deferred.resolve(data);
+        } else {
+          deferred.reject(data);
+        }
+      } catch (e) {
+        console.error(e.message);
+        deferred.reject(e);
       }
     });
 

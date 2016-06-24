@@ -261,7 +261,14 @@ angular.module('placekoob.services')
       $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
         // console.dir(result.response);
-        deferred.resolve(JSON.parse(result.response));
+        var res;
+        try {
+          res = JSON.parse(result.response);
+          deferred.resolve(res);
+        } catch (e) {
+          console.error(e.message);
+          deferred.reject(e);
+        }
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -1024,9 +1031,14 @@ angular.module('placekoob.services')
     uploadedImages = [];
     remoteStorageService.downloadData('uploaded_imgs')
     .then(function(result) {
-      uploadedImages = JSON.parse(result.data.value) || [];
-      // console.dir(uploadedImages);
-      deferred.resolve();
+      try {
+        uploadedImages = JSON.parse(result.data.value) || [];
+        // console.dir(uploadedImages);
+        deferred.resolve();
+      } catch (e) {
+        console.error(e.message);
+        deferred.reject(e);
+      }
     }, function(err) {
       deferred.reject(err);
     });
@@ -1092,11 +1104,18 @@ angular.module('placekoob.services')
       };
       $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
-        var response = JSON.parse(result.response);
-        // console.dir(response);
-        // console.log('lon : ' + imagesToUpload[status.current].longitude);
-        // console.log('lat : ' + imagesToUpload[status.current].latitude);
-        // console.log('local_datetime : ' + imagesToUpload[status.current].timestamp);
+        var response;
+        try {
+          response = JSON.parse(result.response);
+          // console.dir(response);
+          // console.log('lon : ' + imagesToUpload[status.current].longitude);
+          // console.log('lat : ' + imagesToUpload[status.current].latitude);
+          // console.log('local_datetime : ' + imagesToUpload[status.current].timestamp);
+        } catch (e) {
+          console.error(e.message);
+          return;
+        }
+
         $http({
           method: 'POST',
           url: getServerURL() + '/imgs/',
