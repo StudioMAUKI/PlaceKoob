@@ -6,10 +6,9 @@
 	    </button>
 		</div>
 		<h1 class="title">{{imPlace.post.name || '등록 대기중'}}</h1>
-		<div class="buttons">
-			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
-	    <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="imPlace.dropPlace()"></button>
-		</div>
+		<!-- <div class="buttons">
+			<button class="button-clear button-icon ion-ios-more pk-dark-primary" ng-click="imPlace.drop()"></button>
+		</div> -->
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="imPlace.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
 		<!-- placePost 영역 -->
@@ -31,7 +30,7 @@
 					<div class="row star-points-container">
 						<div class="col">
 						</div>
-						<div class="col" ng-repeat="icon in imPlace.starPointIcons track by $index" ng-click="imPlace.setStarPoint()">
+						<div class="col" ng-repeat="icon in imPlace.starPointIcons track by $index">
 			        <i class="{{icon}}"></i>
 			      </div>
 						<div class="col">
@@ -39,7 +38,7 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in imPlace.post.userPost.tags track by $index" ng-click="imPlace.showTagCloud()">#{{tag.content}}</div>
+							<div class="place-item-tag" ng-repeat="tag in imPlace.post.userPost.tags track by $index">#{{tag.content}}</div>
 						</div>
 					</div>
         </div>

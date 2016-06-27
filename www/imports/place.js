@@ -79,29 +79,6 @@ angular.module('placekoob.controllers')
     });
   };
 
-  imPlace.deletePlace = function() {
-    $ionicPopup.confirm({
-			title: '장소 삭제',
-			template: '정말로 저장한 장소를 지우시겠습니까?'
-		})
-		.then(function(res){
-			if (res) {
-        RemoteAPIService.deleteUserPost(imPlace.iplace_uuid)
-        .then(function() {
-          $ionicPopup.alert({
-            title: '성공',
-            template: '삭제되었습니다'
-          })
-          .then(function() {
-            imPlace.goBack();
-          });
-        }, function(err) {
-          console.error(err);
-        });
-      }
-		});
-  };
-
   imPlace.goBack = function() {
     console.log('Move Back');
     // $state.go('tab.places');
@@ -169,5 +146,37 @@ angular.module('placekoob.controllers')
       $state.go('tab.map');
       $scope.$emit('map.changeCenter.request', lonLat);
     }, 100);
+  };
+
+  imPlace.take = function() {
+    console.log(imPlace.iplace_uuid);
+		RemoteAPIService.takeIplace(imPlace.iplace_uuid)
+		.then(function() {
+      $ionicPopup.alert({
+        title: '완료!',
+        template: '내 장소 목록에 담았습니다.'
+      })
+      .then(function() {
+        imPlace.goBack();
+      });
+		}, function(err) {
+			console.error(err);
+		});
+  };
+
+  imPlace.drop = function() {
+    console.log(imPlace.iplace_uuid);
+		RemoteAPIService.dropIplace(imPlace.iplace_uuid)
+		.then(function() {
+      $ionicPopup.alert({
+        title: '완료!',
+        template: '담을 장소에서 제외했습니다.'
+      })
+      .then(function() {
+        imPlace.goBack();
+      });
+		}, function(err) {
+			console.error(err);
+		});
   };
 }]);

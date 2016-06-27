@@ -179,7 +179,7 @@ angular.module('placekoob.controllers')
   place.closeModal = function() {
     place.modal.hide();
     place.modal.remove();
-    console.dir(place.tagsForUpdate);
+    // console.dir(place.tagsForUpdate);
   };
 
   place.updateSlideStatus = function(slide) {

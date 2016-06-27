@@ -42,7 +42,7 @@ angular.module('placekoob.controllers')
 				console.error(err);
 			})
 	  });
-	}
+	};
 
 	importUser.loadIplaces = function() {
 		var deferred = $q.defer();
@@ -70,7 +70,7 @@ angular.module('placekoob.controllers')
 		});
 
 		return deferred.promise;
-	}
+	};
 
 	importUser.take = function(index) {
 		console.log('importUser.take : ' + index);
@@ -86,7 +86,7 @@ angular.module('placekoob.controllers')
 		.finally(function() {
 			$ionicListDelegate.closeOptionButtons();
 		});
-	}
+	};
 
 	importUser.drop = function(index) {
 		console.log('importUser.drop : ' + index);
@@ -102,14 +102,14 @@ angular.module('placekoob.controllers')
 		.finally(function() {
 			$ionicListDelegate.closeOptionButtons();
 		});
-	}
+	};
 
 	importUser.doRefresh = function() {
 		importUser.loadIplaces()
 		.finally(function(){
 			$scope.$broadcast('scroll.refreshComplete');
 		});
-	}
+	};
 
 	importUser.loadIplaces();
 }]);
