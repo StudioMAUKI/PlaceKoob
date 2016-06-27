@@ -62,25 +62,33 @@ angular.module('placekoob.services')
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
   var getServerURL = RESTServer.getURL;
-  var cachedUplaces = [];
-  var cachedUplacesAssgined = [];
-  var cachedUplacesWaiting = [];
-  var cachedPlaces = [];
-  var cacheMngr = {
-    uplaces: {
+  var cachedUPAssigned = [];
+  var cachedUPWaiting = [];
+  var cacheKeys = ['all', 'uplaces', 'places', 'iplaces'];
+  var cacheMngr = { uplaces: null, places: null, iplaces: null};
+
+  function createCacheItem() {
+    return {
+      items: [],
       endOfList: false,
       lastUpdated: 0,
       needToUpdate: true,
       totalCount: 0
-    },
-    places: {
-      endOfList: false,
-      lastUpdated: 0,
-      needToUpdate: true,
-      totalCount: 0
-    }
-  };
-  var cachedIPlaces = [];
+    };
+  }
+
+  function resetCacheItem(item) {
+    item.items = [];
+    item.endOfList = false;
+    item.lastUpdated = 0;
+    item.needToUpdate = true;
+    item.totalCount = 0;
+  }
+
+  cacheMngr.uplaces = createCacheItem();
+  cacheMngr.places = createCacheItem();
+  cacheMngr.iplaces = createCacheItem();
+  // console.dir(cacheMngr);
 
   function registerUser() {
     var deferred = $q.defer();
@@ -210,19 +218,19 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       var idOrganized = -1, idUnorganized = -1;
-      for (var i = 0; i < cachedUplaces.length; i++) {
-        if (PostHelper.isOrganized(cachedUplaces[i])) {
+      for (var i = 0; i < cacheMngr.uplaces.items.length; i++) {
+        if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
           idOrganized++;
         } else {
           idUnorganized++;
         }
-        if (uplace_uuid === cachedUplaces[i].uplace_uuid) {
-          if (PostHelper.isOrganized(cachedUplaces[i])) {
-            cachedUplacesAssgined.splice(idOrganized, 1);
+        if (uplace_uuid === cacheMngr.uplaces.items[i].uplace_uuid) {
+          if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
+            cachedUPAssigned.splice(idOrganized, 1);
           } else {
-            cachedUplacesWaiting.splice(idUnorganized, 1);
+            cachedUPWaiting.splice(idUnorganized, 1);
           }
-          cachedUplaces.splice(i, 1);
+          cacheMngr.uplaces.items.splice(i, 1);
         }
       }
       setAllNeedToUpdate();
@@ -297,31 +305,25 @@ angular.module('placekoob.services')
   function resetCachedPosts(type) {
     type = type || 'all';
 
+    if (cacheKeys.indexOf(type) === -1) {
+      console.warn('resetCachedPosts : unknown cache key[' + type + ']');
+      return;
+    }
+
     if (type === 'all') {
-      cachedUplaces = [];
-      cachedUplacesAssgined = [];
-      cachedUplacesWaiting = [];
-      cachedPlaces = [];
-      cacheMngr.uplaces.endOfList = false;
-      cacheMngr.uplaces.lastUpdated = 0;
-      cacheMngr.uplaces.needToUpdate = true;
-      cacheMngr.places.endOfList = false;
-      cacheMngr.places.lastUpdated = 0;
-      cacheMngr.places.needToUpdate = true;
+      resetCacheItem(cacheMngr.uplaces);
+      resetCacheItem(cacheMngr.iplaces);
+      resetCacheItem(cacheMngr.places);
+      cachedUPAssigned = [];
+      cachedUPWaiting = [];
     } else if (type === 'uplaces') {
-      cachedUplaces = [];
-      cachedUplacesAssgined = [];
-      cachedUplacesWaiting = [];
-      cacheMngr.uplaces.endOfList = false;
-      cacheMngr.uplaces.lastUpdated = 0;
-      cacheMngr.uplaces.needToUpdate = true;
+      cachedUPAssigned = [];
+      cachedUPWaiting = [];
+      resetCacheItem(cacheMngr.uplaces);
     } else if (type === 'places') {
-      cachedPlaces = [];
-      cacheMngr.places.endOfList = false;
-      cacheMngr.places.lastUpdated = 0;
-      cacheMngr.places.needToUpdate = true;
-    } else {
-      console.warn('resetCachedPosts : unknown parameter');
+      resetCacheItem(cacheMngr.places);
+    } else if (type === 'iplaces'){
+      resetCacheItem(cacheMngr.iplaces);
     }
   }
 
@@ -330,8 +332,9 @@ angular.module('placekoob.services')
   }
 
   function setAllNeedToUpdate() {
-    cacheMngr.uplaces.needToUpdate = true;
-    cacheMngr.places.needToUpdate = true;
+    for (var item in cacheMngr) {
+      cacheMngr[item].needToUpdate = true;
+    }
   }
 
   //  캐싱 로직은 세가지 요소 검사
@@ -342,18 +345,12 @@ angular.module('placekoob.services')
     //  잠시 캐시 기능을 꺼보기로 함
     return true;
 
-    if (key === 'uplaces') {
-      if (cachedUplaces.length === 0){
-        console.log('업데이트 필요 : 리스트가 비어 있음');
-        return true;
-      }
-    } else if (key === 'places'){
-      if (cachedPlaces.length === 0){
-        console.log('업데이트 필요 : 리스트가 비어 있음');
-        return true;
-      }
-    } else {
+    if (cacheKeys.indexOf(key) === -1) {
       console.warn('등록되지 않은 키(' + key + ')로 업데이트 여부를 체크했음')
+      return true;
+    }
+    if (cacheMngr[key].items.length === 0) {
+      console.log(key + ' 업데이트 필요 : 리스트가 비어 있음');
       return true;
     }
 
@@ -380,16 +377,13 @@ angular.module('placekoob.services')
   }
 
   function updateCurPos(curPos) {
-    if (cachedUplaces.length > 0) {
-      PostHelper.updateDistance(cachedUplaces, curPos);
+    if (cachedUPAssigned.length > 0) {
+      PostHelper.updateDistance(cachedUPAssigned, curPos);
     }
-
-    if (cachedUplacesAssgined.length > 0) {
-      PostHelper.updateDistance(cachedUplacesAssgined, curPos);
-    }
-
-    if (cachedPlaces.length > 0) {
-      PostHelper.updateDistance(cachedPlaces, curPos);
+    for (var item in cacheMngr) {
+      if (cacheMngr[item].items.length > 0) {
+        PostHelper.updateDistance(cacheMngr[item].items, curPos);
+      }
     }
   }
 
@@ -434,7 +428,7 @@ angular.module('placekoob.services')
       limit = 20;
       resetCachedPosts('uplaces');
     } else if (position === 'bottom') {
-      offset = cachedUplaces.length;
+      offset = cacheMngr.uplaces.items.length;
       limit = 20;
 
       if (cacheMngr.uplaces.endOfList) {
@@ -471,9 +465,9 @@ angular.module('placekoob.services')
           var found = false;
           for (var i = 0; i < response.data.results.length; i++) {
             found = false;
-            for (var j = 0; j < cachedUplaces.length; j++) {
+            for (var j = 0; j < cacheMngr.uplaces.items.length; j++) {
               // console.log(j);
-              if (response.data.results[i].uplace_uuid === cachedUplaces[j].uplace_uuid) {
+              if (response.data.results[i].uplace_uuid === cacheMngr.uplaces.items[j].uplace_uuid) {
                 found = true;
                 break;
               }
@@ -482,26 +476,26 @@ angular.module('placekoob.services')
               newElements.push(response.data.results[i]);
             }
           }
-          cachedUplaces = newElements.concat(cachedUplaces);
+          cacheMngr.uplaces.items = newElements.concat(cacheMngr.uplaces.items);
         } else {  //  position === 'bottom'
           if (response.data.results.length === 0) {
             cacheMngr.uplaces.endOfList = true;
           } else {
-            cachedUplaces = cachedUplaces.concat(response.data.results);
+            cacheMngr.uplaces.items = cacheMngr.uplaces.items.concat(response.data.results);
           }
         }
 
-        cachedUplacesAssgined = [];
-        cachedUplacesWaiting = [];
-        PostHelper.decoratePosts(cachedUplaces);
-        for (var i = 0; i < cachedUplaces.length; i++) {
-          if (PostHelper.isOrganized(cachedUplaces[i])) {
-            cachedUplacesAssgined.push(cachedUplaces[i]);
+        cachedUPAssigned = [];
+        cachedUPWaiting = [];
+        PostHelper.decoratePosts(cacheMngr.uplaces.items);
+        for (var i = 0; i < cacheMngr.uplaces.items.length; i++) {
+          if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
+            cachedUPAssigned.push(cacheMngr.uplaces.items[i]);
           } else {
-            cachedUplacesWaiting.push(cachedUplaces[i]);
+            cachedUPWaiting.push(cacheMngr.uplaces.items[i]);
           }
         }
-        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMngr.uplaces.totalCount});
+        deferred.resolve({assigned : cachedUPAssigned, waiting: cachedUPWaiting, totalCount: cacheMngr.uplaces.totalCount});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -510,7 +504,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('uplaces');
       });
     } else {
-      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMngr.uplaces.totalCount});
+      deferred.resolve({assigned : cachedUPAssigned, waiting: cachedUPWaiting, totalCount: cacheMngr.uplaces.totalCount});
     }
 
     return deferred.promise;
@@ -533,15 +527,16 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         // console.dir(response);
-        cachedPlaces = [];
+        cacheMngr.places.items = [];
+        cacheMngr.places.totalCount = response.data.count;
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
-            cachedPlaces.push(response.data.results[i]);
+            cacheMngr.places.items.push(response.data.results[i]);
           }
         }
-        PostHelper.decoratePosts(cachedPlaces);
-        // console.dir(cachedPlaces);
-        deferred.resolve(cachedPlaces);
+        PostHelper.decoratePosts(cacheMngr.places.items);
+        // console.dir(cacheMngr.places.items);
+        deferred.resolve(cacheMngr.places.items);
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -550,7 +545,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('places');
       });
     // } else {
-    //   deferred.resolve(cachedPlaces);
+    //   deferred.resolve(cacheMngr.places.items);
     // }
 
     return deferred.promise;
@@ -604,9 +599,11 @@ angular.module('placekoob.services')
       }
     })
     .then(function(response) {
-      // console.dir(response);
-      PostHelper.decoratePosts(response.data.results);
-      deferred.resolve({ iplaces: response.data.results, totalCount: response.data.count });
+      console.dir(response);
+      cacheMngr.iplaces.items = response.data.results;
+      cacheMngr.iplaces.totalCount = response.data.count;
+      PostHelper.decoratePosts(cacheMngr.iplaces.items);
+      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -625,7 +622,13 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       // console.dir(response);
-      deferred.resolve(response);
+      for (var i = 0; i < cacheMngr.iplaces.items.length; i++) {
+        if (cacheMngr.iplaces.items[i].iplace_uuid === iplace_uuid) {
+          cacheMngr.iplaces.items.splice(i, 1);
+          cacheMngr.iplaces.totalCount--;
+        }
+      }
+      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -644,7 +647,13 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       // console.dir(response);
-      deferred.resolve(response);
+      for (var i = 0; i < cacheMngr.iplaces.items.length; i++) {
+        if (cacheMngr.iplaces.items[i].iplace_uuid === iplace_uuid) {
+          cacheMngr.iplaces.items.splice(i, 1);
+          cacheMngr.iplaces.totalCount--;
+        }
+      }
+      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
     }, function(err) {
       console.error(err);
       deferred.reject(err);

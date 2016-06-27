@@ -77,9 +77,9 @@ angular.module('placekoob.controllers')
 		// console.dir(importUser.iplaces[index]);
 		console.log(importUser.iplaces[index].iplace_uuid);
 		RemoteAPIService.takeIplace(importUser.iplaces[index].iplace_uuid)
-		.then(function() {
-			importUser.iplaces.splice(index, 1);
-			importUser.totalCount--;
+		.then(function(result) {
+			// importUser.iplaces.splice(index, 1);
+			importUser.totalCount = result.totalCount;
 		}, function(err) {
 			console.error(err);
 		})
@@ -93,9 +93,9 @@ angular.module('placekoob.controllers')
 		console.dir(importUser.iplaces[index]);
 		console.log(importUser.iplaces[index].iplace_uuid);
 		RemoteAPIService.dropIplace(importUser.iplaces[index].iplace_uuid)
-		.then(function() {
-			importUser.iplaces.splice(index, 1);
-			importUser.totalCount--;
+		.then(function(result) {
+			// importUser.iplaces.splice(index, 1);
+			importUser.totalCount = result.totalCount;
 		}, function(err) {
 			console.error(err);
 		})
