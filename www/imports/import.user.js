@@ -8,7 +8,7 @@ angular.module('placekoob.controllers')
 	importUser.completedFirstLoading = false;
 
 	importUser.isEndOfList = function() {
-		return true;
+		return RemoteAPIService.isEndOfList('iplaces');
 	};
 
 	importUser.addUserImport = function() {
@@ -44,18 +44,20 @@ angular.module('placekoob.controllers')
 	  });
 	};
 
-	importUser.loadIplaces = function() {
+	importUser.loadIplaces = function(position) {
 		var deferred = $q.defer();
+		position = position || 'top';
 		var curPos = StorageService.get('curPos');
+		console.log('loadIplaces : ' + position);
 
 		if (importUser.completedFirstLoading === false) {
 			$ionicLoading.show({
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
-		RemoteAPIService.getIplaces(curPos.latitude, curPos.longitude)
+		RemoteAPIService.getIplaces(position, curPos.latitude, curPos.longitude)
 		.then(function(results) {
-			console.dir(results);
+			// console.dir(results);
 			importUser.iplaces = results.iplaces;
 			importUser.totalCount = results.totalCount;
 			deferred.resolve();
@@ -104,12 +106,19 @@ angular.module('placekoob.controllers')
 		});
 	};
 
-	importUser.doRefresh = function() {
-		importUser.loadIplaces()
-		.finally(function(){
-			$scope.$broadcast('scroll.refreshComplete');
-		});
+	importUser.doRefresh = function(direction) {
+		if (direction === 'top') {
+			importUser.loadIplaces('top')
+			.finally(function(){
+				$scope.$broadcast('scroll.refreshComplete');
+			});
+		} else if (direction === 'bottom') {
+			importUser.loadIplaces('bottom')
+			.finally(function(){
+				$scope.$broadcast('scroll.infiniteScrollComplete');
+			});
+		}
 	};
 
-	importUser.loadIplaces();
+	importUser.loadIplaces('top');
 }]);

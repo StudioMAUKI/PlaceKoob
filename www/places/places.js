@@ -88,7 +88,7 @@ angular.module('placekoob.controllers')
 	places.loadSavedPlace = function(position) {
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
-		var pos = position || 'top';
+		position = position || 'top';
 		var lon, lat, radius, limit;
 
 		// console.dir($stateParams);
@@ -111,7 +111,7 @@ angular.module('placekoob.controllers')
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
-		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
+		RemoteAPIService.getPostsOfMine(position, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
 		.then(function(result) {
 			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;

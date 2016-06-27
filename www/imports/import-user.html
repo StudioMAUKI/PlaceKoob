@@ -6,7 +6,7 @@
 		<button class="button button-icon button-clear ion-plus pk-dark-primary" ng-click="importUser.addUserImport()"></button>
 	</ion-header-bar>
 	<ion-content>
-		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh()">
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh('top')">
   	</ion-refresher>
 		<ion-list show-delete="importUser.showDelete">
 			<div class="item item-divider">

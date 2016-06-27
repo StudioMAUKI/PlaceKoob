@@ -408,6 +408,7 @@ angular.module('placekoob.services')
   function getPostsOfMine(position, orderBy, lon, lat, radius, maxLimit) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
+    var offset, limit;
     position = position || 'top';
     orderBy = orderBy || '-modified';
     // if (orderBy === '-modified' || orderBy === 'modified') {
@@ -420,8 +421,6 @@ angular.module('placekoob.services')
       radius = radius || 0;
       maxLimit = maxLimit || 0;
     // }
-
-    var offset, limit;
 
     if (position === 'top') {
       offset = 0;
@@ -460,6 +459,7 @@ angular.module('placekoob.services')
       .then(function(response) {
         // console.dir(response.data.results);
         cacheMngr.uplaces.totalCount = response.data.count;
+        PostHelper.decoratePosts(response.data.results);
         if (position === 'top') {
           var newElements = [];
           var found = false;
@@ -487,7 +487,7 @@ angular.module('placekoob.services')
 
         cachedUPAssigned = [];
         cachedUPWaiting = [];
-        PostHelper.decoratePosts(cacheMngr.uplaces.items);
+        // PostHelper.decoratePosts(cacheMngr.uplaces.items);
         for (var i = 0; i < cacheMngr.uplaces.items.length; i++) {
           if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
             cachedUPAssigned.push(cacheMngr.uplaces.items[i]);
@@ -585,29 +585,84 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getIplaces(lat, lon) {
+  function getIplaces(position, lat, lon) {
     var deferred = $q.defer();
+    var offset, limit;
+    position = position || 'top';
 
-    $http({
-      method: 'GET',
-      url: getServerURL() + '/iplaces/',
-      params: {
-        ru: 'myself',
-        lat: lat,
-        lon: lon,
-        r: 0
+    if (position === 'top') {
+      offset = 0;
+      limit = 20;
+      resetCachedPosts('iplaces');
+    } else if (position === 'bottom') {
+      offset = cacheMngr.iplaces.items.length;
+      limit = 20;
+
+      if (cacheMngr.iplaces.endOfList) {
+        console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
+        deferred.reject('endOfList');
+        return deferred.promise;
+      } else {
+        cacheMngr.iplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
       }
-    })
-    .then(function(response) {
-      console.dir(response);
-      cacheMngr.iplaces.items = response.data.results;
-      cacheMngr.iplaces.totalCount = response.data.count;
-      PostHelper.decoratePosts(cacheMngr.iplaces.items);
-      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
-    }, function(err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+    } else {
+      deferred.reject('Wrong parameter.');
+      return deferred.promise;
+    }
+
+    if (checkNeedToRefresh('iplaces')) {
+      $http({
+        method: 'GET',
+        url: getServerURL() + '/iplaces/',
+        params: {
+          ru: 'myself',
+          limit: limit,
+          offset: offset,
+          lat: lat,
+          lon: lon,
+          r: 0
+        }
+      })
+      .then(function(response) {
+        // console.dir(response);
+        cacheMngr.iplaces.totalCount = response.data.count;
+        PostHelper.decoratePosts(response.data.results);
+        if (position === 'top') {
+          var newElements = [];
+          var found = false;
+          for (var i = 0; i < response.data.results.length; i++) {
+            found = false;
+            for (var j = 0; j < cacheMngr.iplaces.items.length; j++) {
+              // console.log(j);
+              if (response.data.results[i].iplace_uuid === cacheMngr.iplaces.items[j].iplace_uuid) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              newElements.push(response.data.results[i]);
+            }
+          }
+          cacheMngr.iplaces.items = newElements.concat(cacheMngr.iplaces.items);
+        } else {  //  position === 'bottom'
+          if (response.data.results.length === 0) {
+            cacheMngr.iplaces.endOfList = true;
+          } else {
+            cacheMngr.iplaces.items = cacheMngr.iplaces.items.concat(response.data.results);
+          }
+        }
+
+        deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      })
+      .finally(function() {
+        setRefreshCompleted('iplaces');
+      });
+    } else {
+      deferred.resolve({iplaces : cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
+    }
 
     return deferred.promise;
   }
