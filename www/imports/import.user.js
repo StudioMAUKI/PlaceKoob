@@ -55,6 +55,7 @@ angular.module('placekoob.controllers')
 		}
 		RemoteAPIService.getIplaces(curPos.latitude, curPos.longitude)
 		.then(function(results) {
+			console.dir(results);
 			importUser.iplaces = results.iplaces;
 			importUser.totalCount = results.totalCount;
 			deferred.resolve();

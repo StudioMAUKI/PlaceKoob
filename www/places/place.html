@@ -68,6 +68,7 @@
 			<img ng-style="{height:place.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
 		</div>
 
+		<!-- 노트 목록 -->
 		<ion-list>
 			<ion-item class="card" ng-repeat="note in place.post.userPost.notes track by $index" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1" on-hold="place.deleteNote($index)">
 				<div class="row">

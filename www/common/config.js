@@ -87,13 +87,23 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.import-user', {
-    url: '/import-user',
+	.state('tab.imported', {
+    url: '/imported',
     views: {
-      'import-user': {
+      'imported': {
         templateUrl: 'imports/import-user.html',
         controller: 'importUserCtrl',
         controllerAs: 'importUser'
+      }
+    }
+  })
+	.state('tab.importedPlace', {
+    url: '/imported/:iplace_uuid',
+    views: {
+      'imported': {
+        templateUrl: 'imports/place.html',
+        controller: 'imPlaceCtrl',
+        controllerAs: 'imPlace'
       }
     }
   })

@@ -1,0 +1,110 @@
+<ion-view>
+	<ion-header-bar class="pk-dark-primary" align-title="center">
+		<div class="buttons">
+	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="imPlace.goBack()" nav-direction="back">
+	      뒤로
+	    </button>
+		</div>
+		<h1 class="title">{{imPlace.post.name || '등록 대기중'}}</h1>
+		<div class="buttons">
+			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
+	    <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="imPlace.dropPlace()"></button>
+		</div>
+	</ion-header-bar>
+	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="imPlace.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
+		<!-- placePost 영역 -->
+		<div class="about-header">
+			<div class="profile-media">
+				<img ng-src="{{imPlace.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
+        <div class="profile-details">
+					<!-- <h4 class="title" style="color:white;">{{imPlace.post.name || '등록 대기중'}}</h4> -->
+					<div class="row" ng-show="imPlace.post.addrs" ng-repeat="addr in imPlace.post.addrs">
+						<div class="col" ng-click="imPlace.goToMap(imPlace.post.lonLat)">
+								{{addr}}
+						</div>
+					</div>
+					<div class="row" ng-show="imPlace.post.phoneNo">
+						<div class="col">
+							<a href="tel:{{imPlace.post.phoneNo||''}}">{{imPlace.postHelper.getReadablePhoneNo(imPlace.post.phoneNo) || '전화번호 없음'}}</a>
+						</div>
+					</div>
+					<div class="row star-points-container">
+						<div class="col">
+						</div>
+						<div class="col" ng-repeat="icon in imPlace.starPointIcons track by $index" ng-click="imPlace.setStarPoint()">
+			        <i class="{{icon}}"></i>
+			      </div>
+						<div class="col">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col place-tags-container">
+							<div class="place-item-tag" ng-repeat="tag in imPlace.post.userPost.tags track by $index" ng-click="imPlace.showTagCloud()">#{{tag.content}}</div>
+						</div>
+					</div>
+        </div>
+      </div>
+		</div>
+
+		<div class="button-bar bar-stable">
+			<a class="button" ng-click="imPlace.take()"><i class="ion-ios-download-outline"></i> 담기</a>
+			<a class="button" ng-click="imPlace.drop()"><i class="ion-ios-trash-outline"></i> 버리기</a>
+			<!-- <a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a> -->
+			<!-- <a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a> -->
+		</div>
+
+		<!-- <div class="user-image">
+			<img ng-repeat="image in imPlace.post.userPost.images track by $index" ng-style="{height:imPlace.calculatedHeight || imPlace.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="imPlace.showImagesWithFullScreen($index)" on-hold="imPlace.deleteImage($index)">
+			<img ng-style="{height:imPlace.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="imPlace.addPhoto()">
+		</div> -->
+
+		<!-- 노트 목록 -->
+		<!-- <ion-list>
+			<ion-item class="card" ng-repeat="note in imPlace.post.userPost.notes track by $index" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1" on-hold="imPlace.deleteNote($index)">
+				<div class="row">
+					<div class="col col-20">
+						{{imPlace.postHelper.getTimeString(note.timestamp)}}
+					</div>
+					<div class="col">
+						{{note.content}}
+					</div>
+				</div>
+				<ion-option-button class="button-assertive" ng-click="imPlace.deleteNote($index)">
+        	Delete
+      	</ion-option-button>
+			</ion-item>
+		</ion-list> -->
+
+		<!-- 저장한 웹 문서 목록 -->
+		<!-- <ion-list ng-show="imPlace.URLs.length">
+			<ion-item class="item-divider">
+				저장한 웹문서
+			</ion-item>
+			<ion-item ng-repeat="url in imPlace.URLs track by $index" class="item-thumbnail-left" ng-click="imPlace.openLink(url.url)" on-hold="imPlace.deleteURL($index)">
+				<img ng-src="{{url.image}}">
+				<h2>{{url.title}}</h2>
+				<p>{{url.desc}}</p>
+				<ion-option-button class="button-assertive" ng-click="imPlace.deleteURL($index)">
+        	Delete
+      	</ion-option-button>
+			</ion-item>
+		</ion-list> -->
+
+		<!-- 검색 결과 -->
+		<div class="list" ng-show="imPlace.post.name">
+			<div class="item item-divider">
+		    관련 블로그
+		  </div>
+			<a ng-repeat="result in imPlace.searchResults" class="item" href="#" ng-click="imPlace.openLink(result.link)">
+				<h2>{{result.title}}</h2>
+				<h3>{{result.author}}</h3>
+				<p>{{result.description}}</p>
+			</a>
+		</div>
+
+		<!-- 블로그 더 보기 버튼 -->
+		<div class="button-bar bar-balanced" ng-show="imPlace.post.name" style="margin-top:5px;">
+			<a class="button" ng-click="imPlace.searchPlace()">관련 블로그 더보기</a>
+		</div>
+	</ion-content>
+</ion-view>

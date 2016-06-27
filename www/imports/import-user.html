@@ -12,7 +12,7 @@
 			<div class="item item-divider">
 		    총 {{importUser.totalCount}}개의 장소를 가져왔습니다.
 		  </div>
-			<ion-item collection-repeat="post in importUser.iplaces track by $index" class="item-thumbnail-left">
+			<ion-item collection-repeat="post in importUser.iplaces track by $index" class="item-thumbnail-left" href="#/imported/{{post.iplace_uuid}}" nav-direction="forward">
 				<ion-delete-button class="ion-minus-circled" ng-click="importUser.onItemDelete(post)">
       	</ion-delete-button>
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
