@@ -66,7 +66,7 @@ angular.module('placekoob.services')
   var cachedUplacesAssgined = [];
   var cachedUplacesWaiting = [];
   var cachedPlaces = [];
-  var cacheMng = {
+  var cacheMngr = {
     uplaces: {
       endOfList: false,
       lastUpdated: 0,
@@ -76,9 +76,11 @@ angular.module('placekoob.services')
     places: {
       endOfList: false,
       lastUpdated: 0,
-      needToUpdate: true
+      needToUpdate: true,
+      totalCount: 0
     }
   };
+  var cachedIPlaces = [];
 
   function registerUser() {
     var deferred = $q.defer();
@@ -300,36 +302,36 @@ angular.module('placekoob.services')
       cachedUplacesAssgined = [];
       cachedUplacesWaiting = [];
       cachedPlaces = [];
-      cacheMng.uplaces.endOfList = false;
-      cacheMng.uplaces.lastUpdated = 0;
-      cacheMng.uplaces.needToUpdate = true;
-      cacheMng.places.endOfList = false;
-      cacheMng.places.lastUpdated = 0;
-      cacheMng.places.needToUpdate = true;
+      cacheMngr.uplaces.endOfList = false;
+      cacheMngr.uplaces.lastUpdated = 0;
+      cacheMngr.uplaces.needToUpdate = true;
+      cacheMngr.places.endOfList = false;
+      cacheMngr.places.lastUpdated = 0;
+      cacheMngr.places.needToUpdate = true;
     } else if (type === 'uplaces') {
       cachedUplaces = [];
       cachedUplacesAssgined = [];
       cachedUplacesWaiting = [];
-      cacheMng.uplaces.endOfList = false;
-      cacheMng.uplaces.lastUpdated = 0;
-      cacheMng.uplaces.needToUpdate = true;
+      cacheMngr.uplaces.endOfList = false;
+      cacheMngr.uplaces.lastUpdated = 0;
+      cacheMngr.uplaces.needToUpdate = true;
     } else if (type === 'places') {
       cachedPlaces = [];
-      cacheMng.places.endOfList = false;
-      cacheMng.places.lastUpdated = 0;
-      cacheMng.places.needToUpdate = true;
+      cacheMngr.places.endOfList = false;
+      cacheMngr.places.lastUpdated = 0;
+      cacheMngr.places.needToUpdate = true;
     } else {
       console.warn('resetCachedPosts : unknown parameter');
     }
   }
 
   function isEndOfList(key) {
-    return cacheMng[key].endOfList;
+    return cacheMngr[key].endOfList;
   }
 
   function setAllNeedToUpdate() {
-    cacheMng.uplaces.needToUpdate = true;
-    cacheMng.places.needToUpdate = true;
+    cacheMngr.uplaces.needToUpdate = true;
+    cacheMngr.places.needToUpdate = true;
   }
 
   //  캐싱 로직은 세가지 요소 검사
@@ -356,25 +358,25 @@ angular.module('placekoob.services')
     }
 
     var timeNow = new Date().getTime();
-    if (timeNow - cacheMng[key].lastUpdated >= 60000) {
+    if (timeNow - cacheMngr[key].lastUpdated >= 60000) {
       console.log('업데이트 필요 : 너무 오래 업데이트를 안 했음');
       return true;
     }
-    if (cacheMng[key].needToUpdate) {
+    if (cacheMngr[key].needToUpdate) {
       console.log('업데이트 필요 : 업데이트 필요 태그가 세팅 됨');
       return true;
     }
     console.log('업데이트 필요 없음');
     // console.log('key : ' + key);
     // console.log('timeNow : ' + timeNow);
-    // console.log('lastUpdated : ' + cacheMng[key].lastUpdated);
-    // console.log('needToUpdate : ' + cacheMng[key].needToUpdate);
+    // console.log('lastUpdated : ' + cacheMngr[key].lastUpdated);
+    // console.log('needToUpdate : ' + cacheMngr[key].needToUpdate);
     return false;
   }
 
   function setRefreshCompleted(key) {
-    cacheMng[key].needToUpdate = false;
-    cacheMng[key].lastUpdated = new Date().getTime();
+    cacheMngr[key].needToUpdate = false;
+    cacheMngr[key].lastUpdated = new Date().getTime();
   }
 
   function updateCurPos(curPos) {
@@ -435,12 +437,12 @@ angular.module('placekoob.services')
       offset = cachedUplaces.length;
       limit = 20;
 
-      if (cacheMng.uplaces.endOfList) {
+      if (cacheMngr.uplaces.endOfList) {
         console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
         deferred.reject('endOfList');
         return deferred.promise;
       } else {
-        cacheMng.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
+        cacheMngr.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
       }
     } else {
       deferred.reject('Wrong parameter.');
@@ -463,7 +465,7 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         // console.dir(response.data.results);
-        cacheMng.uplaces.totalCount = response.data.count;
+        cacheMngr.uplaces.totalCount = response.data.count;
         if (position === 'top') {
           var newElements = [];
           var found = false;
@@ -483,7 +485,7 @@ angular.module('placekoob.services')
           cachedUplaces = newElements.concat(cachedUplaces);
         } else {  //  position === 'bottom'
           if (response.data.results.length === 0) {
-            cacheMng.uplaces.endOfList = true;
+            cacheMngr.uplaces.endOfList = true;
           } else {
             cachedUplaces = cachedUplaces.concat(response.data.results);
           }
@@ -499,7 +501,7 @@ angular.module('placekoob.services')
             cachedUplacesWaiting.push(cachedUplaces[i]);
           }
         }
-        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
+        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMngr.uplaces.totalCount});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -508,7 +510,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('uplaces');
       });
     } else {
-      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
+      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMngr.uplaces.totalCount});
     }
 
     return deferred.promise;
