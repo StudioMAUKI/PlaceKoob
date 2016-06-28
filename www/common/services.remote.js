@@ -1037,7 +1037,13 @@ angular.module('placekoob.services')
       // region.name
       // console.dir(addr);
       var a = addr.region.split(' ');
-      region.name = a[a.length - 1] + '(' + a[0] + ')';
+      var city = '';
+      if (a[0].indexOf('경기') !== -1 || a[0].indexOf('강원') !== -1 || a[0].indexOf('충북') !== -1 || a[0].indexOf('충남') !== -1 || a[0].indexOf('전북') !== -1 || a[0].indexOf('전남') !== -1 || a[0].indexOf('경북') !== -1 || a[0].indexOf('경남') !== -1) {
+        city = a[1];
+      } else {
+        city = a[0];
+      }
+      region.name = a[a.length - 1] + '(' + city + ')';
     }, function(err) {
       console.error(JSON.stringify(err));
     });
