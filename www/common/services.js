@@ -520,6 +520,7 @@ angular.module('placekoob.services', [])
 
   return {
     get : function(index) {
+      index = index || 0;
       return starPointArray[index];
     }
   }
