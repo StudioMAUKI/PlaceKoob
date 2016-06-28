@@ -56,7 +56,7 @@ angular.module('placekoob.controllers')
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      console.dir(post);
+      // console.dir(post);
       place.post = post;
       if (place.post.userPost.images) {
         place.imagesForSlide = [];
@@ -158,8 +158,15 @@ angular.module('placekoob.controllers')
 
   place.goBack = function() {
     console.log('Move Back');
-    // $state.go('tab.places');
-    $ionicHistory.goBack();
+    var history = $ionicHistory.viewHistory();
+    console.dir(history);
+    if (history.backView === null || history.backView.stateName === 'tab.map') {
+      $state.go('tab.home-places');
+    } else {
+      $ionicHistory.goBack();
+    }
+    // console.dir(history);
+    //$ionicHistory.goBack();
   };
 
   place.showImagesWithFullScreen = function(index) {
@@ -498,6 +505,7 @@ angular.module('placekoob.controllers')
   };
 
   place.openLink = function(url) {
+    console.info('url: ' + url);
     window.open(url, '_system');
   };
 
@@ -505,7 +513,6 @@ angular.module('placekoob.controllers')
     var keyword = '';
     if (place.post.placePost) {
       var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
-      console.log('Region : ' + region);
       if (region) {
         var region_items = region.content.split(' ');
         var loopCount = region_items.length >= 4 ? 4 : region_items.length;

@@ -822,9 +822,14 @@ angular.module('placekoob.services')
 
   function getThumbnailURLByFirstImage(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
-      return 'img/icon/404.png';
+      if (!post.placePost || !post.placePost.images || post.placePost.images.length == 0) {
+        return 'img/icon/404.png';
+      } else {
+        return getImageURL(post.placePost.images[0].summary);
+      }
+    } else {
+      return getImageURL(post.userPost.images[0].summary);
     }
-    return getImageURL(post.userPost.images[0].summary);
   }
 
   function getImageURL(content) {
@@ -946,12 +951,12 @@ angular.module('placekoob.services')
       if (min === 0) {
         return '방금';
       } else {
-        return parseInt(timegap / 60) + '분 전';
+        return parseInt(timegap / 60) + '분전';
       }
     } else if (timegap < 24 * 3600) {
-      return parseInt(timegap / 3600) + '시간 전';
+      return parseInt(timegap / 3600) + '시간전';
     } else {
-      return parseInt(timegap / 86400) + '일 전';
+      return parseInt(timegap / 86400) + '일전';
     }
     // return new Date(timestamp).toLocaleDateString();
   }
@@ -971,7 +976,12 @@ angular.module('placekoob.services')
 	  dist = rad2deg(dist);
 	  dist = dist * 60 * 1.1515;
 	  dist = dist * 1.609344;
-	  return Number(dist*1000).toFixed(2);
+	  var result = Number(dist*1000).toFixed(0);
+    if (result < 1000) {
+      return result + 'm';
+    } else {
+      return Number(result/1000.0).toFixed(1) + 'km';
+    }
 	}
 
   function getDistance(post, curPos) {
@@ -1002,6 +1012,9 @@ angular.module('placekoob.services')
         post.visited = true;
       }
     }
+    //  서버로부터 받은 distance_from_origin은 질의때 보낸 좌표를 기준으로 한 거리이기 때문에
+    //  현재 위치를 기준으로 다시 계산해야 한다.
+    post.distance_from_origin = getDistance(post, curPos);
   }
 
   function decoratePosts(posts) {
@@ -1024,7 +1037,7 @@ angular.module('placekoob.services')
       // region.name
       // console.dir(addr);
       var a = addr.region.split(' ');
-      region.name = a[a.length - 1];
+      region.name = a[a.length - 1] + '(' + a[0] + ')';
     }, function(err) {
       console.error(JSON.stringify(err));
     });
@@ -1392,7 +1405,8 @@ angular.module('placekoob.services')
     var convertedURL = '';
 
     convertedURL = convertToSaveURL(url);
-    console.log('URL : ' + convertedURL);
+    console.log('Original URL : ' + url);
+    console.log('Converted URL : ' + convertedURL);
     if (convertedURL === '') {
       console.warn('not supported URL pattern.');
       ogInfo.title = '브라우저에서 지원하지 않는 URL';

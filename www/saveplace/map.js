@@ -72,6 +72,7 @@ angular.module('placekoob.controllers')
 
   $scope.$on('map.position.update', function(event, pos) {
     map.initPos = pos;
+    RemoteAPIService.updateCurPos(pos);
     if (map.customViewMode === false) {
       // console.info('New position info is updated.');
       if (map.curMarker) {

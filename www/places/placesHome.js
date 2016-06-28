@@ -11,7 +11,7 @@ angular.module('placekoob.controllers')
 
 	remote.getRegionsOfMine()
 	.then(function(list) {
-		console.dir(list);
+		// console.dir(list);
 		placesHome.regions = list;
 		placesHome.totalCount = 0;
 		for (var i = 0; i < list.length; i++) {
@@ -31,7 +31,8 @@ angular.module('placekoob.controllers')
     for (var i = 0; i < images.length; i++) {
 			console.log('images[i].clientWidth : ' + images[i].clientWidth);
       if (images[i].clientWidth) {
-				placesHome.calculatedHeight = parseInt((images[i].clientWidth - 30) / 3);
+				// placesHome.calculatedHeight = parseInt((images[i].clientWidth - 30) / 3);
+				placesHome.calculatedHeight = parseInt((images[i].clientWidth - 10) / 2);
         return placesHome.calculatedHeight;
       }
     }

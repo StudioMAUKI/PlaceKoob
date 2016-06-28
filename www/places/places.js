@@ -111,6 +111,7 @@ angular.module('placekoob.controllers')
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
+		console.log('getPostsOfMine', position, places.orderingTypeName[places.orderingType], lon, lat, radius);
 		RemoteAPIService.getPostsOfMine(position, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
 		.then(function(result) {
 			places.posts = result.assigned;

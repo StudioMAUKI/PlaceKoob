@@ -5,10 +5,11 @@
 	      뒤로
 	    </button>
 		</div>
-		<h1 class="title">{{place.post.name || '등록 대기중'}}</h1>
+		<h2 class="title">{{place.post.name || '등록 대기중'}}</h2>
 		<div class="buttons">
 			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
-	    <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="place.deletePlace()"></button>
+	    <!-- <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="place.deletePlace()"></button> -->
+			<button class="button-clear button-icon ion-map pk-dark-primary" ng-click="place.goToMap(place.post.lonLat)"></button>
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="place.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
@@ -18,11 +19,20 @@
 				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
 					<!-- <h4 class="title" style="color:white;">{{place.post.name || '등록 대기중'}}</h4> -->
-					<div class="row" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs">
-						<div class="col" ng-click="place.goToMap(place.post.lonLat)">
+					<div class="row" style="font-size:90%;" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs track by $index">
+						<div class="col">
 								{{addr}}
 						</div>
 					</div>
+					<!-- <div class="row" style="font-size:90%;" ng-show="place.post.addrs">
+						<div class="col" ng-click="place.goToMap(place.post.lonLat)">
+							<i class="ion-map"></i>
+						</div>
+						<div class="col col-90" >
+								<span ng-show="place.post.addrs[0]">{{place.post.addrs[0]}}</span><br>
+								<span ng-show="place.post.addrs[1]">{{place.post.addrs[1]}}</span>
+						</div>
+					</div> -->
 					<div class="row" ng-show="place.post.phoneNo">
 						<div class="col">
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
@@ -39,7 +49,7 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">#{{tag.content}}</div>
+							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">{{tag.content}}</div>
 							<!-- <button class="button button-energized button-small button-outline" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">#{{tag.content}}</button> -->
 						</div>
 					</div>
@@ -110,11 +120,15 @@
 				<h3>{{result.author}}</h3>
 				<p>{{result.description}}</p>
 			</a>
+			<!-- 블로그 더 보기 버튼 -->
+			<a class="item" href="#" style="text-align: center;" ng-show="place.post.name" ng-click="place.searchPlace()">
+				관련 블로그 더보기
+			</a>
 		</div>
 
-		<!-- 블로그 더 보기 버튼 -->
-		<div class="button-bar bar-balanced" ng-show="place.post.name" style="margin-top:5px;">
-			<a class="button" ng-click="place.searchPlace()">관련 블로그 더보기</a>
+
+		<div class="button-bar" style="margin-top:5px;">
+			<a class="button button-assertive button-outline" ng-click="place.deletePlace()">내 장소에서 삭제</a>
 		</div>
 	</ion-content>
 	<ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
