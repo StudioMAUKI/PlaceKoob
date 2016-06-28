@@ -16,6 +16,7 @@ angular.module('placekoob.controllers')
 	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) : '';
 	places.longitude = parseFloat($stateParams.longitude);
 	places.latitude = parseFloat($stateParams.latitude);
+	places.radius = parseFloat($stateParams.radius);
 
 	places.goBack = function() {
     console.log('Move Back');
@@ -163,7 +164,8 @@ angular.module('placekoob.controllers')
 	places.goToMap = function() {
 		var lonLat = {
 			lat: places.latitude,
-			lon: places.longitude
+			lon: places.longitude,
+			radius: places.radius
 		};
     console.log('goToMap : ' + JSON.stringify(lonLat));
     //  이거 타임아웃 안해주면, 에러남!!
