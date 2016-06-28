@@ -73,6 +73,7 @@ angular.module('placekoob.controllers')
   $scope.$on('map.position.update', function(event, pos) {
     map.initPos = pos;
     RemoteAPIService.updateCurPos(pos);
+    MapService.getCurrentAddress(pos.latitude, pos.longitude);
     if (map.customViewMode === false) {
       // console.info('New position info is updated.');
       if (map.curMarker) {
@@ -175,10 +176,8 @@ angular.module('placekoob.controllers')
 
   map.getCurrentPosition = function() {
 		var deferred = $q.defer();
-    // console.log('before MapService.getCurrentPosition()');
-		MapService.getCurrentPosition()
+    MapService.getCurrentPosition()
 		.then(function(pos){
-      // console.log('after MapService.getCurrentPosition()');
       // console.dir(pos);
 			RemoteAPIService.updateCurPos(pos);
 			MapService.getCurrentAddress(pos.latitude, pos.longitude);

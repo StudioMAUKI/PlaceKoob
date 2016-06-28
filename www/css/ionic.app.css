@@ -9812,6 +9812,9 @@ span.place-item-tag-large {
   background-color: #727272;
   color: #FFFFFF; }
 
+.place-star-point {
+  color: #FFC107; }
+
 div#container {
   width: 100%;
   position: absolute;

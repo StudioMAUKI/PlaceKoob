@@ -1,13 +1,14 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper) {
+.controller('placesNotYetCtrl', ['$scope', '$ionicSideMenuDelegate', '$ionicPopover', '$ionicPopup', '$state', '$q', '$ionicListDelegate', '$ionicLoading', 'RemoteAPIService', 'PostHelper', 'starPointIconService', function($scope, $ionicSideMenuDelegate, $ionicPopover, $ionicPopup, $state, $q, $ionicListDelegate, $ionicLoading, RemoteAPIService, PostHelper, starPointIconService) {
 	var plNotYet = this;
 	plNotYet.postHelper = PostHelper;
 	plNotYet.orderingType = "최신순";
 	plNotYet.itemHeight = '99px';
 	plNotYet.itemWidth = window.innerWidth + 'px';
 	plNotYet.completedFirstLoading = false;
+	plNotYet.SPS = starPointIconService;
 
 	plNotYet.goBack = function() {
 		$state.go('tab.places');
@@ -89,7 +90,7 @@ angular.module('placekoob.controllers')
 		.then(function(result) {
 			plNotYet.posts = result.waiting;
 			deferred.resolve();
-			// console.dir(plNotYet.posts);
+			console.dir(plNotYet.posts);
 		}, function(err) {
 			console.error(err);
 			deferred.reject(err);

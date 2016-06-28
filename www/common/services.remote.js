@@ -1032,7 +1032,7 @@ angular.module('placekoob.services')
   }
 
   function convertRegionToString(region) {
-    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon)
+    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon, false)
     .then(function(addr) {
       // region.name
       // console.dir(addr);

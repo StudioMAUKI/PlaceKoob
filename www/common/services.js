@@ -201,8 +201,11 @@ angular.module('placekoob.services', [])
     }
   }
 
-  function getCurrentAddress(latitude, longitude) {
+  function getCurrentAddress(latitude, longitude, saveAddr) {
     var deferred = $q.defer();
+    if (saveAddr === null || saveAddr === undefined) {
+      saveAddr = true;
+    }
 
     var geocoder = new daum.maps.services.Geocoder();
     geocoder.coord2detailaddr(
@@ -213,9 +216,11 @@ angular.module('placekoob.services', [])
         if (status === daum.maps.services.Status.OK) {
           if (result[0]) {
             console.info('Current Address is ' + result[0].jibunAddress.name + '.');
-            StorageService.set('addr1', result[0].roadAddress.name);
-      			StorageService.set('addr2', result[0].jibunAddress.name);
-      			StorageService.set('addr3', result[0].region);
+            if (saveAddr) {
+              StorageService.set('addr1', result[0].roadAddress.name);
+        			StorageService.set('addr2', result[0].jibunAddress.name);
+        			StorageService.set('addr3', result[0].region);
+            }
             deferred.resolve(result[0]);
           } else {
             console.warn('Geocoder results are not found.');

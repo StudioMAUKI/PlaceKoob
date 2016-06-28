@@ -96,6 +96,10 @@ span.place-item-tag-large {
   @include tag-style();
 }
 
+.place-star-point {
+  color: $pk-accent;
+}
+
 //  begin : tag input
 div#container{
   width: 100%;
