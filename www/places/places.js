@@ -14,6 +14,9 @@ angular.module('placekoob.controllers')
 	places.totalCount = 0;
 	places.SPS = starPointIconService;
 	places.regionName = $stateParams.rname ? decodeURI($stateParams.rname) : '';
+	places.longitude = parseFloat($stateParams.longitude);
+	places.latitude = parseFloat($stateParams.latitude);
+	places.radius = parseFloat($stateParams.radius);
 
 	places.goBack = function() {
     console.log('Move Back');
@@ -32,7 +35,7 @@ angular.module('placekoob.controllers')
 
 	places.isActiveMenu = function(orderingType) {
 		return places.orderingType === orderingType;
-	}
+	};
 
 	places.changeOrderingType = function(type) {
 		places.popOver.hide();
@@ -43,7 +46,7 @@ angular.module('placekoob.controllers')
 				$ionicScrollDelegate.scrollTop();
 			});
 		}
-	}
+	};
 
 	places.onItemDelete = function(post) {
 		console.log('onItemDelete is invoked, but not implemented yet.');
@@ -77,7 +80,7 @@ angular.module('placekoob.controllers')
 				$ionicListDelegate.closeOptionButtons();
 			}
 		});
-	}
+	};
 
 	places.share = function(post) {
 		console.log('share is invoked');
@@ -86,15 +89,14 @@ angular.module('placekoob.controllers')
 	places.loadSavedPlace = function(position) {
 		console.log('loadSavedPlace : ' + position);
 		var deferred = $q.defer();
-		var pos = position || 'top';
+		position = position || 'top';
 		var lon, lat, radius, limit;
 
-		console.dir($stateParams);
+		// console.dir($stateParams);
 		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
-			lat = parseFloat($stateParams.latitude);
-			lon = parseFloat($stateParams.longitude);
-			radius = parseInt($stateParams.radius);
-			radius = radius || 100;
+			lat = parseFloat($stateParams.latitude);;
+			lon = parseFloat($stateParams.longitude);;
+			radius = parseInt($stateParams.radius) || 100;
 			limit = parseInt($stateParams.limit);
 		} else {
 			var curPos = StorageService.get('curPos');
@@ -109,7 +111,8 @@ angular.module('placekoob.controllers')
 				template: '<ion-spinner icon="lines">로딩 중..</ion-spinner>'
 			});
 		}
-		RemoteAPIService.getPostsOfMine(pos, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
+		console.log('getPostsOfMine', position, places.orderingTypeName[places.orderingType], lon, lat, radius);
+		RemoteAPIService.getPostsOfMine(position, places.orderingTypeName[places.orderingType], lon, lat, radius, limit)
 		.then(function(result) {
 			places.posts = result.assigned;
 			places.notYetCount = result.waiting.length;
@@ -128,11 +131,11 @@ angular.module('placekoob.controllers')
 		});
 
 		return deferred.promise;
-	}
+	};
 
 	places.isEndOfList = function() {
 		return RemoteAPIService.isEndOfList('uplaces');
-	}
+	};
 
 	places.doRefresh = function(direction) {
 		console.log('doRefersh : ' + direction);
@@ -155,7 +158,21 @@ angular.module('placekoob.controllers')
 				$scope.$broadcast('scroll.infiniteScrollComplete');
 			}
 		}
-	}
+	};
+
+	places.goToMap = function() {
+		var lonLat = {
+			lat: places.latitude,
+			lon: places.longitude,
+			radius: places.radius
+		};
+    console.log('goToMap : ' + JSON.stringify(lonLat));
+    //  이거 타임아웃 안해주면, 에러남!!
+    setTimeout(function() {
+      $state.go('tab.map');
+      $scope.$emit('map.changeCenter.request', lonLat);
+    }, 100);
+  };
 
 	// $scope.$on('$ionicView.afterEnter', function() {
 	// 	places.loadSavedPlace('top')

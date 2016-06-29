@@ -6,14 +6,26 @@
 		<button class="button button-icon button-clear ion-plus pk-dark-primary" ng-click="importUser.addUserImport()"></button>
 	</ion-header-bar>
 	<ion-content>
-		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh()">
+		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh('top')">
   	</ion-refresher>
 		<ion-list show-delete="importUser.showDelete">
 			<div class="item item-divider">
 		    총 {{importUser.totalCount}}개의 장소를 가져왔습니다.
 		  </div>
+			<ion-item collection-repeat="post in importUser.iplaces track by $index" class="item-thumbnail-left" href="#/imported/{{post.iplace_uuid}}" nav-direction="forward">
+				<ion-delete-button class="ion-minus-circled" ng-click="importUser.onItemDelete(post)">
+      	</ion-delete-button>
+				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
+				<h2>{{post.name}}({{post.distance_from_origin}})	<i class="{{icon}}" ng-repeat="icon in places.SPS.get(post.userPost.rating.content) track by $index"></i></h2>
+				<span class="place-item-addr">{{post.address}}</span><br>
+				<div class="place-item-note">{{post.desc}}</div><br>
+				<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
+				<ion-option-button class="button-energized icon ion-ios-download-outline" ng-click="importUser.take($index)"></ion-option-button>
+      	<ion-option-button class="button-assertive icon ion-ios-trash-outline" ng-click="importUser.drop($index)"></ion-option-button>
+			</ion-item>
+
 			<!-- <ion-item collection-repeat="post in importUser.iplaces" item-width="importUser.itemWidth" item-height="importUser.itemHeight" href="#/places/{{post.uplace_uuid}}"> -->
-			<ion-item collection-repeat="post in importUser.iplaces track by $index">
+			<!-- <ion-item collection-repeat="post in importUser.iplaces track by $index">
 				<ion-delete-button class="ion-minus-circled"></ion-delete-button>
 				<img class="list-thumbnail" ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<span class="place-item-name"><strong>{{post.name}}</strong></span><br>
@@ -24,7 +36,7 @@
       	</ion-delete-button>
       	<ion-option-button class="button-energized icon ion-ios-download-outline" ng-click="importUser.take($index)"></ion-option-button>
       	<ion-option-button class="button-assertive icon ion-ios-trash-outline" ng-click="importUser.drop($index)"></ion-option-button>
-			</ion-item>
+			</ion-item> -->
 		</ion-list>
 		<ion-infinite-scroll ng-if="!importUser.isEndOfList()" on-infinite="importUser.doRefresh('bottom')" immediate-check="false" distance="1%">
 	  </ion-infinite-scroll>

@@ -1,37 +1,44 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService) {
+.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', 'starPointIconService', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService, starPointIconService) {
   var map = this;
+  map.SPS = starPointIconService;
   map.prevIndex = 0;
 	map.last_marker_index = -1;
 	map.last_coords = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
+  map.initPos = StorageService.get('curPos') || { latitude: 37.5666103, longitude: 126.9783882 };
 	map.lastMapCenter = {};
+  map.lastZoom = 15;
 	map.enabled = true;
   map.mapOption = {
+    //  이 센터 값을 준다고 해서, 지도가 정확히 이 지점을 중심으로 두게끔 로딩하지 않는다
+    //  왜 이지랄인지는 모르겠는데, 근처 어디쯤으로 로딩하기 때문에 정확히 위치를 잡기 위해서는
+    //  다시 setCenter를 호출해야 한다. ㅆㅂ
 		center: {
       lat: map.last_coords.latitude,
       lng: map.last_coords.longitude
     },
-		zoom: 15,
+		zoom: map.lastZoom,
 		zoomControl: false,
 		mapTypeControl: false,
 		streetViewControl: false
 	};
   map.mapObj = gmapService.createMap('map', map.mapOption);
+  google.maps.event.addListenerOnce(map.mapObj, 'idle', function() {
+    console.log('Google map is fully loaded.');
+    map.divToFit();
+    map.loadMap();
+  });
   map.curMarker = null;
   map.postMarkers = [];
-  // map.postInfoWindows = [];
 	map.loadedMap = false;
 	map.itemHeight = '99px';
 	map.itemWidth = window.innerWidth + 'px';
   map.showInfoWindow = true;
+  // map.postInfoWindows = [];
   map.tags = [];
-
-  $scope.$on('$ionicView.loaded', function() {
-    map.divToFit();
-    map.loadMap();
-  });
+  map.customViewMode = false;
 
   $scope.$on('$ionicView.afterEnter', function() {
 		console.log('$ionicView.afterEnter');
@@ -39,14 +46,6 @@ angular.module('placekoob.controllers')
 		if (map.loadedMap) {
       console.log('map resize event triggered');
       google.maps.event.trigger(map.mapObj, 'resize');
-			// map.loadSavedPlace();
-      // if ($stateParams.lat && $stateParams.lon) {
-      //   console.info('Change the center of map.');
-      //   map.mapObj.setCenter({
-      //     lat: parseFloat($stateParams.lat),
-      //     lng: parseFloat($stateParams.lon)
-      //   });
-      // }
 		}
 	});
 
@@ -55,14 +54,46 @@ angular.module('placekoob.controllers')
     map.enabled = false;
   });
 
+  $scope.$on('$ionicView.unloaded', function() {
+    console.info('mapView is unloaded');
+    MapService.clearWatch();
+  });
+
   $scope.$on('map.changeCenter', function(event, lonLat) {
     console.log('map.map.changeCenter : ' + JSON.stringify(lonLat));
+    map.customViewMode = true;
     setTimeout(function() {
       map.mapObj.setCenter({
         lat: lonLat.lat,
         lng: lonLat.lon
-      })
+      });
+      if (lonLat.radius) {
+        var zoomFactor = lonLat.radius === 0 ? 0 : (Math.log(lonLat.radius / 800) / Math.LN2).toFixed(0) - 1;
+        map.mapObj.setZoom(15 - zoomFactor);
+      }    
     }, 500);
+  });
+
+  $scope.$on('map.position.update', function(event, pos) {
+    map.initPos = pos;
+    RemoteAPIService.updateCurPos(pos);
+    MapService.getCurrentAddress(pos.latitude, pos.longitude);
+    if (map.customViewMode === false) {
+      // console.info('New position info is updated.');
+      if (map.curMarker) {
+        map.curMarker.setPosition({
+          lat: pos.latitude,
+          lng: pos.longitude
+        });
+
+        map.mapObj.setCenter({
+          lat: pos.latitude,
+          lng: pos.longitude
+        });
+      }
+    } else {
+      console.info('New position info is updated, but current view mode is customViewMode.');
+    }
   });
 
   map.showAlert = function(title, msg) {
@@ -82,6 +113,8 @@ angular.module('placekoob.controllers')
         - buttonBarHeight
         - tabHeight// 137 : height = document - bar - tab_bar
 		});
+    //  이거 꼭 해줘야 지도가 제대로 그려짐. (안그러면 걍 회색으로 나옴)
+    google.maps.event.trigger(map.mapObj, 'resize');
 	};
 
 
@@ -112,6 +145,11 @@ angular.module('placekoob.controllers')
 
   map.slidehasChanged = function(index) {
 		map.postMarkers[index].setIcon('img/icon/dot_active.svg');
+    // map.postMarkers[index].setOptions({
+    //   fillColor: '#FFC107',
+    //   strokeColor: '#FFC107',
+    //   zIndex:9999
+    // });
 
 		//	선택된 마커가 현재의 지도 안에 있는 지 확인
 		if (!isMarkerContained(map.posts[index].lonLat.lat, map.posts[index].lonLat.lon)) {
@@ -124,9 +162,15 @@ angular.module('placekoob.controllers')
 		//	기존의 슬라이드의 마커는 기본 상태로 되돌리고
 		if (map.prevIndex < map.posts.length) {
       map.postMarkers[map.prevIndex].setIcon('img/icon/dot_normal.svg');
+      // map.postMarkers[map.prevIndex].setOptions({
+      //   fillColor: '#2e4a94',
+      //   strokeColor: '#4875e9',
+      //   zIndex: map.prevIndex
+      // });
       map.postMarkers[map.prevIndex].setZIndex(map.prevIndex);
-      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
 			map.postMarkers[index].setZIndex(9999);
+
+      // map.postInfoWindows[map.prevIndex].setZIndex(map.prevIndex);
       // map.postInfoWindows[index].setZIndex(9999);
 		}
 		//	현재 선택된 슬라이드를 저장하여, 다음의 기존 슬라이드 인덱스로 사용한다
@@ -136,79 +180,76 @@ angular.module('placekoob.controllers')
 
   map.getCurrentPosition = function() {
 		var deferred = $q.defer();
-		MapService.getCurrentPosition()
+    MapService.getCurrentPosition()
 		.then(function(pos){
+      // console.dir(pos);
 			RemoteAPIService.updateCurPos(pos);
 			MapService.getCurrentAddress(pos.latitude, pos.longitude);
 			deferred.resolve(pos);
 		}, function(err) {
-			deferred.reject(err);
+      deferred.reject(err);
 		});
 		return deferred.promise;
 	};
 
   map.loadMap = function() {
     console.log('call loadMap');
-		$ionicLoading.show({
-			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 10000
-		});
-
-		map.getCurrentPosition()
-    .then(function(pos){
-      map.mapObj.setCenter({
-        lat: pos.latitude,
-        lng: pos.longitude
-      });
-			map.lastMapCenter.latitude = pos.latitude;
-			map.lastMapCenter.longitude = pos.longitude;
-      map.mapObj.addListener('zoom_changed', function() {
-        // console.log('map: zoom_changed');
-        console.log('Zoom_Level: ' + map.mapObj.getZoom());
+    map.mapObj.setCenter({
+      lat: map.initPos.latitude,
+      lng: map.initPos.longitude
+    });
+		map.lastMapCenter.latitude = map.initPos.latitude;
+		map.lastMapCenter.longitude = map.initPos.longitude;
+    map.mapObj.addListener('zoom_changed', function() {
+      var curZoom = map.mapObj.getZoom();
+      if (map.lastZoom !== curZoom) {
+        map.lastZoom = curZoom;
+        console.log('zoom_changed: ' + map.lastZoom);
         map.loadSavedPlace();
-      });
-      map.mapObj.addListener('center_changed', function() {
-        if (map.enabled) {
-          var mapCenter = map.mapObj.getCenter();
-          var ne = map.mapObj.getBounds().getNorthEast();
-          var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
-          console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
-          // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
-					var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
-					if (dist > maxDist * 0.7) {
-						map.lastMapCenter.latitude = mapCenter.lat();
-						map.lastMapCenter.longitude = mapCenter.lng();
-						map.loadSavedPlace();
-					}
+      }
+    });
+    map.mapObj.addListener('center_changed', function() {
+      if (map.enabled) {
+        var mapCenter = map.mapObj.getCenter();
+        var ne = map.mapObj.getBounds().getNorthEast();
+        var maxDist = parseInt(map.calculateDist(mapCenter.lat(), mapCenter.lng(), mapCenter.lat(), ne.lng()));
+        // console.log('Zoom_Level: ' + map.mapObj.getZoom() + ', Hor_dist: ' + maxDist);
+        // console.log('map: center_changed (lat:' + mapCenter.lat() + ',lng:' + mapCenter.lng() + ')');
+				var dist = parseInt(map.calculateDist(map.lastMapCenter.latitude, map.lastMapCenter.longitude, mapCenter.lat(), mapCenter.lng()));
+				if (dist > maxDist * 0.7) {
+					map.lastMapCenter.latitude = mapCenter.lat();
+					map.lastMapCenter.longitude = mapCenter.lng();
+          console.log('center_changed');
+					map.loadSavedPlace();
 				}
-      });
+			}
+    });
+    map.mapObj.addListener('dragend', function() {
+      console.info('map dragend event');
+      map.customViewMode = true;
+    });
 
-      map.curMarker = gmapService.deleteMarker(map.curMarker);
-      map.curMarker = gmapService.createMarker({
-        map: map.mapObj,
-        position: { lat: pos.latitude, lng: pos.longitude },
-        draggable: true,
-        zIndex: 9999
+    map.curMarker = gmapService.deleteMarker(map.curMarker);
+    map.curMarker = gmapService.createMarker({
+      map: map.mapObj,
+      position: { lat: map.initPos.latitude, lng: map.initPos.longitude },
+      draggable: true,
+      zIndex: 9999
+    });
+    map.curMarker.addListener('dragend', function(event) {
+      console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
+      map.mapObj.setCenter(event.latLng);
+      StorageService.set('curPos', {
+        latitude: event.latLng.lat(),
+        longitude: event.latLng.lng()
       });
-      map.curMarker.addListener('dragend', function(event) {
-        console.info('marker dragend : ' + event.latLng.lat(), event.latLng.lng());
-        map.mapObj.setCenter(event.latLng);
-        StorageService.set('curPos', {
-          latitude: event.latLng.lat(),
-          longitude: event.latLng.lng()
-        });
-      });
+    });
 
-      map.loadedMap = true;
-      google.maps.event.trigger(map.mapObj, 'resize');
-      console.log('map loaded');
-      map.loadSavedPlace();
-    }, function(err){
-      map.showAlert('Warning!', err);
-    })
-		.finally(function() {
-			$ionicLoading.hide();
-		});
+    map.loadedMap = true;
+    //  resize 이벤트를 발생시키지 않으면 지도가 회색으로 나옴(why? -_-)
+    google.maps.event.trigger(map.mapObj, 'resize');
+    console.log('map loaded');
+    map.loadSavedPlace();
 	};
 
   map.loadSavedPlace = function() {
@@ -239,6 +280,13 @@ angular.module('placekoob.controllers')
           draggable: false,
           zIndex: (i === 0 ? 9999 : i)
         }));
+        // map.postMarkers.push(gmapService.createMarker2({
+        //   zIndex: (i === 0 ? 9999 : i),
+        //   fillColor: (i === 0 ? '#FFC107' : null),
+        //   strokeColor: (i === 0 ? '#FFC107' : null),
+        //   center: { lat: map.posts[i].lonLat.lat, lng: map.posts[i].lonLat.lon },
+        //   map: map.mapObj
+        // }));
         map.postMarkers[i].addListener('click', (function(i) {
             return function() {
               console.log('marker click : ' + i);
@@ -320,6 +368,7 @@ angular.module('placekoob.controllers')
 	};
 
   map.scrollToSavedPlace = function(uplace_uuid) {
+    console.log('scrollToSavedPlace');
     map.loadSavedPlace()
 		.then(function() {
 			//	방금 저장한 장소로 핀과 슬라이드를 이동 시킴
@@ -336,9 +385,10 @@ angular.module('placekoob.controllers')
   };
 
   map.refresh = function() {
+    map.customViewMode = false;
     $ionicLoading.show({
 			template: '<ion-spinner icon="lines"></ion-spinner>',
-			duration: 60000
+			duration: 10000
 		});
 		map.getCurrentPosition()
     .then(function(pos){
@@ -359,6 +409,15 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicLoading.hide();
     });
+    // var curpos = map.curMarker.getPosition();
+    // map.curMarker.setPosition({
+    //   lat: curpos.lat() + 0.0005,
+    //   lng: curpos.lng() + 0.0005
+    // });
+    // map.mapObj.setCenter({
+    //   lat: curpos.lat() + 0.0005,
+    //   lng: curpos.lng() + 0.0005
+    // });
   }
 
   map.toggleInfoWindow = function() {
@@ -497,8 +556,9 @@ angular.module('placekoob.controllers')
 			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
 			duration: 60000
 		});
-		map.getCurrentPosition()
-		.then(function(curPos) {
+		// map.getCurrentPosition()
+		// .then(function(curPos) {
+      var curPos = StorageService.get('curPos');
 			RemoteAPIService.uploadImage(map.attatchedImage)
 			.then(function(response) {
         console.log('response file: ' + response.file);
@@ -534,10 +594,10 @@ angular.module('placekoob.controllers')
 				$ionicLoading.hide();
 				map.showAlert('오류: 이미지 업로드', err);
 			});
-		}, function(err) {
-			$ionicLoading.hide();
-			map.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
-		});
+		// }, function(err) {
+		// 	$ionicLoading.hide();
+		// 	map.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
+		// });
 	};
 
   map.confirmSaveURL = function() {
@@ -581,7 +641,11 @@ angular.module('placekoob.controllers')
     var enter = 13;
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
-      map.tags.push(map.tag);
+      if (map.tag.length > 0) {
+        map.tags.push(map.tag);
+      } else {
+        console.warn('입력 받은 태그의 길이가 0임.');
+      }
       map.tag = '';
     }
   };

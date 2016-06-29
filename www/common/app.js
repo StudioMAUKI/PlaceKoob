@@ -6,7 +6,7 @@
 'use strict';
 
 angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordovaOauth', 'placekoob.config', 'placekoob.controllers', 'placekoob.services'])
-.run(['$rootScope', '$ionicPlatform', '$ionicPopup', '$state', 'RemoteAPIService', 'StorageService',  function($rootScope, $ionicPlatform, $ionicPopup, $state, RemoteAPIService, StorageService) {
+.run(['$rootScope', '$ionicPlatform', '$ionicPopup', '$state', 'RemoteAPIService', 'StorageService', 'MapService',  function($rootScope, $ionicPlatform, $ionicPopup, $state, RemoteAPIService, StorageService, MapService) {
   $ionicPlatform.ready(function() {
     function showAlert(msg) {
       $ionicPopup.alert({
@@ -18,6 +18,12 @@ angular.module('placekoob', ['ionic','ionic.service.core', 'ngCordova', 'ngCordo
         ionic.Platform.exitApp();
       });
     };
+
+    MapService.watchCurrentPosition(function(pos) {
+      $rootScope.$broadcast('map.position.update', pos);
+    }, function(err) {
+      console.dir(err);
+    });
 
     if(window.cordova && window.cordova.plugins.Keyboard) {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard

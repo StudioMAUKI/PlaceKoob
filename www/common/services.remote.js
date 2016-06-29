@@ -62,23 +62,33 @@ angular.module('placekoob.services')
 }])
 .factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
   var getServerURL = RESTServer.getURL;
-  var cachedUplaces = [];
-  var cachedUplacesAssgined = [];
-  var cachedUplacesWaiting = [];
-  var cachedPlaces = [];
-  var cacheMng = {
-    uplaces: {
+  var cachedUPAssigned = [];
+  var cachedUPWaiting = [];
+  var cacheKeys = ['all', 'uplaces', 'places', 'iplaces'];
+  var cacheMngr = { uplaces: null, places: null, iplaces: null};
+
+  function createCacheItem() {
+    return {
+      items: [],
       endOfList: false,
       lastUpdated: 0,
       needToUpdate: true,
       totalCount: 0
-    },
-    places: {
-      endOfList: false,
-      lastUpdated: 0,
-      needToUpdate: true
-    }
-  };
+    };
+  }
+
+  function resetCacheItem(item) {
+    item.items = [];
+    item.endOfList = false;
+    item.lastUpdated = 0;
+    item.needToUpdate = true;
+    item.totalCount = 0;
+  }
+
+  cacheMngr.uplaces = createCacheItem();
+  cacheMngr.places = createCacheItem();
+  cacheMngr.iplaces = createCacheItem();
+  // console.dir(cacheMngr);
 
   function registerUser() {
     var deferred = $q.defer();
@@ -208,19 +218,19 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       var idOrganized = -1, idUnorganized = -1;
-      for (var i = 0; i < cachedUplaces.length; i++) {
-        if (PostHelper.isOrganized(cachedUplaces[i])) {
+      for (var i = 0; i < cacheMngr.uplaces.items.length; i++) {
+        if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
           idOrganized++;
         } else {
           idUnorganized++;
         }
-        if (uplace_uuid === cachedUplaces[i].uplace_uuid) {
-          if (PostHelper.isOrganized(cachedUplaces[i])) {
-            cachedUplacesAssgined.splice(idOrganized, 1);
+        if (uplace_uuid === cacheMngr.uplaces.items[i].uplace_uuid) {
+          if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
+            cachedUPAssigned.splice(idOrganized, 1);
           } else {
-            cachedUplacesWaiting.splice(idUnorganized, 1);
+            cachedUPWaiting.splice(idUnorganized, 1);
           }
-          cachedUplaces.splice(i, 1);
+          cacheMngr.uplaces.items.splice(i, 1);
         }
       }
       setAllNeedToUpdate();
@@ -261,7 +271,14 @@ angular.module('placekoob.services')
       $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
         // console.dir(result.response);
-        deferred.resolve(JSON.parse(result.response));
+        var res;
+        try {
+          res = JSON.parse(result.response);
+          deferred.resolve(res);
+        } catch (e) {
+          console.error(e.message);
+          deferred.reject(e);
+        }
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -288,41 +305,36 @@ angular.module('placekoob.services')
   function resetCachedPosts(type) {
     type = type || 'all';
 
+    if (cacheKeys.indexOf(type) === -1) {
+      console.warn('resetCachedPosts : unknown cache key[' + type + ']');
+      return;
+    }
+
     if (type === 'all') {
-      cachedUplaces = [];
-      cachedUplacesAssgined = [];
-      cachedUplacesWaiting = [];
-      cachedPlaces = [];
-      cacheMng.uplaces.endOfList = false;
-      cacheMng.uplaces.lastUpdated = 0;
-      cacheMng.uplaces.needToUpdate = true;
-      cacheMng.places.endOfList = false;
-      cacheMng.places.lastUpdated = 0;
-      cacheMng.places.needToUpdate = true;
+      resetCacheItem(cacheMngr.uplaces);
+      resetCacheItem(cacheMngr.iplaces);
+      resetCacheItem(cacheMngr.places);
+      cachedUPAssigned = [];
+      cachedUPWaiting = [];
     } else if (type === 'uplaces') {
-      cachedUplaces = [];
-      cachedUplacesAssgined = [];
-      cachedUplacesWaiting = [];
-      cacheMng.uplaces.endOfList = false;
-      cacheMng.uplaces.lastUpdated = 0;
-      cacheMng.uplaces.needToUpdate = true;
+      cachedUPAssigned = [];
+      cachedUPWaiting = [];
+      resetCacheItem(cacheMngr.uplaces);
     } else if (type === 'places') {
-      cachedPlaces = [];
-      cacheMng.places.endOfList = false;
-      cacheMng.places.lastUpdated = 0;
-      cacheMng.places.needToUpdate = true;
-    } else {
-      console.warn('resetCachedPosts : unknown parameter');
+      resetCacheItem(cacheMngr.places);
+    } else if (type === 'iplaces'){
+      resetCacheItem(cacheMngr.iplaces);
     }
   }
 
   function isEndOfList(key) {
-    return cacheMng[key].endOfList;
+    return cacheMngr[key].endOfList;
   }
 
   function setAllNeedToUpdate() {
-    cacheMng.uplaces.needToUpdate = true;
-    cacheMng.places.needToUpdate = true;
+    for (var item in cacheMngr) {
+      cacheMngr[item].needToUpdate = true;
+    }
   }
 
   //  캐싱 로직은 세가지 요소 검사
@@ -333,54 +345,45 @@ angular.module('placekoob.services')
     //  잠시 캐시 기능을 꺼보기로 함
     return true;
 
-    if (key === 'uplaces') {
-      if (cachedUplaces.length === 0){
-        console.log('업데이트 필요 : 리스트가 비어 있음');
-        return true;
-      }
-    } else if (key === 'places'){
-      if (cachedPlaces.length === 0){
-        console.log('업데이트 필요 : 리스트가 비어 있음');
-        return true;
-      }
-    } else {
+    if (cacheKeys.indexOf(key) === -1) {
       console.warn('등록되지 않은 키(' + key + ')로 업데이트 여부를 체크했음')
+      return true;
+    }
+    if (cacheMngr[key].items.length === 0) {
+      console.log(key + ' 업데이트 필요 : 리스트가 비어 있음');
       return true;
     }
 
     var timeNow = new Date().getTime();
-    if (timeNow - cacheMng[key].lastUpdated >= 60000) {
+    if (timeNow - cacheMngr[key].lastUpdated >= 60000) {
       console.log('업데이트 필요 : 너무 오래 업데이트를 안 했음');
       return true;
     }
-    if (cacheMng[key].needToUpdate) {
+    if (cacheMngr[key].needToUpdate) {
       console.log('업데이트 필요 : 업데이트 필요 태그가 세팅 됨');
       return true;
     }
     console.log('업데이트 필요 없음');
     // console.log('key : ' + key);
     // console.log('timeNow : ' + timeNow);
-    // console.log('lastUpdated : ' + cacheMng[key].lastUpdated);
-    // console.log('needToUpdate : ' + cacheMng[key].needToUpdate);
+    // console.log('lastUpdated : ' + cacheMngr[key].lastUpdated);
+    // console.log('needToUpdate : ' + cacheMngr[key].needToUpdate);
     return false;
   }
 
   function setRefreshCompleted(key) {
-    cacheMng[key].needToUpdate = false;
-    cacheMng[key].lastUpdated = new Date().getTime();
+    cacheMngr[key].needToUpdate = false;
+    cacheMngr[key].lastUpdated = new Date().getTime();
   }
 
   function updateCurPos(curPos) {
-    if (cachedUplaces.length > 0) {
-      PostHelper.updateDistance(cachedUplaces, curPos);
+    if (cachedUPAssigned.length > 0) {
+      PostHelper.updateDistance(cachedUPAssigned, curPos);
     }
-
-    if (cachedUplacesAssgined.length > 0) {
-      PostHelper.updateDistance(cachedUplacesAssgined, curPos);
-    }
-
-    if (cachedPlaces.length > 0) {
-      PostHelper.updateDistance(cachedPlaces, curPos);
+    for (var item in cacheMngr) {
+      if (cacheMngr[item].items.length > 0) {
+        PostHelper.updateDistance(cacheMngr[item].items, curPos);
+      }
     }
   }
 
@@ -405,6 +408,7 @@ angular.module('placekoob.services')
   function getPostsOfMine(position, orderBy, lon, lat, radius, maxLimit) {
     console.info('getPostsOfMine : ' + position);
     var deferred = $q.defer();
+    var offset, limit;
     position = position || 'top';
     orderBy = orderBy || '-modified';
     // if (orderBy === '-modified' || orderBy === 'modified') {
@@ -418,22 +422,20 @@ angular.module('placekoob.services')
       maxLimit = maxLimit || 0;
     // }
 
-    var offset, limit;
-
     if (position === 'top') {
       offset = 0;
       limit = 20;
       resetCachedPosts('uplaces');
     } else if (position === 'bottom') {
-      offset = cachedUplaces.length;
+      offset = cacheMngr.uplaces.items.length;
       limit = 20;
 
-      if (cacheMng.uplaces.endOfList) {
+      if (cacheMngr.uplaces.endOfList) {
         console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
         deferred.reject('endOfList');
         return deferred.promise;
       } else {
-        cacheMng.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
+        cacheMngr.uplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
       }
     } else {
       deferred.reject('Wrong parameter.');
@@ -456,15 +458,16 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         // console.dir(response.data.results);
-        cacheMng.uplaces.totalCount = response.data.count;
+        cacheMngr.uplaces.totalCount = response.data.count;
+        PostHelper.decoratePosts(response.data.results);
         if (position === 'top') {
           var newElements = [];
           var found = false;
           for (var i = 0; i < response.data.results.length; i++) {
             found = false;
-            for (var j = 0; j < cachedUplaces.length; j++) {
+            for (var j = 0; j < cacheMngr.uplaces.items.length; j++) {
               // console.log(j);
-              if (response.data.results[i].uplace_uuid === cachedUplaces[j].uplace_uuid) {
+              if (response.data.results[i].uplace_uuid === cacheMngr.uplaces.items[j].uplace_uuid) {
                 found = true;
                 break;
               }
@@ -473,26 +476,26 @@ angular.module('placekoob.services')
               newElements.push(response.data.results[i]);
             }
           }
-          cachedUplaces = newElements.concat(cachedUplaces);
+          cacheMngr.uplaces.items = newElements.concat(cacheMngr.uplaces.items);
         } else {  //  position === 'bottom'
           if (response.data.results.length === 0) {
-            cacheMng.uplaces.endOfList = true;
+            cacheMngr.uplaces.endOfList = true;
           } else {
-            cachedUplaces = cachedUplaces.concat(response.data.results);
+            cacheMngr.uplaces.items = cacheMngr.uplaces.items.concat(response.data.results);
           }
         }
 
-        cachedUplacesAssgined = [];
-        cachedUplacesWaiting = [];
-        PostHelper.decoratePosts(cachedUplaces);
-        for (var i = 0; i < cachedUplaces.length; i++) {
-          if (PostHelper.isOrganized(cachedUplaces[i])) {
-            cachedUplacesAssgined.push(cachedUplaces[i]);
+        cachedUPAssigned = [];
+        cachedUPWaiting = [];
+        // PostHelper.decoratePosts(cacheMngr.uplaces.items);
+        for (var i = 0; i < cacheMngr.uplaces.items.length; i++) {
+          if (PostHelper.isOrganized(cacheMngr.uplaces.items[i])) {
+            cachedUPAssigned.push(cacheMngr.uplaces.items[i]);
           } else {
-            cachedUplacesWaiting.push(cachedUplaces[i]);
+            cachedUPWaiting.push(cacheMngr.uplaces.items[i]);
           }
         }
-        deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
+        deferred.resolve({assigned : cachedUPAssigned, waiting: cachedUPWaiting, totalCount: cacheMngr.uplaces.totalCount});
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -501,7 +504,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('uplaces');
       });
     } else {
-      deferred.resolve({assigned : cachedUplacesAssgined, waiting: cachedUplacesWaiting, totalCount: cacheMng.uplaces.totalCount});
+      deferred.resolve({assigned : cachedUPAssigned, waiting: cachedUPWaiting, totalCount: cacheMngr.uplaces.totalCount});
     }
 
     return deferred.promise;
@@ -524,15 +527,16 @@ angular.module('placekoob.services')
       })
       .then(function(response) {
         // console.dir(response);
-        cachedPlaces = [];
+        cacheMngr.places.items = [];
+        cacheMngr.places.totalCount = response.data.count;
         for (var i = 0; i < response.data.results.length; i++){
           if (response.data.results[i].lonLat) {
-            cachedPlaces.push(response.data.results[i]);
+            cacheMngr.places.items.push(response.data.results[i]);
           }
         }
-        PostHelper.decoratePosts(cachedPlaces);
-        // console.dir(cachedPlaces);
-        deferred.resolve(cachedPlaces);
+        PostHelper.decoratePosts(cacheMngr.places.items);
+        // console.dir(cacheMngr.places.items);
+        deferred.resolve(cacheMngr.places.items);
       }, function(err) {
         console.error(err);
         deferred.reject(err);
@@ -541,7 +545,7 @@ angular.module('placekoob.services')
         setRefreshCompleted('places');
       });
     // } else {
-    //   deferred.resolve(cachedPlaces);
+    //   deferred.resolve(cacheMngr.places.items);
     // }
 
     return deferred.promise;
@@ -581,27 +585,84 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
-  function getIplaces(lat, lon) {
+  function getIplaces(position, lat, lon) {
     var deferred = $q.defer();
+    var offset, limit;
+    position = position || 'top';
 
-    $http({
-      method: 'GET',
-      url: getServerURL() + '/iplaces/',
-      params: {
-        ru: 'myself',
-        lat: lat,
-        lon: lon,
-        r: 0
+    if (position === 'top') {
+      offset = 0;
+      limit = 20;
+      resetCachedPosts('iplaces');
+    } else if (position === 'bottom') {
+      offset = cacheMngr.iplaces.items.length;
+      limit = 20;
+
+      if (cacheMngr.iplaces.endOfList) {
+        console.log('리스트의 끝에 다달았기 때문에 바로 리턴.');
+        deferred.reject('endOfList');
+        return deferred.promise;
+      } else {
+        cacheMngr.iplaces.needToUpdate = true;  // 아래쪽에서 리스트를 추가하는 것은 항상 갱신을 시도해야 한다
       }
-    })
-    .then(function(response) {
-      // console.dir(response);
-      PostHelper.decoratePosts(response.data.results);
-      deferred.resolve({ iplaces: response.data.results, totalCount: response.data.count });
-    }, function(err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+    } else {
+      deferred.reject('Wrong parameter.');
+      return deferred.promise;
+    }
+
+    if (checkNeedToRefresh('iplaces')) {
+      $http({
+        method: 'GET',
+        url: getServerURL() + '/iplaces/',
+        params: {
+          ru: 'myself',
+          limit: limit,
+          offset: offset,
+          lat: lat,
+          lon: lon,
+          r: 0
+        }
+      })
+      .then(function(response) {
+        // console.dir(response);
+        cacheMngr.iplaces.totalCount = response.data.count;
+        PostHelper.decoratePosts(response.data.results);
+        if (position === 'top') {
+          var newElements = [];
+          var found = false;
+          for (var i = 0; i < response.data.results.length; i++) {
+            found = false;
+            for (var j = 0; j < cacheMngr.iplaces.items.length; j++) {
+              // console.log(j);
+              if (response.data.results[i].iplace_uuid === cacheMngr.iplaces.items[j].iplace_uuid) {
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              newElements.push(response.data.results[i]);
+            }
+          }
+          cacheMngr.iplaces.items = newElements.concat(cacheMngr.iplaces.items);
+        } else {  //  position === 'bottom'
+          if (response.data.results.length === 0) {
+            cacheMngr.iplaces.endOfList = true;
+          } else {
+            cacheMngr.iplaces.items = cacheMngr.iplaces.items.concat(response.data.results);
+          }
+        }
+
+        deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      })
+      .finally(function() {
+        setRefreshCompleted('iplaces');
+      });
+    } else {
+      deferred.resolve({iplaces : cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
+    }
 
     return deferred.promise;
   }
@@ -616,7 +677,13 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       // console.dir(response);
-      deferred.resolve(response);
+      for (var i = 0; i < cacheMngr.iplaces.items.length; i++) {
+        if (cacheMngr.iplaces.items[i].iplace_uuid === iplace_uuid) {
+          cacheMngr.iplaces.items.splice(i, 1);
+          cacheMngr.iplaces.totalCount--;
+        }
+      }
+      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -635,7 +702,13 @@ angular.module('placekoob.services')
     })
     .then(function(response) {
       // console.dir(response);
-      deferred.resolve(response);
+      for (var i = 0; i < cacheMngr.iplaces.items.length; i++) {
+        if (cacheMngr.iplaces.items[i].iplace_uuid === iplace_uuid) {
+          cacheMngr.iplaces.items.splice(i, 1);
+          cacheMngr.iplaces.totalCount--;
+        }
+      }
+      deferred.resolve({ iplaces: cacheMngr.iplaces.items, totalCount: cacheMngr.iplaces.totalCount });
     }, function(err) {
       console.error(err);
       deferred.reject(err);
@@ -655,6 +728,7 @@ angular.module('placekoob.services')
       url: getServerURL() + '/uplaces/' + ret_uplace_uuid + '/'
     })
     .then(function(response) {
+      // console.dir(response.data);
       PostHelper.decoratePost(response.data);
       deferred.resolve(response.data);
     }, function(err) {
@@ -714,8 +788,13 @@ angular.module('placekoob.services')
           }
         }
       } else {
-        subTags = JSON.parse(notes[i].content.split('#')[1]);
-        output = output.concat(subTags);
+        try{
+          console.log(notes[i].content);
+          subTags = JSON.parse(notes[i].content.split('#')[1]);
+          output = output.concat(subTags);
+        } catch (e) {
+          console.error(e.message);
+        }
       }
     }
     return output;
@@ -743,9 +822,14 @@ angular.module('placekoob.services')
 
   function getThumbnailURLByFirstImage(post) {
     if (!post.userPost || !post.userPost.images || post.userPost.images.length == 0) {
-      return 'img/icon/404.png';
+      if (!post.placePost || !post.placePost.images || post.placePost.images.length == 0) {
+        return 'img/icon/404.png';
+      } else {
+        return getImageURL(post.placePost.images[0].summary);
+      }
+    } else {
+      return getImageURL(post.userPost.images[0].summary);
     }
-    return getImageURL(post.userPost.images[0].summary);
   }
 
   function getImageURL(content) {
@@ -867,12 +951,12 @@ angular.module('placekoob.services')
       if (min === 0) {
         return '방금';
       } else {
-        return parseInt(timegap / 60) + '분 전';
+        return parseInt(timegap / 60) + '분전';
       }
     } else if (timegap < 24 * 3600) {
-      return parseInt(timegap / 3600) + '시간 전';
+      return parseInt(timegap / 3600) + '시간전';
     } else {
-      return parseInt(timegap / 86400) + '일 전';
+      return parseInt(timegap / 86400) + '일전';
     }
     // return new Date(timestamp).toLocaleDateString();
   }
@@ -892,7 +976,12 @@ angular.module('placekoob.services')
 	  dist = rad2deg(dist);
 	  dist = dist * 60 * 1.1515;
 	  dist = dist * 1.609344;
-	  return Number(dist*1000).toFixed(2);
+	  var result = Number(dist*1000).toFixed(0);
+    if (result < 1000) {
+      return result + 'm';
+    } else {
+      return Number(result/1000.0).toFixed(1) + 'km';
+    }
 	}
 
   function getDistance(post, curPos) {
@@ -913,8 +1002,19 @@ angular.module('placekoob.services')
     post.address = getAddress(post);
     post.addrs = getAddresses(post);
     post.desc = getDescFromUserNote(post);
-    post.tags = getTags(post);
     post.phoneNo = getPhoneNo(post);
+    if (!post.userPost.tags) {
+      post.userPost.tags = [];
+    }
+    post.visited = post.userPost.visit? post.userPost.visit.content : false;
+    if (post.visited === false) {
+      if (post.userPost.rating && parseInt(post.userPost.rating.content) > 0) {
+        post.visited = true;
+      }
+    }
+    //  서버로부터 받은 distance_from_origin은 질의때 보낸 좌표를 기준으로 한 거리이기 때문에
+    //  현재 위치를 기준으로 다시 계산해야 한다.
+    post.distance_from_origin = getDistance(post, curPos);
   }
 
   function decoratePosts(posts) {
@@ -932,12 +1032,18 @@ angular.module('placekoob.services')
   }
 
   function convertRegionToString(region) {
-    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon)
+    MapService.getCurrentAddress(region.lonLat.lat, region.lonLat.lon, false)
     .then(function(addr) {
       // region.name
       // console.dir(addr);
       var a = addr.region.split(' ');
-      region.name = a[a.length - 1];
+      var city = '';
+      if (a[0].indexOf('경기') !== -1 || a[0].indexOf('강원') !== -1 || a[0].indexOf('충북') !== -1 || a[0].indexOf('충남') !== -1 || a[0].indexOf('전북') !== -1 || a[0].indexOf('전남') !== -1 || a[0].indexOf('경북') !== -1 || a[0].indexOf('경남') !== -1) {
+        city = a[1];
+      } else {
+        city = a[0];
+      }
+      region.name = a[a.length - 1] + '(' + city + ')';
     }, function(err) {
       console.error(JSON.stringify(err));
     });
@@ -1010,9 +1116,14 @@ angular.module('placekoob.services')
     uploadedImages = [];
     remoteStorageService.downloadData('uploaded_imgs')
     .then(function(result) {
-      uploadedImages = JSON.parse(result.data.value) || [];
-      // console.dir(uploadedImages);
-      deferred.resolve();
+      try {
+        uploadedImages = JSON.parse(result.data.value) || [];
+        // console.dir(uploadedImages);
+        deferred.resolve();
+      } catch (e) {
+        console.error(e.message);
+        deferred.reject(e);
+      }
     }, function(err) {
       deferred.reject(err);
     });
@@ -1078,11 +1189,18 @@ angular.module('placekoob.services')
       };
       $cordovaFileTransfer.upload(getServerURL() + '/rfs/', fileURI, options)
       .then(function(result) {
-        var response = JSON.parse(result.response);
-        // console.dir(response);
-        // console.log('lon : ' + imagesToUpload[status.current].longitude);
-        // console.log('lat : ' + imagesToUpload[status.current].latitude);
-        // console.log('local_datetime : ' + imagesToUpload[status.current].timestamp);
+        var response;
+        try {
+          response = JSON.parse(result.response);
+          // console.dir(response);
+          // console.log('lon : ' + imagesToUpload[status.current].longitude);
+          // console.log('lat : ' + imagesToUpload[status.current].latitude);
+          // console.log('local_datetime : ' + imagesToUpload[status.current].timestamp);
+        } catch (e) {
+          console.error(e.message);
+          return;
+        }
+
         $http({
           method: 'POST',
           url: getServerURL() + '/imgs/',
@@ -1293,7 +1411,8 @@ angular.module('placekoob.services')
     var convertedURL = '';
 
     convertedURL = convertToSaveURL(url);
-    console.log('URL : ' + convertedURL);
+    console.log('Original URL : ' + url);
+    console.log('Converted URL : ' + convertedURL);
     if (convertedURL === '') {
       console.warn('not supported URL pattern.');
       ogInfo.title = '브라우저에서 지원하지 않는 URL';

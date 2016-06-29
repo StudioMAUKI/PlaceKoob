@@ -4,21 +4,41 @@
 	</ion-header-bar>
 	<ion-content>
 		<ion-list>
-			<ion-toggle  ng-model="config.foursquare" ng-change="config.connectFoursqaure()">
-        <i class="icon ion-social-foursquare"></i> Foursquare
-      </ion-toggle>
-			<ion-toggle  ng-model="config.google" ng-change="config.connectOther()">
-        <i class="icon ion-social-google"></i> Google maps
-      </ion-toggle>
-			<ion-toggle  ng-model="config.naver" ng-change="config.connectOther()">
-        <i class="icon ion-chatbox"></i> NAVER Blog
-      </ion-toggle>
-			<ion-toggle  ng-model="config.libraries" ng-change="config.connectOther()">
-        <i class="icon ion-images"></i> Photo libraries
-      </ion-toggle>
-			<ion-toggle  ng-model="config.contacts" ng-change="config.connectOther()">
-        <i class="icon ion-person-stalker"></i> Contacts
-      </ion-toggle>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-download-outline"></i>&nbsp;
+				가져오기
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-bell-outline"></i>&nbsp;
+				이벤트
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-information-outline"></i>&nbsp;
+				공지사항
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-list-outline"></i>&nbsp;
+				약관 및 정책
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-help-outline"></i>&nbsp;
+				도움말
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-person-outline"></i>&nbsp;
+				계정 관리
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
+			<ion-item class="item-icon-left item-icon-right" href="#/config/import" nav-direction="forward">
+				<i class="icon ion-ios-gear-outline"></i>&nbsp;
+				설정
+				<i class="icon ion-ios-arrow-right"></i>
+			</ion-item>
       <button class="button button-outline button-balanced button-full" ng-click="config.requestUserInfo()">사용자 정보 얻기</button>
 			<!-- <ion-toggle  ng-model="config.devmode" ng-change="config.setDevMode()">
         <i class="icon ion-hammer"></i> 개발서버접속(회사 내부 망에 있어야 함)

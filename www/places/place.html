@@ -1,14 +1,13 @@
 <ion-view>
 	<ion-header-bar class="pk-dark-primary" align-title="center">
 		<div class="buttons">
-	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="place.goBack()" nav-direction="back">
-	      이전 목록
-	    </button>
+	    <button class="button-clear button-icon ion-ios-arrow-left ion-arrow-left pk-dark-primary" ng-click="place.goBack()" nav-direction="back"></button>
 		</div>
-		<h1 class="title">{{place.post.name || '등록 대기중'}}</h1>
+		<h2 class="title">{{place.post.name || '등록 대기중'}}</h2>
 		<div class="buttons">
 			<!-- <button class="button-clear button-icon ion-share pk-primary" ng-click=""></button> -->
-	    <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="place.deletePlace()"></button>
+	    <!-- <button class="button-clear button-icon ion-ios-trash-outline pk-dark-primary" ng-click="place.deletePlace()"></button> -->
+			<button class="button-clear button-icon ion-map pk-dark-primary" ng-click="place.goToMap(place.post.lonLat)"></button>
 		</div>
 	</ion-header-bar>
 	<ion-content class="post-container"  overflow-scroll='false' delegate-handle="userDetailContent" on-scroll="place.onUserDetailContentScroll()" header-shrink scroll-event-interval="5">
@@ -17,20 +16,30 @@
 			<div class="profile-media">
 				<img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;">
         <div class="profile-details">
-					<div class="row" ng-show="place.post.name" ng-repeat="addr in place.post.addrs">
-						<div class="col"  ng-click="place.goToMap(place.post.lonLat)">
+					<!-- <h4 class="title" style="color:white;">{{place.post.name || '등록 대기중'}}</h4> -->
+					<div class="row" style="font-size:90%;" ng-show="place.post.addrs" ng-repeat="addr in place.post.addrs track by $index">
+						<div class="col">
 								{{addr}}
 						</div>
 					</div>
-					<div class="row" ng-show="place.post.name">
+					<!-- <div class="row" style="font-size:90%;" ng-show="place.post.addrs">
+						<div class="col" ng-click="place.goToMap(place.post.lonLat)">
+							<i class="ion-map"></i>
+						</div>
+						<div class="col col-90" >
+								<span ng-show="place.post.addrs[0]">{{place.post.addrs[0]}}</span><br>
+								<span ng-show="place.post.addrs[1]">{{place.post.addrs[1]}}</span>
+						</div>
+					</div> -->
+					<div class="row" ng-show="place.post.phoneNo">
 						<div class="col">
 							<a href="tel:{{place.post.phoneNo||''}}">{{place.postHelper.getReadablePhoneNo(place.post.phoneNo) || '전화번호 없음'}}</a>
 						</div>
 					</div>
-					<div class="row" style="font-size:30px;color:orange;" ng-show="place.post.name">
+					<div class="row star-points-container">
 						<div class="col">
 						</div>
-						<div class="col" ng-repeat="icon in place.starPointIcons track by $index">
+						<div class="col" ng-repeat="icon in place.starPointIcons track by $index" ng-click="place.setStarPoint()">
 			        <i class="{{icon}}"></i>
 			      </div>
 						<div class="col">
@@ -38,14 +47,15 @@
 					</div>
 					<div class="row">
 						<div class="col place-tags-container">
-							<div class="place-item-tag" ng-repeat="tag in place.post.tags track by $index">{{tag}}&nbsp;</div>
+							<div class="place-item-tag" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">{{tag.content}}</div>
+							<!-- <button class="button button-energized button-small button-outline" ng-repeat="tag in place.post.userPost.tags track by $index" ng-click="place.showTagCloud()">#{{tag.content}}</button> -->
 						</div>
 					</div>
         </div>
       	<!-- <img ng-src="{{place.coverImage}}" class="about-image profile-background-image" style="vertical-align:middle;"> -->
       </div>
-			<div class="row like-btn">
-				<div class="col text-right">
+			<div class="like-btn">
+				<div class="text-right">
 					<div ng-class="place.visited ? 'bg-color-accent like-button-with-text':'bg-color-white like-button-with-text-green'" ng-click="place.visit()">
 						<i ng-if="!place.visited" class="ion-help" ng-class="'color-green'"></i>
 						<i ng-if="place.visited" class="ion-alert" ng-class="'color-white'"></i>
@@ -59,13 +69,14 @@
 			<a class="button" ng-click="place.addNote()"><i class="ion-chatbox"></i> 댓글</a>
 			<a class="button" ng-click="place.addURL()"><i class="ion-link"></i> URL추가</a>
 			<!-- <a class="button" ng-click=""><i class="ion-android-share-alt"></i> 공유</a> -->
-			<a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a>
+			<!-- <a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a> -->
 		</div>
 		<div class="user-image">
 			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight || place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">
 			<img ng-style="{height:place.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
 		</div>
 
+		<!-- 노트 목록 -->
 		<ion-list>
 			<ion-item class="card" ng-repeat="note in place.post.userPost.notes track by $index" ng-show="note.content.indexOf('[NOTE_TAGS]') === -1" on-hold="place.deleteNote($index)">
 				<div class="row">
@@ -107,11 +118,15 @@
 				<h3>{{result.author}}</h3>
 				<p>{{result.description}}</p>
 			</a>
+			<!-- 블로그 더 보기 버튼 -->
+			<a class="item" href="#" style="text-align: center;" ng-show="place.post.name" ng-click="place.searchPlace()">
+				관련 블로그 더보기
+			</a>
 		</div>
 
-		<!-- 블로그 더 보기 버튼 -->
-		<div class="button-bar bar-balanced" ng-show="place.post.name" style="margin-top:5px;">
-			<a class="button" ng-click="place.searchPlace()">관련 블로그 더보기</a>
+
+		<div class="button-bar" style="margin-top:5px;">
+			<a class="button button-assertive button-outline" ng-click="place.deletePlace()">내 장소에서 삭제</a>
 		</div>
 	</ion-content>
 	<ion-footer-bar keyboard-attach class="bar-stable item-input-inset">

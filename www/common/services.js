@@ -133,9 +133,11 @@ angular.module('placekoob.services', [])
 }])
 .factory('MapService', ['$q', 'StorageService', function($q, StorageService) {
   var pos = { latitude: 0.0, longitude: 0.0 };
+  var warchID = null;
 
   function getCurrentPosition() {
     return $q(function(resolve, reject) {
+      // console.info('in MapService.getCurrentPosition()');
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           pos.latitude = position.coords.latitude;
@@ -144,11 +146,24 @@ angular.module('placekoob.services', [])
           console.info('Original position is (' + pos.latitude + ', ' + pos.longitude + ').');
 
           resolve(pos);
-        }, function() {
+        }, function(err) {
+          console.error('MapService.getCurrentPosition() is failed.');
+          console.dir(err);
+          // PositionError
+          // code:3
+          // message:"Timeout expired"
+          // __proto__:
+          // PositionError
+          // 	PERMISSION_DENIED:1
+          // 	POSITION_UNAVAILABLE:2
+          // 	TIMEOUT:3
           pos.latitude = 37.403425;
           pos.longitude = 127.105783;
 
           resolve(pos);
+        }, {
+          timeout: 60000
+          // enableHighAccuracy: true
         });
       } else {
         reject('Browser doesn\'t support Geolocation');
@@ -156,8 +171,41 @@ angular.module('placekoob.services', [])
     });
   };
 
-  function getCurrentAddress(latitude, longitude) {
+  function watchCurrentPosition(success, fail) {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(function(position) {
+        pos.latitude = position.coords.latitude;
+        pos.longitude = position.coords.longitude;
+        StorageService.set('curPos', pos);
+        console.info('Changed position is (' + pos.latitude + ', ' + pos.longitude + ').');
+
+        success(pos);
+      }, function(err) {
+        console.error('MapService.watchCurrentPosition() is failed.');
+        console.dir(err);
+        fail(err);
+      }, {
+        timeout: 60000
+        // enableHighAccuracy: true
+      });
+    } else {
+      return -1;
+    }
+  }
+
+  function clearWatch() {
+    if (watchID != null) {
+      if (navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchID);
+      }
+    }
+  }
+
+  function getCurrentAddress(latitude, longitude, saveAddr) {
     var deferred = $q.defer();
+    if (saveAddr === null || saveAddr === undefined) {
+      saveAddr = true;
+    }
 
     var geocoder = new daum.maps.services.Geocoder();
     geocoder.coord2detailaddr(
@@ -168,9 +216,11 @@ angular.module('placekoob.services', [])
         if (status === daum.maps.services.Status.OK) {
           if (result[0]) {
             console.info('Current Address is ' + result[0].jibunAddress.name + '.');
-            StorageService.set('addr1', result[0].roadAddress.name);
-      			StorageService.set('addr2', result[0].jibunAddress.name);
-      			StorageService.set('addr3', result[0].region);
+            if (saveAddr) {
+              StorageService.set('addr1', result[0].roadAddress.name);
+        			StorageService.set('addr2', result[0].jibunAddress.name);
+        			StorageService.set('addr3', result[0].region);
+            }
             deferred.resolve(result[0]);
           } else {
             console.warn('Geocoder results are not found.');
@@ -188,7 +238,9 @@ angular.module('placekoob.services', [])
 
   return {
     getCurrentPosition: getCurrentPosition,
-    getCurrentAddress: getCurrentAddress
+    getCurrentAddress: getCurrentAddress,
+    watchCurrentPosition: watchCurrentPosition,
+    clearWatch: clearWatch
   };
 }])
 .factory('CacheService', [function() {
@@ -324,11 +376,16 @@ angular.module('placekoob.services', [])
     var deferred = $q.defer();
 
     PhotoEngine.photoList(function(results) {
-      var data = JSON.parse(results.data);
-      if (results.error === '0') {
-        deferred.resolve(data);
-      } else {
-        deferred.reject(data);
+      try {
+        var data = JSON.parse(results.data);
+        if (results.error === '0') {
+          deferred.resolve(data);
+        } else {
+          deferred.reject(data);
+        }
+      } catch (e) {
+        console.error(e.message);
+        deferred.reject(e);
       }
     });
 
@@ -395,6 +452,20 @@ angular.module('placekoob.services', [])
     return new google.maps.Marker(markerOption);
   }
 
+  function createMarker2(markerOption) {
+    return new google.maps.Circle({
+      zIndex: markerOption.zIndex || 100,
+      fillColor: markerOption.fillColor || '#2e4a94',
+      fillOpacity: markerOption.fillOpacity || 0.2,
+      strokeColor: markerOption.strokeColor || '#4875e9',
+      strokeWeight: markerOption.strokeWeight || 2,
+      strokeOpacity: markerOption.strokeOpacity || 0.9,
+      radius: markerOption.radius || 30,
+      center: markerOption.center,
+      map: markerOption.map
+    });
+  }
+
   function deleteMarker(markerObj) {
     if (markerObj) {
       markerObj.setMap(null);
@@ -429,6 +500,7 @@ angular.module('placekoob.services', [])
   return {
     createMap: createMap,
     createMarker: createMarker,
+    createMarker2: createMarker2,
     deleteMarker: deleteMarker,
     deleteMarkers: deleteMarkers,
     createInfoWindow: createInfoWindow,
@@ -453,6 +525,7 @@ angular.module('placekoob.services', [])
 
   return {
     get : function(index) {
+      index = index || 0;
       return starPointArray[index];
     }
   }

@@ -28,13 +28,15 @@
 			<div ng-style="{width: map.getFullWidth()}">
 				<div collection-repeat="post in map.posts" class="page" ng-style="{width: map.getWidth(), height: map.getHeight()}">
 					<div class="map-slider-desc">
-						<a ng-click="map.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name}}</strong></a>
-						&nbsp;&nbsp;
-						<span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span><br>
-						<span class="place-desc">{{post.address}}</span><br>
-						<span class="place-note">
+						<a ng-click="map.goPlace(post.uplace_uuid)" href="#"><strong>{{post.name || '장소화 대기중'}}</strong></a>
+						<br>
+						<!-- <span class="place-desc"><a href="tel:{{post.phoneNo||''}}">{{post.phoneNo}}</a></span>&nbsp; -->
+						<i class="{{icon}} place-star-point" ng-repeat="icon in map.SPS.get(post.userPost.rating.content) track by $index"></i><br>
+						<!-- <span class="place-desc">{{post.address}}</span><br> -->
+						<!-- <span class="place-note">
 							<strong>{{post.desc}}</strong>
-						</span>
+						</span> -->
+						<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
 					</div>
 					<div class="map-slider-thumbnail">
 						<a ng-click="map.goPlace(post.uplace_uuid)" href="#">

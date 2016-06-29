@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $stateParams, $state, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
+.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicHistory', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $stateParams, $state, $ionicHistory, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -17,15 +17,28 @@ angular.module('placekoob.controllers')
   place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
   place.visited = false;
   place.calculatedHeight = 0;
+  place.buttonColor = ['stable', 'positive', 'calm', 'balanced', 'energized', 'assertive', 'royal', 'dark'];
+
+  $scope.$on('$ionicView.afterEnter', function() {
+		place.loadPlaceInfo();
+	});
+
+  $scope.$on('$ionicView.beforeLeave', function() {
+		place.updateTags();
+	});
+
+  place.getTagColor = function() {
+    var random = Math.random();
+    console.log('random value: ' + random);
+    return 'button-' + place.buttonColor[Math.floor(random*1000)%place.buttonColor.length];
+  }
 
   place.visit = function() {
-    console.log('visit');
     place.visited = !place.visited;
     RemoteAPIService.sendUserPost({
       visit: {
         content: place.visited
       },
-      lonLat: place.post.lonLat,
       uplace_uuid: place.uplace_uuid
     })
     .then(function(result) {
@@ -43,39 +56,38 @@ angular.module('placekoob.controllers')
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
       // console.dir(post);
-        place.post = post;
-        if (place.post.userPost.images) {
-          place.imagesForSlide = [];
-          for (var i = 0; i < place.post.userPost.images.length; i++) {
-            place.imagesForSlide.push(place.post.userPost.images[i].content);
-          }
-          place.coverImage = place.post.userPost.images[0].summary;
-          // $scope.$apply();
+      place.post = post;
+      if (place.post.userPost.images) {
+        place.imagesForSlide = [];
+        for (var i = 0; i < place.post.userPost.images.length; i++) {
+          place.imagesForSlide.push(place.post.userPost.images[i].content);
         }
+        place.coverImage = place.post.userPost.images[0].summary;
+        // $scope.$apply();
+      }
 
-        place.URLs = [];
-        if (place.post.userPost.urls) {
-          for (var i = 0; i < place.post.userPost.urls.length; i++) {
-            ogParserService.getOGInfo(place.post.userPost.urls[i].content)
-            .then(function(ogInfo) {
-              place.URLs.push(ogInfo);
-            }, function(err) {
-              console.error(err);
-            });
-          }
+      place.URLs = [];
+      if (place.post.userPost.urls) {
+        for (var i = 0; i < place.post.userPost.urls.length; i++) {
+          ogParserService.getOGInfo(place.post.userPost.urls[i].content)
+          .then(function(ogInfo) {
+            place.URLs.push(ogInfo);
+          }, function(err) {
+            console.error(err);
+          });
         }
+      }
 
-        place.getDaumResult();
-        place.tagsForUpdate = [];
-        place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
-        place.changeStarPoint();
+      for (var i = 0; i < place.post.userPost.tags.length; i++) {
+        place.post.userPost.tags[i].color = place.getTagColor();
+      }
 
-        place.visited = post.userPost.visit? post.userPost.visit.content : false;
-        if (place.visited === false) {
-          if (post.userPost.rating) {
-            place.visited = true;
-          }
-        }
+      place.getDaumResult();
+      place.tagsForUpdate = [];
+      place.starPoint = post.userPost.rating ? post.userPost.rating.content : 0;
+      place.changeStarPoint();
+
+      place.visited = post.userPost.visit? post.userPost.visit.content : false;
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -85,7 +97,7 @@ angular.module('placekoob.controllers')
         place.goBack();
       });
     });
-  }
+  };
 
   place.deletePlace = function() {
     $ionicPopup.confirm({
@@ -108,7 +120,7 @@ angular.module('placekoob.controllers')
         });
       }
 		});
-  }
+  };
 
   place.deleteImage = function(index) {
     $ionicPopup.confirm({
@@ -136,17 +148,25 @@ angular.module('placekoob.controllers')
         });
       }
     });
-  }
+  };
 
   place.goBack = function() {
     console.log('Move Back');
-    $state.go('tab.places');
+    var history = $ionicHistory.viewHistory();
+    // console.dir(history);
+    if (history.backView === null || history.backView.stateName === 'tab.map') {
+      $state.go('tab.home-places');
+    } else {
+      $ionicHistory.goBack();
+    }
+    // console.dir(history);
+    //$ionicHistory.goBack();
   };
 
   place.showImagesWithFullScreen = function(index) {
     place.activeSlide = index;
     place.showModal('places/image-zoomview.html');
-  }
+  };
 
   place.showModal = function(templateURL) {
     $ionicModal.fromTemplateUrl(templateURL, {
@@ -155,11 +175,12 @@ angular.module('placekoob.controllers')
       place.modal = modal;
       place.modal.show();
     });
-  }
+  };
 
   place.closeModal = function() {
     place.modal.hide();
-    place.modal.remove()
+    place.modal.remove();
+    // console.dir(place.tagsForUpdate);
   };
 
   place.updateSlideStatus = function(slide) {
@@ -223,7 +244,7 @@ angular.module('placekoob.controllers')
         });
       }
     });
-  }
+  };
 
   place.deleteNote = function(index) {
     console.log('note index : ' + index);
@@ -253,7 +274,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicListDelegate.closeOptionButtons();
     });
-  }
+  };
 
   place.updateTags = function() {
     if (place.tagsForUpdate.length > 0) {
@@ -264,13 +285,13 @@ angular.module('placekoob.controllers')
         uplace_uuid: place.uplace_uuid
       })
       .then(function(result){
-
+        place.tagsForUpdate = [];
       }, function(err) {
         console.error('Updating tags is failed.');
         console.dir(err);
       });
     }
-  }
+  };
 
   place.addURL= function() {
     // An elaborate, custom popup
@@ -371,7 +392,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       $ionicListDelegate.closeOptionButtons();
     });
-  }
+  };
 
   place.addPhoto = function() {
     $ionicActionSheet.show({
@@ -478,6 +499,7 @@ angular.module('placekoob.controllers')
   };
 
   place.openLink = function(url) {
+    console.info('url: ' + url);
     window.open(url, '_system');
   };
 
@@ -485,7 +507,6 @@ angular.module('placekoob.controllers')
     var keyword = '';
     if (place.post.placePost) {
       var region = place.post.placePost.addr2 || place.post.placePost.addr1 || place.post.placePost.addr3 || null;
-      console.log('Region : ' + region);
       if (region) {
         var region_items = region.content.split(' ');
         var loopCount = region_items.length >= 4 ? 4 : region_items.length;
@@ -500,7 +521,7 @@ angular.module('placekoob.controllers')
       console.log('URL encoded keyword : ', keyword);
     }
     return keyword;
-  }
+  };
 
   place.getDaumResult = function() {
     var keyword = place.makeKeyword();
@@ -525,7 +546,7 @@ angular.module('placekoob.controllers')
         })
       });
     }
-  }
+  };
 
   place.searchPlace = function() {
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + place.makeKeyword(), '_system');
@@ -548,16 +569,38 @@ angular.module('placekoob.controllers')
     var enter = 13;
     var comma = 188;
     if ($event.keyCode === space || $event.keyCode === enter || $event.keyCode === comma) {
-      place.post.tags.push(place.tag);
-      place.tagsForUpdate.push(place.tag);
+      if (place.tag.length > 0) {
+        place.post.userPost.tags.push({content:place.tag, color:place.getTagColor()});
+        place.tagsForUpdate.push(place.tag);
+      } else {
+        console.warn('입력 받은 태그의 길이가 0임.');
+      }
       place.tag = '';
     }
   };
+
+  place.deleteTag = function(index) {
+    $ionicPopup.confirm({
+			title: '태그 삭제',
+			template: '#' + place.post.userPost.tags[index].content + ' 태그를 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        place.tagsForUpdate.push('-' + place.post.userPost.tags[index].content);
+        place.post.userPost.tags.splice(index, 1);
+      }
+    });
+  }
 
   place.setStarPoint = function() {
     console.log('setStarPoint');
     place.showModal('places/star-point-modal.html');
   };
+
+  place.showTagCloud = function() {
+    console.log('showTagCloud');
+    place.showModal('places/tag-cloud-modal.html');
+  }
 
   place.onTapStarPoint = function(event) {
     // if(ionic.Platform.isIOS()) {
@@ -565,7 +608,7 @@ angular.module('placekoob.controllers')
     //   console.log('starPoint : ' + place.starPoint);
     // }
     place.changeStarPoint();
-  }
+  };
 
   place.confirmStarPoint = function() {
     // console.log('uplace_uuid: ' + place.uplace_uuid);
@@ -573,7 +616,6 @@ angular.module('placekoob.controllers')
       rating: {
         content: place.starPoint
       },
-      lonLat: place.post.lonLat,
       uplace_uuid: place.uplace_uuid
     })
     .then(function(result) {
@@ -591,7 +633,7 @@ angular.module('placekoob.controllers')
     .finally(function() {
       place.closeModal();
     });
-  }
+  };
 
   place.changeStarPoint = function() {
     // console.log(place.starPoint);
@@ -610,7 +652,7 @@ angular.module('placekoob.controllers')
     ];
 
     place.starPointIcons = starPointArray[place.starPoint];
-  }
+  };
 
   place.goToMap = function(lonLat) {
     console.log('goToMap : ' + JSON.stringify(lonLat));
@@ -619,22 +661,14 @@ angular.module('placekoob.controllers')
       $state.go('tab.map');
       $scope.$emit('map.changeCenter.request', lonLat);
     }, 100);
-  }
+  };
 
   $ionicSlideBoxDelegate.update();
   place.onUserDetailContentScroll = function(){
     var scrollDelegate = $ionicScrollDelegate.$getByHandle('userDetailContent');
     var scrollView = scrollDelegate.getScrollView();
     $scope.$broadcast('userDetailContent.scroll', scrollView);
-  }
-
-  $scope.$on('$ionicView.afterEnter', function() {
-		place.loadPlaceInfo();
-	});
-
-  $scope.$on('$ionicView.beforeLeave', function() {
-		place.updateTags();
-	});
+  };
 }])
 .directive('headerShrink', function($document) {
   return {
