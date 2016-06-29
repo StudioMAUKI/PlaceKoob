@@ -94,10 +94,9 @@ angular.module('placekoob.controllers')
 
 		// console.dir($stateParams);
 		if ($stateParams.latitude && $stateParams.longitude && $stateParams.radius) {
-			lat = places.latitude;
-			lon = places.longitude;
-			radius = parseInt($stateParams.radius);
-			radius = radius || 100;
+			lat = parseFloat($stateParams.latitude);;
+			lon = parseFloat($stateParams.longitude);;
+			radius = parseInt($stateParams.radius) || 100;
 			limit = parseInt($stateParams.limit);
 		} else {
 			var curPos = StorageService.get('curPos');

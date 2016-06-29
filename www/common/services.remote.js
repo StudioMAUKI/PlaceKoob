@@ -1008,7 +1008,7 @@ angular.module('placekoob.services')
     }
     post.visited = post.userPost.visit? post.userPost.visit.content : false;
     if (post.visited === false) {
-      if (post.userPost.rating) {
+      if (post.userPost.rating && parseInt(post.userPost.rating.content) > 0) {
         post.visited = true;
       }
     }

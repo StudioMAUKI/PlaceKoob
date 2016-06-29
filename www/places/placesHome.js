@@ -32,7 +32,7 @@ angular.module('placekoob.controllers')
 			console.log('images[i].clientWidth : ' + images[i].clientWidth);
       if (images[i].clientWidth) {
 				// placesHome.calculatedHeight = parseInt((images[i].clientWidth - 30) / 3);
-				placesHome.calculatedHeight = parseInt((images[i].clientWidth - 10) / 2);
+				placesHome.calculatedHeight = parseInt((images[i].clientWidth - 15) / 2);
         return placesHome.calculatedHeight;
       }
     }

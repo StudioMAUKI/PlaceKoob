@@ -34,7 +34,6 @@ angular.module('placekoob.controllers')
   }
 
   place.visit = function() {
-    console.log('visit');
     place.visited = !place.visited;
     RemoteAPIService.sendUserPost({
       visit: {
@@ -89,11 +88,6 @@ angular.module('placekoob.controllers')
       place.changeStarPoint();
 
       place.visited = post.userPost.visit? post.userPost.visit.content : false;
-      if (place.visited === false) {
-        if (post.userPost.rating) {
-          place.visited = true;
-        }
-      }
     }, function(err) {
       $ionicPopup.alert({
         title: '죄송합니다!',
@@ -159,7 +153,7 @@ angular.module('placekoob.controllers')
   place.goBack = function() {
     console.log('Move Back');
     var history = $ionicHistory.viewHistory();
-    console.dir(history);
+    // console.dir(history);
     if (history.backView === null || history.backView.stateName === 'tab.map') {
       $state.go('tab.home-places');
     } else {
