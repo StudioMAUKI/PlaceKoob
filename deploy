@@ -1,4 +1,5 @@
 cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/ /Users/hoonja/Documents/workspace/release/PlaceKoob/
+ionic plugin remove cordova-plugin-console
 rm .DS_Store
 rm .bowerrc
 rm .editorconfig
@@ -9,6 +10,6 @@ rm .io-config.json
 rm -rf test_result/
 rm -rf node_modules/
 rm ./*.js
-rm ./*.json
+rm ./bower.json
 rm ionic.project
 rm -rf scss/
