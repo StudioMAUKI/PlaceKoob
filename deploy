@@ -1,0 +1,14 @@
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/ /Users/hoonja/Documents/workspace/release/PlaceKoob/
+rm .DS_Store
+rm .bowerrc
+rm .editorconfig
+rm -rf .git
+rm .gitignore
+rm -rf .idea/
+rm .io-config.json
+rm -rf test_result/
+rm -rf node_modules/
+rm ./*.js
+rm ./*.json
+rm ionic.project
+rm -rf scss/
