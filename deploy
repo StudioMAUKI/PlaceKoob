@@ -1,15 +1,11 @@
-cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/ /Users/hoonja/Documents/workspace/release/PlaceKoob/
-ionic plugin remove cordova-plugin-console
-rm .DS_Store
-rm .bowerrc
-rm .editorconfig
-rm -rf .git
-rm .gitignore
-rm -rf .idea/
-rm .io-config.json
-rm -rf test_result/
-rm -rf node_modules/
-rm ./*.js
-rm ./bower.json
-rm ionic.project
-rm -rf scss/
+rm -rf /Users/hoonja/Documents/workspace/release/PlaceKoob/
+mkdir /Users/hoonja/Documents/workspace/release/PlaceKoob/
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/hooks/ /Users/hoonja/Documents/workspace/release/PlaceKoob/hooks/
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/platforms/ /Users/hoonja/Documents/workspace/release/PlaceKoob/platforms/
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/plugins/ /Users/hoonja/Documents/workspace/release/PlaceKoob/plugins/
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/resources/ /Users/hoonja/Documents/workspace/release/PlaceKoob/resources/
+cp -Rv /Users/hoonja/Documents/workspace/app/PlaceKoob/www/ /Users/hoonja/Documents/workspace/release/PlaceKoob/www/
+cp /Users/hoonja/Documents/workspace/app/PlaceKoob/config.xml /Users/hoonja/Documents/workspace/release/PlaceKoob/config.xml
+cp /Users/hoonja/Documents/workspace/app/PlaceKoob/ionic.project /Users/hoonja/Documents/workspace/release/PlaceKoob/ionic.project
+cp /Users/hoonja/Documents/workspace/app/PlaceKoob/package.json /Users/hoonja/Documents/workspace/release/PlaceKoob/package.json
+cp /Users/hoonja/Documents/workspace/app/PlaceKoob/deploy_remove /Users/hoonja/Documents/workspace/release/PlaceKoob/deploy_remove

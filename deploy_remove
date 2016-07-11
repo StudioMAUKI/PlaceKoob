@@ -1,0 +1,2 @@
+ionic plugin remove cordova-plugin-console
+rm -rf ./www/spec/
