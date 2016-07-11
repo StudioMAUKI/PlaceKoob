@@ -935,11 +935,11 @@ angular.module('placekoob.services')
       city = a[1];
       startIndex = 1;
     } else {
-      city = a[0];
+      city = a[0].replace('특별시', '').replace('광역시', '');
       startIndex = 0;
     }
-    console.log(a[startIndex + 2], a[startIndex]);
-    return a[startIndex + 2] + '.' + a[startIndex]
+    // console.log(a[startIndex + 2], a[startIndex]);
+    return a[startIndex + 2] + '.' + city;
   }
 
   function getPhoneNo(post) {
