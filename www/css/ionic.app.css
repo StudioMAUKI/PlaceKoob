@@ -9813,7 +9813,8 @@ span.place-item-tag-large {
   color: #FFFFFF; }
 
 .place-star-point {
-  color: #FFC107; }
+  color: #FFC107;
+  display: inline-block; }
 
 div#container {
   width: 100%;

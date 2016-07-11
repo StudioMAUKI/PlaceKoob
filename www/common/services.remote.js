@@ -927,6 +927,21 @@ angular.module('placekoob.services')
     return addrs;
   }
 
+  function getShortenAddress(addr) {
+    var a = addr.split(' ');
+    var city = '';
+    var startIndex = 0;
+    if (a[0].indexOf('경기') !== -1 || a[0].indexOf('강원') !== -1 || a[0].indexOf('충북') !== -1 || a[0].indexOf('충남') !== -1 || a[0].indexOf('전북') !== -1 || a[0].indexOf('전남') !== -1 || a[0].indexOf('경북') !== -1 || a[0].indexOf('경남') !== -1) {
+      city = a[1];
+      startIndex = 1;
+    } else {
+      city = a[0];
+      startIndex = 0;
+    }
+    console.log(a[startIndex + 2], a[startIndex]);
+    return a[startIndex + 2] + '.' + a[startIndex]
+  }
+
   function getPhoneNo(post) {
     // 전화번호는 공식 포스트의 전화번호를 우선한다.
     if (post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
@@ -999,8 +1014,9 @@ angular.module('placekoob.services')
     post.name = getPlaceName(post);
     post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
-    post.address = getAddress(post);
+    // post.address = getAddress(post);
     post.addrs = getAddresses(post);
+    post.address = post.addrs.length > 0 ? getShortenAddress(post.addrs[0]) : '주소 없음';
     post.desc = getDescFromUserNote(post);
     post.phoneNo = getPhoneNo(post);
     if (!post.userPost.tags) {

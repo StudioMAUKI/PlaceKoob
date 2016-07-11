@@ -13,12 +13,12 @@
 			<div class="item item-divider">
 		    저장된 {{plNotYet.posts.length}}개 항목이 정보화 대기중입니다
 		  </div>
-			<ion-item collection-repeat="post in plNotYet.posts" class="item-thumbnail-left" href="#/places/{{post.uplace_uuid}}">
+			<ion-item collection-repeat="post in plNotYet.posts" class="item-thumbnail-right" href="#/places/{{post.uplace_uuid}}">
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<h2>{{post.datetime}}에 저장</h2>
 				<div class="place-star-point"><i class="{{icon}}" ng-repeat="icon in plNotYet.SPS.get(post.userPost.rating.content) track by $index"></i></div>
 				<!-- <span class="place-item-addr">{{post.address}}</span><br> -->
-				<span ng-show="post.distance_from_origin">현재 위치로부터 {{post.distance_from_origin}}</span><br>
+				&nbsp;<span ng-show="post.distance_from_origin">{{post.address}}({{post.distance_from_origin}})</span><br>
 				<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
 				<ion-option-button class="button-assertive" ng-click="plNotYet.delete(post)">
         	Delete
