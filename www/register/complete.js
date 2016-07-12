@@ -33,6 +33,9 @@ angular.module('placekoob.controllers')
 			// VD 로그인
 			RemoteAPIService.loginVD(result)
 			.then(function(result) {
+				setTimeout(function() {
+					$state.go('register-intro');
+				}, 500);
 			}, function(err) {
 				console.error(err);
 				showAlert('서버 접속 중 오류가 발생했습니다. 앱을 종료해 주세요.ㅠㅠ', goRegister);

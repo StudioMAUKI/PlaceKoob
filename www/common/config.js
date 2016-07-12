@@ -161,6 +161,12 @@ angular.module('placekoob.config', [])
 		controller: 'registerCompleteCtrl',
 		controllerAs: 'register'
 	})
+	.state('register-intro', {
+		url: '/register/intro',
+		templateUrl: 'register/intro.html',
+		controller: 'registerIntroCtrl',
+		controllerAs: 'intro'
+	})
 	.state('analyzer', {
 		url: '/analyzer',
 		templateUrl: 'album/analyzer.html',

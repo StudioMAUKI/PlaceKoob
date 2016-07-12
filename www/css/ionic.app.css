@@ -9883,6 +9883,13 @@ label.chat-input {
 .company-logo img {
   height: 96px; }
 
+.intro-content {
+  width: 90%;
+  background-color: rgba(200, 200, 200, 0.5);
+  border-radius: 5px;
+  padding: 10px;
+  margin: auto; }
+
 .button-toggle-info-window {
   position: absolute;
   right: 65px;
