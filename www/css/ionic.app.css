@@ -5654,7 +5654,7 @@ ion-tabs.tabs-color-active-dark .tab-item {
   z-index: 2;
   display: block;
   margin: -1px;
-  padding: 10px;
+  padding: 16px;
   border-width: 1px;
   border-style: solid;
   font-size: 14px; }
@@ -5691,12 +5691,12 @@ ion-tabs.tabs-color-active-dark .tab-item {
     display: -ms-flexbox;
     display: flex;
     position: absolute;
-    top: 10px;
-    right: 20px; }
+    top: 16px;
+    right: 32px; }
   .item.item-button-right .badge {
-    right: 55px; }
+    right: 67px; }
   .item.item-divider .badge {
-    top: 5px; }
+    top: 8px; }
   .item .badge + .badge {
     margin-right: 5px; }
   .item.item-light {
@@ -5947,7 +5947,7 @@ button.item.item-complex {
 .item-radio .item-content {
   position: relative;
   z-index: 2;
-  padding: 10px 29px 10px 10px;
+  padding: 16px 49px 16px 16px;
   border: none;
   background-color: #FAFAFA; }
 
@@ -6120,24 +6120,24 @@ a.item-content {
   font-size: 28px; }
 
 .item-icon-left {
-  padding-left: 34px; }
+  padding-left: 54px; }
   .item-icon-left .icon {
-    left: 7px; }
+    left: 11px; }
 
 .item-complex.item-icon-left {
   padding-left: 0; }
   .item-complex.item-icon-left .item-content {
-    padding-left: 34px; }
+    padding-left: 54px; }
 
 .item-icon-right {
-  padding-right: 34px; }
+  padding-right: 54px; }
   .item-icon-right .icon {
-    right: 7px; }
+    right: 11px; }
 
 .item-complex.item-icon-right {
   padding-right: 0; }
   .item-complex.item-icon-right .item-content {
-    padding-right: 34px; }
+    padding-right: 54px; }
 
 .item-icon-left.item-icon-right .icon:first-child {
   right: auto; }
@@ -6152,10 +6152,10 @@ a.item-content {
   font-size: 16px; }
 
 .item-icon-left .icon-accessory {
-  left: 2px; }
+  left: 3px; }
 
 .item-icon-right .icon-accessory {
-  right: 2px; }
+  right: 3px; }
 
 /**
  * Item Button
@@ -6163,7 +6163,7 @@ a.item-content {
  * An item button is a child button inside an .item (not the entire .item)
  */
 .item-button-left {
-  padding-left: 45px; }
+  padding-left: 72px; }
 
 .item-button-left > .button,
 .item-button-left .item-content > .button {
@@ -6179,8 +6179,8 @@ a.item-content {
   -moz-align-items: center;
   align-items: center;
   position: absolute;
-  top: 5px;
-  left: 7px;
+  top: 8px;
+  left: 11px;
   min-width: 34px;
   min-height: 34px;
   font-size: 18px;
@@ -6201,7 +6201,7 @@ a.item-content {
 .item-button-right,
 a.item.item-button-right,
 button.item.item-button-right {
-  padding-right: 50px; }
+  padding-right: 80px; }
 
 .item-button-right > .button,
 .item-button-right .item-content > .button,
@@ -6219,8 +6219,8 @@ button.item.item-button-right {
   -moz-align-items: center;
   align-items: center;
   position: absolute;
-  top: 5px;
-  right: 10px;
+  top: 8px;
+  right: 16px;
   min-width: 34px;
   min-height: 34px;
   font-size: 18px;
@@ -6247,8 +6247,8 @@ button.item.item-button-right {
 .item-avatar .item-content,
 .item-avatar-left,
 .item-avatar-left .item-content {
-  padding-left: 60px;
-  min-height: 60px; }
+  padding-left: 72px;
+  min-height: 72px; }
   .item-avatar > img:first-child,
   .item-avatar .item-image,
   .item-avatar .item-content > img:first-child,
@@ -6258,8 +6258,8 @@ button.item.item-button-right {
   .item-avatar-left .item-content > img:first-child,
   .item-avatar-left .item-content .item-image {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 16px;
+    left: 16px;
     max-width: 40px;
     max-height: 40px;
     width: 100%;
@@ -6268,15 +6268,15 @@ button.item.item-button-right {
 
 .item-avatar-right,
 .item-avatar-right .item-content {
-  padding-right: 60px;
-  min-height: 60px; }
+  padding-right: 72px;
+  min-height: 72px; }
   .item-avatar-right > img:first-child,
   .item-avatar-right .item-image,
   .item-avatar-right .item-content > img:first-child,
   .item-avatar-right .item-content .item-image {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 16px;
+    right: 16px;
     max-width: 40px;
     max-height: 40px;
     width: 100%;
@@ -6285,8 +6285,8 @@ button.item.item-button-right {
 
 .item-thumbnail-left,
 .item-thumbnail-left .item-content {
-  padding-top: 5px;
-  padding-left: 100px;
+  padding-top: 8px;
+  padding-left: 106px;
   min-height: 100px; }
   .item-thumbnail-left > img:first-child,
   .item-thumbnail-left .item-image,
@@ -6308,8 +6308,8 @@ button.item.item-button-right {
 
 .item-thumbnail-right,
 .item-thumbnail-right .item-content {
-  padding-top: 5px;
-  padding-right: 100px;
+  padding-top: 8px;
+  padding-right: 106px;
   min-height: 100px; }
   .item-thumbnail-right > img:first-child,
   .item-thumbnail-right .item-image,
@@ -6337,16 +6337,16 @@ button.item.item-button-right {
 
 .item-body {
   overflow: auto;
-  padding: 10px;
+  padding: 16px;
   text-overflow: inherit;
   white-space: normal; }
   .item-body h1, .item-body h2, .item-body h3, .item-body h4, .item-body h5, .item-body h6, .item-body p {
-    margin-top: 10px;
-    margin-bottom: 10px; }
+    margin-top: 16px;
+    margin-bottom: 16px; }
 
 .item-divider {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 8px;
+  padding-bottom: 8px;
   min-height: 30px;
   background-color: #f5f5f5;
   color: #222;
@@ -6588,7 +6588,7 @@ button.item.item-button-right {
 .card,
 .list-inset {
   overflow: hidden;
-  margin: 10px 5px;
+  margin: 20px 10px;
   border-radius: 2px;
   background-color: #fff; }
 
@@ -7570,7 +7570,7 @@ textarea {
   align-items: center;
   position: relative;
   overflow: hidden;
-  padding: 6.66667px; }
+  padding: 10.66667px; }
 
 .item-input-wrapper {
   display: -webkit-box;
@@ -7603,7 +7603,7 @@ textarea {
   line-height: 18px; }
 
 .item-input-wrapper ~ .button {
-  margin-left: 6.66667px; }
+  margin-left: 10.66667px; }
 
 .input-label {
   display: table;
@@ -7983,21 +7983,21 @@ input:checked + .checkbox-icon:after {
   opacity: 1; }
 
 .item-checkbox {
-  padding-left: 48px; }
+  padding-left: 60px; }
   .item-checkbox.active {
     box-shadow: none; }
 
 .item-checkbox .checkbox {
   position: absolute;
   top: 50%;
-  right: 5px;
-  left: 5px;
+  right: 8px;
+  left: 8px;
   z-index: 3;
   margin-top: -21px; }
 
 .item-checkbox.item-checkbox-right {
-  padding-right: 48px;
-  padding-left: 10px; }
+  padding-right: 60px;
+  padding-left: 16px; }
 
 .item-checkbox-right .checkbox input,
 .item-checkbox-right .checkbox-icon {
@@ -8118,15 +8118,15 @@ input:checked + .checkbox-icon:after {
 
 .item-toggle,
 .item-toggle.item-complex .item-content {
-  padding-right: 81px; }
+  padding-right: 99px; }
 
 .item-toggle.item-complex {
   padding-right: 0; }
 
 .item-toggle .toggle {
   position: absolute;
-  top: 7px;
-  right: 10px;
+  top: 10px;
+  right: 16px;
   z-index: 3; }
 
 .toggle input:disabled + .track {
@@ -8221,7 +8221,7 @@ input:checked + .checkbox-icon:after {
 
 .item-radio .item-content {
   /* give some room to the right for the checkmark icon */
-  padding-right: 40px; }
+  padding-right: 64px; }
 
 .item-radio .radio-icon {
   /* checkmark icon will be hidden by default */
@@ -8230,7 +8230,7 @@ input:checked + .checkbox-icon:after {
   right: 0;
   z-index: 3;
   visibility: hidden;
-  padding: 8px;
+  padding: 14px;
   height: 100%;
   font-size: 24px; }
 
@@ -8429,7 +8429,7 @@ input:checked + .checkbox-icon:after {
     top: 0;
     bottom: 0;
     right: 0;
-    padding: 0 30px 0 10px;
+    padding: 0 48px 0 16px;
     max-width: 65%;
     border: none;
     background: #FAFAFA;
@@ -8447,7 +8447,7 @@ input:checked + .checkbox-icon:after {
   .item-select:after {
     position: absolute;
     top: 50%;
-    right: 10px;
+    right: 16px;
     margin-top: -3px;
     width: 0;
     height: 0;
@@ -9362,23 +9362,23 @@ a.button {
  * --------------------------------------------------
  */
 .padding {
-  padding: 5px; }
+  padding: 10px; }
 
 .padding-top,
 .padding-vertical {
-  padding-top: 5px; }
+  padding-top: 10px; }
 
 .padding-right,
 .padding-horizontal {
-  padding-right: 5px; }
+  padding-right: 10px; }
 
 .padding-bottom,
 .padding-vertical {
-  padding-bottom: 5px; }
+  padding-bottom: 10px; }
 
 .padding-left,
 .padding-horizontal {
-  padding-left: 5px; }
+  padding-left: 10px; }
 
 /**
  * Scrollable iFrames
