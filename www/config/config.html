@@ -20,7 +20,8 @@
 		    가져오기
 		  </div>
 			<ion-item class="item item-button-right">
-				사진 보관함<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>
+				사진 보관함<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>&nbsp;
+				<span ng-show="config.imageImportStatus === 'start'"><ion-spinner icon="dots"></ion-spinner></span>
 				<button class="button button-energized" style="font-size:12px;" ng-click="config.importImages()">
 		      {{config.imageImportButton}}
 		    </button>

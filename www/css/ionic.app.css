@@ -9845,6 +9845,9 @@ label.chat-input {
 .button.button-more-width {
   width: 200px; }
 
+.slider-pager .slider-pager-page {
+  color: #FFFFFF; }
+
 .register {
   text-align: center;
   color: #FFFFFF; }
@@ -10021,7 +10024,7 @@ label.chat-input {
   left: 0 !important; }
 
 .transparent {
-  background: rgba(0, 0, 0, 0.7); }
+  background: black; }
 
 .image {
   width: 100%;
