@@ -93,7 +93,7 @@ angular.module('placekoob.controllers')
 		StorageService.set('useCellNetwork', config.useCellNetwork);
 	};
 
-	config.imageImport = function() {
+	config.importImages = function() {
 		if (config.imageImportStatus === 'stop') {
 			config.imageImportButton = '업로드 중지';
 			config.imageImportStatus = 'start';
@@ -125,5 +125,46 @@ angular.module('placekoob.controllers')
 	config.stopImportImages = function() {
 		console.log('stopImportImages()');
 		imageImporter.stop();
+	};
+
+	config.importUser = function() {
+		var myPopup = $ionicPopup.show({
+    template: '<input type="text" ng-model="config.userForImport">',
+    title: '다른 사람의 장소 가져오기',
+    subTitle: '가져올 사람의 e메일을 입력하세요',
+    scope: $scope,
+    buttons: [
+      { text: 'Cancel' },
+      {
+        text: '<b>가져오기</b>',
+        type: 'button-positive',
+        onTap: function(e) {
+          if (!config.userForImport) {
+            //don't allow the user to close unless he enters wifi password
+            e.preventDefault();
+          } else {
+            return config.userForImport;
+          }
+        }
+      }
+    ]});
+
+	  myPopup.then(function(res) {
+	    console.log('Tapped!', res);
+			if (res) {
+				RemoteAPIService.importUser(res)
+				.then(function(results) {
+				 $ionicPopup.alert({
+			     title: '요청 성공',
+			     template: '가져오기를 요청했습니다. 가져온 목록은 \'하단탭>퍼온장소\'에 업데이트 됩니다.'
+			   })
+				 .then(function(res) {
+			     console.log('Thank you for not eating my delicious ice cream cone');
+			   });
+				}, function(err) {
+					console.error(err);
+				});
+			};
+	  });
 	};
 }]);

@@ -21,7 +21,7 @@
 		  </div>
 			<ion-item class="item item-button-right">
 				사진 보관함<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>
-				<button class="button button-energized" style="font-size:12px;" ng-click="config.imageImport()">
+				<button class="button button-energized" style="font-size:12px;" ng-click="config.importImages()">
 		      {{config.imageImportButton}}
 		    </button>
 			</ion-item>
@@ -31,6 +31,12 @@
 			<ion-toggle ng-model="config.useCellNetwork" ng-change="config.saveCellNetworkSetting()" ng-disabled="config.imageImportStatus === 'start'">
         셀룰러 데이터를 이용하여 사진 업로드 하기
       </ion-toggle>
+			<ion-item class="item item-button-right">
+				다른 사용자가 저장한 장소
+				<button class="button button-energized" style="font-size:12px;" ng-click="config.importUser()">
+		      가져오기
+		    </button>
+			</ion-item>
 
 			<!-- <ion-item href="#/config/import" nav-direction="forward">
 				<i class="icon ion-ios-gear-outline"></i>&nbsp;
