@@ -109,7 +109,7 @@ angular.module('placekoob.controllers')
 		$timeout(function() {
 			if (status.name === 'completed') {
 				console.log('compleded received..');
-	      config.imageImport();
+	      config.importImages();
 	    } else {
 	      config.ratio = Math.floor(100*status.current/status.total);
 	    }

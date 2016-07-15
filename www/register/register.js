@@ -10,6 +10,9 @@ angular.module('placekoob.controllers')
 	function resetUserInfo(step) {
 		register.needToRegister = true;
 		RemoteAPIService.logoutUser(step);
+		setTimeout(function() {
+			$state.go('register-step1');
+		}, 1000);
 	}
 
 	function showAlert(msg, title) {
