@@ -9852,8 +9852,8 @@ label.chat-input {
     color: #FFC107; }
 
 .app-title {
-  margin-left: 25%;
-  margin-right: 25%;
+  margin-left: 10%;
+  margin-right: 10%;
   padding-top: 50px; }
   .app-title .main-title {
     text-align: center;
@@ -10175,7 +10175,6 @@ label.chat-input {
   max-width: 100%;
   background-color: #FFFFFF; }
   .region-list .region {
-    padding-top: 5px;
     padding-left: 5px;
     display: inline-block;
     position: relative; }
@@ -10183,9 +10182,10 @@ label.chat-input {
       position: absolute;
       top: 10px;
       left: 10px;
-      background-color: rgba(200, 200, 200, 0.5);
+      background-color: rgba(100, 100, 100, 0.4);
       padding: 5px 10px 5px 10px;
-      border-radius: 5px; }
+      border-radius: 5px;
+      color: #FFFFFF; }
     .region-list .region .region-count {
       position: absolute;
       bottom: 10px;

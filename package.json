@@ -38,16 +38,17 @@
     },
     "cordova-plugin-file-transfer",
     "cordova-plugin-globalization",
+    "cordova-plugin-network-information",
     {
       "locator": "https://gitlab.com/iwelab/cordova-plugin-photo-engine.git",
       "id": "cordova-plugin-photo-engine"
     }
   ],
   "cordovaPlatforms": [
-    "ios",
     {
       "platform": "android",
       "locator": "browser"
-    }
+    },
+    "ios"
   ]
 }

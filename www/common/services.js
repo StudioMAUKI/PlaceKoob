@@ -376,16 +376,13 @@ angular.module('placekoob.services', [])
     var deferred = $q.defer();
 
     PhotoEngine.photoList(function(results) {
-      try {
-        var data = JSON.parse(results.data);
-        if (results.error === '0') {
-          deferred.resolve(data);
+      // console.dir(results);
+      // var parsed = JSON.parse(results);
+
+      if (results.error === 0) {
+        deferred.resolve(results.data.reverse());
         } else {
-          deferred.reject(data);
-        }
-      } catch (e) {
-        console.error(e.message);
-        deferred.reject(e);
+        deferred.reject(results.error);
       }
     });
 
@@ -395,9 +392,11 @@ angular.module('placekoob.services', [])
   function getPhoto(index) {
     var deferred = $q.defer();
 
+    console.log('in getPhoto[' + index + ']');
     PhotoEngine.storePhoto(index, function(results) {
+      // console.log('storePhoto..');
       // console.dir(results);
-      if (results.error === '0') {
+      if (results.error === 0) {
         // $cordovaFile.checkFile(cordova.file.documentsDirectory, index + '')
         // .then(function(success) {
         //   console.log(index + 'file is exist');
@@ -417,22 +416,26 @@ angular.module('placekoob.services', [])
   function deletePhoto(index) {
     var deferred = $q.defer();
 
-    $cordovaFile.removeFile(cordova.file.documentsDirectory, index + '')
-    .then(function(result) {
-      // console.dir(result);
-      // $cordovaFile.checkFile(cordova.file.documentsDirectory, index + '')
-      // .then(function(success) {
-      //   console.log(index + 'file is exist');
-      // }, function(err) {
-      //   console.dir(err);
-      // })
-      // .finally(function() {
-        deferred.resolve();
-      // });
-    }, function(err) {
-      console.error(err);
-      deferred.reject(err);
-    });
+    if (ionic.Platform.isAndroid()) {
+      deferred.resolve();
+    } else {
+      $cordovaFile.removeFile(cordova.file.documentsDirectory, index + '')
+      .then(function(result) {
+        // console.dir(result);
+        // $cordovaFile.checkFile(cordova.file.documentsDirectory, index + '')
+        // .then(function(success) {
+        //   console.log(index + 'file is exist');
+        // }, function(err) {
+        //   console.dir(err);
+        // })
+        // .finally(function() {
+          deferred.resolve();
+        // });
+      }, function(err) {
+        console.error(err);
+        deferred.reject(err);
+      });
+    }
 
     return deferred.promise;
   }

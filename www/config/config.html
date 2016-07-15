@@ -20,39 +20,33 @@
 		    가져오기
 		  </div>
 			<ion-item class="item item-button-right">
-				사진 보관함
-				<button class="button button-energized" style="font-size:12px;">
-		      업로드 하기
+				사진 보관함<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>
+				<button class="button button-energized" style="font-size:12px;" ng-click="config.imageImport()">
+		      {{config.imageImportButton}}
 		    </button>
 			</ion-item>
 			<div style="font-size: 12px;padding: 5px;">
 				사진 보관함에 있는 사진을 업로드 하여 장소화 합니다. 업로드 된 사진과 장소 정보는 다른 사용자들에게 공개되지 않습니다. 장소화된 사진은 가져오기 메뉴에서 저장하거나 삭제할 수 있습니다. 업로드는 앱이 실행중일 때만 진행되며, 언제든지 중단하고, 다시 시작할 수 있습니다. 업로드 하기는 업로드 할 사진이 있는 경우에만 활성화 됩니다. 또한, 다음의 설정에 따라 WIFI에 연결된 경우에만 업로드 할 수도 있습니다.
 			</div>
-			<ion-toggle ng-model="config.useCellNetwork">
+			<ion-toggle ng-model="config.useCellNetwork" ng-change="config.saveCellNetworkSetting()" ng-disabled="config.imageImportStatus === 'start'">
         셀룰러 데이터를 이용하여 사진 업로드 하기
       </ion-toggle>
-			<!-- <ion-toggle ng-model="config.foursquare" ng-change="config.connectFoursqaure()">
-        셀룰러 데이터를 이용하여 사진 업로드 하기
-      </ion-toggle> -->
 
 			<!-- <ion-item href="#/config/import" nav-direction="forward">
 				<i class="icon ion-ios-gear-outline"></i>&nbsp;
 				설정
 				<i class="icon ion-ios-arrow-right"></i>
 			</ion-item> -->
-			<button class="button button-outline button-balanced button-full" ng-click="config.requestUserInfo()">사용자 정보 얻기</button>
-			<!-- <ion-toggle  ng-model="config.devmode" ng-change="config.setDevMode()">
-        <i class="icon ion-hammer"></i> 개발서버접속(회사 내부 망에 있어야 함)
-      </ion-toggle> -->
+			<!-- <button class="button button-outline button-balanced button-full" ng-click="config.requestUserInfo()">사용자 정보 얻기</button>
 			<div>
-				<table style="border:1px solid grey">
+				<table style="border:1px solid grey;width:100%;">
 					<tr><td style="border:1px solid grey">auth_user_token</td><td>{{config.auth_user_token}}</td></tr>
 					<tr><td style="border:1px solid grey">auth_vd_token</td><td>{{config.auth_vd_token}}</td></tr>
 					<tr><td style="border:1px solid grey">email</td><td>{{config.email}}</td></tr>
 					<tr><td style="border:1px solid grey">language</td><td>{{config.lang}}</td></tr>
 					<tr><td style="border:1px solid grey">country</td><td>{{config.country}}</td></tr>
 				</table>
-			</div>
+			</div> -->
 			<button class="button button-outline button-assertive button-full" ng-click="config.logout()">로그 아웃</button>
     </ion-list>
 	</ion-content>

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', 'SocialService', 'StorageService', 'RemoteAPIService', function($scope, $http, $cordovaOauth, $ionicPopup, $state, SocialService, StorageService, RemoteAPIService) {
+.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', '$timeout', 'SocialService', 'StorageService', 'RemoteAPIService',  'imageImporter', function($scope, $http, $cordovaOauth, $ionicPopup, $state, $timeout, SocialService, StorageService, RemoteAPIService, imageImporter) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
@@ -16,6 +16,8 @@ angular.module('placekoob.controllers')
 	config.lang = StorageService.get('lang');
 	config.country = StorageService.get('country');
 	config.version = '0.0.1';
+	config.imageImportButton = '업로드 하기';
+	config.imageImportStatus = 'stop';
 	config.useCellNetwork = false;
 
 	if (SocialService.foursquare.token === '') {
@@ -86,4 +88,42 @@ angular.module('placekoob.controllers')
     console.log('Move Back');
     $state.go('tab.config-home');
   };
+
+	config.saveCellNetworkSetting = function() {
+		StorageService.set('useCellNetwork', config.useCellNetwork);
+	};
+
+	config.imageImport = function() {
+		if (config.imageImportStatus === 'stop') {
+			config.imageImportButton = '업로드 중지';
+			config.imageImportStatus = 'start';
+			config.startImportImages();
+		} else if (config.imageImportStatus === 'start') {
+			config.imageImportButton = '업로드 하기';
+			config.imageImportStatus = 'stop';
+			config.stopImportImages();
+		}
+	};
+
+	function progress(status) {
+		$timeout(function() {
+			if (status.name === 'completed') {
+				console.log('compleded received..');
+	      config.imageImport();
+	    } else {
+	      config.ratio = Math.floor(100*status.current/status.total);
+	    }
+	    config.status = status;
+		}, 1);
+  };
+
+	config.startImportImages = function() {
+		console.log('startImportImages()');
+		imageImporter.start(progress, config.useCellNetwork);
+	};
+
+	config.stopImportImages = function() {
+		console.log('stopImportImages()');
+		imageImporter.stop();
+	};
 }]);
