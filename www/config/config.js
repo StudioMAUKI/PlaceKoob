@@ -26,6 +26,13 @@ angular.module('placekoob.controllers')
     config.foursquare = true;
   }
 
+	$scope.$on('$ionicView.afterEnter', function() {
+		console.log('config.$ionicView.afterEnter');
+		if (StorageService.get('importImage') === 'started' && config.imageImportStatus === 'stop') {
+			config.importImages();
+		}
+	});
+
   config.connectFoursqaure = function(){
     console.log(config.foursquare);
     if (config.foursquare) {
@@ -119,12 +126,18 @@ angular.module('placekoob.controllers')
 
 	config.startImportImages = function() {
 		console.log('startImportImages()');
-		imageImporter.start(progress, config.useCellNetwork);
+		imageImporter.start(progress, config.useCellNetwork)
+		.then(function() {
+			StorageService.set('importImage', 'started');
+		}, function() {
+			StorageService.set('importImage', 'stoped');
+		});
 	};
 
 	config.stopImportImages = function() {
 		console.log('stopImportImages()');
 		imageImporter.stop();
+		StorageService.set('importImage', 'stoped');
 	};
 
 	config.importUser = function() {

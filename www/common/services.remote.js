@@ -1314,6 +1314,7 @@ angular.module('placekoob.services')
   }
 
   function start(prograssCallback, useCell) {
+    var deferred = $q.defer();
     progress = prograssCallback || null;
     useCellNetwork = useCell || false;
 
@@ -1331,15 +1332,20 @@ angular.module('placekoob.services')
         status.total = imagesToUpload.length;
         if (imagesToUpload.length === 0) {
           complete();
+          deferred.reject();
         } else {
           // console.dir(imagesToUpload);
           updateProgress('ready');
           timer = setInterval(uploadImage, 100);
+          deferred.resolve();
         }
       }, function(err) {
         console.error(err);
+        deferred.reject();
       });
     });
+
+    return deferred.promise;
   }
 
   function pause() {
