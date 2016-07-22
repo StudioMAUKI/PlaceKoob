@@ -1,2 +1,30 @@
+cd /Users/hoonja/Documents/workspace/release/PlaceKoob
 ionic plugin remove cordova-plugin-console
 rm -rf ./www/spec/
+
+rm -rf ./www/album/
+rm ./www/config-import.html
+
+rm ./css/ionic.app.css
+rm ./css/style.css
+
+rm -rf ./www/explore/
+rm -rf ./www/img/sample/
+rm ./www/imports/import-image.html
+rm ./www/imports/import.image.js
+
+rm ./www/js/
+
+rm -rf ./www/lib/angular/
+rm -rf ./www/lib/angular-animate/
+rm -rf ./www/lib/angular-ui-router/
+
+rm -rf ./www/ionic/css/
+rm -rf ./www/ionic/js/angular/
+rm -rf ./www/ionic/js/angular-ui/
+rm ./www/ionic/js/ionic-angular.js
+rm ./www/ionic/js/ionic-angular.min.js
+rm ./www/ionic/js/ionic.bundle.js
+rm ./www/ionic/js/ionic.js
+rm ./www/ionic/js/ionic.min.js
+rm -rf ./www/lib/ionic/scss/

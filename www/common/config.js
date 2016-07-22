@@ -127,16 +127,16 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.config-import', {
-    url: '/config/import',
-    views: {
-      'config': {
-        templateUrl: 'config/config-import.html',
-        controller: 'configCtrl',
-        controllerAs: 'config'
-      }
-    }
-  })
+	// .state('tab.config-import', {
+  //   url: '/config/import',
+  //   views: {
+  //     'config': {
+  //       templateUrl: 'config/config-import.html',
+  //       controller: 'configCtrl',
+  //       controllerAs: 'config'
+  //     }
+  //   }
+  // })
 	.state('register', {
 		url: '/register',
 		templateUrl: 'register/register.html',
