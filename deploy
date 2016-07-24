@@ -9,3 +9,4 @@ cp /Users/hoonja/Documents/workspace/app/PlaceKoob/config.xml /Users/hoonja/Docu
 cp /Users/hoonja/Documents/workspace/app/PlaceKoob/ionic.project /Users/hoonja/Documents/workspace/release/PlaceKoob/ionic.project
 cp /Users/hoonja/Documents/workspace/app/PlaceKoob/package.json /Users/hoonja/Documents/workspace/release/PlaceKoob/package.json
 cp /Users/hoonja/Documents/workspace/app/PlaceKoob/deploy_remove /Users/hoonja/Documents/workspace/release/PlaceKoob/deploy_remove
+cp /Users/hoonja/Documents/workspace/app/PlaceKoob/release_android /Users/hoonja/Documents/workspace/release/PlaceKoob/release_android

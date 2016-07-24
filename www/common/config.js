@@ -77,16 +77,16 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.notice', {
-    url: '/notice',
-    views: {
-      'notice': {
-        templateUrl: 'notice/notice.html',
-        controller: 'noticeCtrl',
-        controllerAs: 'notice'
-      }
-    }
-  })
+	// .state('tab.notice', {
+  //   url: '/notice',
+  //   views: {
+  //     'notice': {
+  //       templateUrl: 'notice/notice.html',
+  //       controller: 'noticeCtrl',
+  //       controllerAs: 'notice'
+  //     }
+  //   }
+  // })
 	.state('tab.imported', {
     url: '/imported',
     views: {
