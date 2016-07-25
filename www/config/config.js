@@ -10,8 +10,8 @@ angular.module('placekoob.controllers')
 	config.contacts = false;
 	config.devmode = StorageService.get('devmode') === "true" ? true : false;
 
-	config.auth_user_token = StorageService.get('auth_user_token');
-	config.auth_vd_token = StorageService.get('auth_vd_token');
+	// config.auth_user_token = StorageService.get('auth_user_token');
+	// config.auth_vd_token = StorageService.get('auth_vd_token');
 	config.email = StorageService.get('email');
 	config.lang = StorageService.get('lang');
 	config.country = StorageService.get('country');

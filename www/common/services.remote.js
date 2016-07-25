@@ -25,7 +25,8 @@ angular.module('placekoob.services')
         if (devmode) {
           return 'http://192.168.1.3:8000';
         } else {
-          return 'http://maukitest.cloudapp.net';
+          //return 'http://maukitest.cloudapp.net';
+          return 'http://neapk-test01.japaneast.cloudapp.azure.com';
         }
       } else {
         if (devmode) {
@@ -60,7 +61,7 @@ angular.module('placekoob.services')
     uploadData: uploadData
   };
 }])
-.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
+.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', 'PKAuthStorageService', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper, PKAuthStorageService){
   var getServerURL = RESTServer.getURL;
   var cachedUPAssigned = [];
   var cachedUPWaiting = [];
@@ -92,28 +93,36 @@ angular.module('placekoob.services')
 
   function registerUser() {
     var deferred = $q.defer();
+    var auth_user_token = '';
 
-    var auth_user_token = StorageService.get('auth_user_token');
-    if (auth_user_token) {
-      console.log('User Registration already successed: ' + auth_user_token);
-      deferred.resolve(auth_user_token);
-    } else {
-      // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
-      StorageService.remove('auth_vd_token');
-      //StorageService.remove('email'); //  원래 이메일도 날렸는데, 로그아웃 개념을 생각하면 안날려도 될듯
+    PKAuthStorageService.init()
+    .then(function() {
+      auth_user_token = PKAuthStorageService.get('auth_user_token');
+      if (auth_user_token) {
+        console.log('User Registration already successed: ' + auth_user_token);
+        deferred.resolve(auth_user_token);
+      } else {
+        // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
+        PKAuthStorageService.remove('auth_vd_token');
 
-      $http({
-        method: 'POST',
-        url: getServerURL() + '/users/register/'
-      })
-      .then(function(result) {
-        console.log('User Registration successed: ' + result.data.auth_user_token);
-        StorageService.set('auth_user_token', result.data.auth_user_token);
-        deferred.resolve(result.data.auth_user_token);
-      }, function(err) {
-        deferred.reject(err);
-      });
-    }
+        $http({
+          method: 'POST',
+          url: getServerURL() + '/users/register/'
+        })
+        .then(function(result) {
+          console.log('User Registration successed: ' + result.data.auth_user_token);
+          // StorageService.set('auth_user_token', result.data.auth_user_token);
+          PKAuthStorageService.set('auth_user_token', result.data.auth_user_token);
+          deferred.resolve(result.data.auth_user_token);
+        }, function(err) {
+          deferred.reject(err);
+        });
+      }
+    }, function() {
+      console.error('인증 데이터 로딩 중 문제가 발생하여, 더이상 앱을 이용할 수 없음');
+      deferred.reject('Error in registerUser');
+    });
+
     return deferred.promise;
   }
 
@@ -136,19 +145,19 @@ angular.module('placekoob.services')
     console.log('Login Step: ' + step);
     step = step || 0;
     if (step <= 2){
-      StorageService.remove('auth_user_token');
+      PKAuthStorageService.remove('auth_user_token');
     }
 
     if (step <= 4) {
-      StorageService.remove('email');
-      StorageService.remove('auth_vd_token');
+      PKAuthStorageService.remove('email');
+      PKAuthStorageService.remove('auth_vd_token');
     }
   }
 
   function registerVD() {
     var deferred = $q.defer();
-    var auth_vd_token = StorageService.get('auth_vd_token');
-    var email = StorageService.get('email');
+    var auth_vd_token = PKAuthStorageService.get('auth_vd_token');
+    var email = PKAuthStorageService.get('email');
 
     if (auth_vd_token) {
       console.log('VD Registration already successed: ' + auth_vd_token);
@@ -161,7 +170,7 @@ angular.module('placekoob.services')
       })
       .then(function(result) {
         console.log('VD Registration successed: ' + result.data.auth_vd_token);
-        StorageService.set('auth_vd_token', result.data.auth_vd_token);
+        PKAuthStorageService.set('auth_vd_token', result.data.auth_vd_token);
         deferred.resolve(result.data.auth_vd_token);
       }, function(err) {
         deferred.reject(err);
@@ -179,7 +188,7 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       console.log('VD Login successed: ' + result.data.auth_vd_token);
-      StorageService.set('auth_vd_token', result.data.auth_vd_token);
+      PKAuthStorageService.set('auth_vd_token', result.data.auth_vd_token);
       deferred.resolve(result.data.auth_vd_token);
     }, function(err) {
       deferred.reject(err);
@@ -188,7 +197,7 @@ angular.module('placekoob.services')
   }
 
   function hasEmail() {
-    var email = StorageService.get('email');
+    var email = PKAuthStorageService.get('email');
     return (email !== null);
   }
 

@@ -174,6 +174,6 @@ angular.module('placekoob.config', [])
 		controllerAs: 'analyzer'
 	});
 
-	$urlRouterProvider.otherwise('/config');
+	$urlRouterProvider.otherwise('/register');
 	console.log('config call endid');
 });

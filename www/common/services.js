@@ -347,11 +347,19 @@ angular.module('placekoob.services', [])
 
   function get(key) {
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-      console.log('PKAsyncStorageService.getItem(' + key + ') :' + dicSaved[key]);
+      console.log('PKAuthStorageService.get(' + key + ') :' + dicSaved[key]);
+      // $cordovaFile.readAsText(cordova.file.dataDirectory, storageFileName)
+      // .then(function (data) {
+      //   console.dir(data);
+      // }, function (error) {
+      //   cosole.error('Reading from the StorageFile was failed.');
+      //   console.dir(error);
+      // });
+
       if (dicSaved[key]) {
         return JSON.parse(dicSaved[key]);
       } else {
-        return dicSaved[key];
+        return null;
       }
     } else {
       return StorageService.get(key);
