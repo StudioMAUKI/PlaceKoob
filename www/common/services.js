@@ -283,8 +283,7 @@ angular.module('placekoob.services', [])
   }
 
   function remove(key) {
-    window.localStorage.removeItem(key);
-  }
+    window.localStorage.removeItem(key);  }
 
   return {
     get: get,
@@ -292,24 +291,143 @@ angular.module('placekoob.services', [])
     remove: remove
   };
 }])
-.factory('UtilService', [function() {
-  return {
-    InIOSorAndroid: function(expected) {
-      var called = false;
+.factory('PKAuthStorageService', ['$cordovaFile', '$q', 'StorageService', function($cordovaFile, $q, StorageService) {
+  var dicSaved = {};
+  var inited = false;
+  var storageFileName = 'storage.txt';
+
+  function init() {
+    var deferred = $q.defer();
+
+    if (inited) {
+      console.log('PKAuthStorageService is already inited.');
+      deferred.resolve();
+    } else {
       if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-        called = true;
-        expected();
-      }
-      return {
-        else : function(otherwise) {
-          if (!called) {
-            otherwise();
-          }
-        }
+        //  저장을 위한 파일이 존재하는지 확인하고, 없다면 생성해 둔다
+        $cordovaFile.checkFile(cordova.file.dataDirectory, storageFileName)
+        .then(function (success) {
+          $cordovaFile.readAsText(cordova.file.dataDirectory, storageFileName)
+          .then(function (data) {
+            dicSaved = JSON.parse(data);
+            inited = true;
+            deferred.resolve();
+          }, function (error) {
+            cosole.error('Reading from the StorageFile was failed.');
+            console.dir(error);
+
+            inited = false;
+            deferred.reject(error);
+          });
+        }, function (error) {
+          console.error('StorageFile is not exist.');
+          console.dir(error);
+
+          $cordovaFile.createFile(cordova.file.dataDirectory, storageFileName, true)
+          .then(function (success) {
+            console.log('New StorageFile have been created.');
+            inited = true;
+            dicSaved = {};
+            deferred.resolve();
+          }, function (error) {
+            console.error('Cannot create the storage file.');
+            console.dir(error);
+            inited = false;
+            dicSaved = {};
+            deferred.reject(error);
+          });
+        });
+      } else {
+        deferred.resolve();
       }
     }
+
+    return deferred.promise;
   }
+
+  function get(key) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      console.log('PKAsyncStorageService.getItem(' + key + ') :' + dicSaved[key]);
+      if (dicSaved[key]) {
+        return JSON.parse(dicSaved[key]);
+      } else {
+        return dicSaved[key];
+      }
+    } else {
+      return StorageService.get(key);
+    }
+  }
+
+  function set(key, value) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      console.log('PKAsyncStorageService.setItem(' + key + ', ' + value + ')');
+      dicSaved[key] = JSON.stringify(value);
+      saveToFile();
+    } else {
+      StorageService.set(key, value);
+    }
+  }
+
+  function saveToFile() {
+    //  파일 저장
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      $cordovaFile.writeFile(cordova.file.dataDirectory, storageFileName, JSON.stringify(dicSaved), true)
+      .then(function (success) {
+      }, function (error) {
+        console.error('Writing to storage file is failed.');
+        console.dir(error);
+      });
+    }
+  }
+
+  function remove(key) {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      dicSaved[key] = null;
+      saveToFile();
+    } else {
+      StorageService.remove(key);
+    }
+  }
+
+  function reset() {
+    inited = false;
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      $cordovaFile.removeFile(cordova.file.dataDirectory, storageFileName)
+      .then(function (success) {
+        console.log('Removing storage file was successed.');
+      }, function (error) {
+        console.error('Removing storage file was failed.');
+        console.dir(error);
+      });
+    }
+  }
+
+  return {
+    init: init,
+    get: get,
+    set: set,
+    remove: remove,
+    reset: reset
+  };
 }])
+// .factory('UtilService', [function() {
+//   return {
+//     InIOSorAndroid: function(expected) {
+//       var called = false;
+//       if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+//         called = true;
+//         expected();
+//       }
+//       return {
+//         else : function(otherwise) {
+//           if (!called) {
+//             otherwise();
+//           }
+//         }
+//       }
+//     }
+//   }
+// }])
 .factory('PhotoService', ['$cordovaCamera', '$cordovaImagePicker', '$q', function($cordovaCamera, $cordovaImagePicker, $q) {
   function getPhotoWithCamera() {
     var deferred = $q.defer();

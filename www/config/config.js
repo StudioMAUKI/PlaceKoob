@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', '$timeout', 'SocialService', 'StorageService', 'RemoteAPIService',  'imageImporter', function($scope, $http, $cordovaOauth, $ionicPopup, $state, $timeout, SocialService, StorageService, RemoteAPIService, imageImporter) {
+.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', '$timeout', 'SocialService', 'StorageService', 'RemoteAPIService',  'imageImporter', 'PKAuthStorageService', function($scope, $http, $cordovaOauth, $ionicPopup, $state, $timeout, SocialService, StorageService, RemoteAPIService, imageImporter, PKAuthStorageService) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
@@ -179,5 +179,27 @@ angular.module('placekoob.controllers')
 				});
 			};
 	  });
+	};
+
+	config.write = function() {
+		PKAuthStorageService.init()
+		.then(function() {
+			PKAuthStorageService.set('key', 'test');
+			PKAuthStorageService.set('auth_user_token', 'gAAAAABXiJ-irUbUSMtW6iogt4UijztRbyl8hBwn-jCEFEL3s7VliSU6TF1wfwp9LTAywc-2ywfgBF2r5vA1W0GFK9HroJLI4Fds4xt_8ziUohzpGW5pK5xhmrFg1cGIhbjEV49ziUHR');
+			PKAuthStorageService.set('auth_vd_token', 'gAAAAABXlDM-Y6qMZeAYFPooxMyGLOZENsYqOYiXymFR_ySpYgYXHUs10JA569jNhSkw2OkRhGnla8gzEHJAppX7B-W58K9VOw==');
+		});
+	};
+
+	config.read = function() {
+		PKAuthStorageService.init()
+		.then(function() {
+			PKAuthStorageService.get('key');
+			PKAuthStorageService.get('auth_user_token');
+			PKAuthStorageService.get('auth_vd_token');
+		});
+	};
+
+	config.reset = function() {
+		PKAuthStorageService.reset();
 	};
 }]);
