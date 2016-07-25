@@ -8,7 +8,7 @@
     },
     {
       "path": "/mauki",
-      "proxyUrl": "http://maukitest.cloudapp.net"
+      "proxyUrl": "http://neapk-test01.japaneast.cloudapp.azure.com"
     },
     {
       "path": "/mauki_dev",

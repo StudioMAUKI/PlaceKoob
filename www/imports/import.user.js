@@ -35,12 +35,14 @@ angular.module('placekoob.controllers')
 
 	  myPopup.then(function(res) {
 	    console.log('Tapped!', res);
-			RemoteAPIService.importUser(res)
-			.then(function(results) {
-				importUser.loadIplaces();
-			}, function(err) {
-				console.error(err);
-			})
+			if (res) {
+				RemoteAPIService.importUser(res)
+				.then(function(results) {
+					importUser.loadIplaces();
+				}, function(err) {
+					console.error(err);
+				});
+			};
 	  });
 	};
 

@@ -2,8 +2,8 @@
 <ion-view title="목록으로 보기">
 	<ion-header-bar class="pk-dark-primary" align-title="center">
 		<!-- <button class="button button-icon button-clear ion-ios-plus-outline pk-primary" ng-click="importUser.showDelete = !importUser.showDelete"></button> -->
-		<h1 class="title">가져오기</h1>
-		<button class="button button-icon button-clear ion-plus pk-dark-primary" ng-click="importUser.addUserImport()"></button>
+		<h1 class="title">퍼온장소</h1>
+		<!-- <button class="button button-icon button-clear ion-plus pk-dark-primary" ng-click="importUser.addUserImport()"></button> -->
 	</ion-header-bar>
 	<ion-content>
 		<ion-refresher pulling-text="Pull to refresh..." on-refresh="importUser.doRefresh('top')">
@@ -12,12 +12,12 @@
 			<div class="item item-divider">
 		    총 {{importUser.totalCount}}개의 장소를 가져왔습니다.
 		  </div>
-			<ion-item collection-repeat="post in importUser.iplaces track by $index" class="item-thumbnail-left" href="#/imported/{{post.iplace_uuid}}" nav-direction="forward">
+			<ion-item collection-repeat="post in importUser.iplaces track by $index" class="item-thumbnail-right" href="#/imported/{{post.iplace_uuid}}" nav-direction="forward">
 				<ion-delete-button class="ion-minus-circled" ng-click="importUser.onItemDelete(post)">
       	</ion-delete-button>
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
 				<h2>{{post.name}}({{post.distance_from_origin}})	<i class="{{icon}}" ng-repeat="icon in places.SPS.get(post.userPost.rating.content) track by $index"></i></h2>
-				<span class="place-item-addr">{{post.address}}</span><br>
+				<span class="place-item-addr">{{post.addrs[0]}}</span><br>
 				<div class="place-item-note">{{post.desc}}</div><br>
 				<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
 				<ion-option-button class="button-energized icon ion-ios-download-outline" ng-click="importUser.take($index)"></ion-option-button>

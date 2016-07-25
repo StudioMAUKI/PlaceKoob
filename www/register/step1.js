@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('registerStep1Ctrl', ['$state', '$ionicPopup', 'StorageService', function($state, $ionicPopup, StorageService) {
+.controller('registerStep1Ctrl', ['$state', '$ionicPopup', 'StorageService', 'PKAuthStorageService', function($state, $ionicPopup, StorageService, PKAuthStorageService) {
 	console.log('registerStep1Ctrl is called.');
 	var register = this;
 	register.email = '';
@@ -20,7 +20,7 @@ angular.module('placekoob.controllers')
         template: '유효한 이메일 주소를 입력해 주세요.'
       });
 		}else {
-			StorageService.set('email', register.email);
+			PKAuthStorageService.set('email', register.email);
 			register.sendEmail(register.email)
 			.then(function(result) {
 				console.log('Send email : ' + result);

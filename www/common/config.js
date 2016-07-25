@@ -77,16 +77,16 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.notice', {
-    url: '/notice',
-    views: {
-      'notice': {
-        templateUrl: 'notice/notice.html',
-        controller: 'noticeCtrl',
-        controllerAs: 'notice'
-      }
-    }
-  })
+	// .state('tab.notice', {
+  //   url: '/notice',
+  //   views: {
+  //     'notice': {
+  //       templateUrl: 'notice/notice.html',
+  //       controller: 'noticeCtrl',
+  //       controllerAs: 'notice'
+  //     }
+  //   }
+  // })
 	.state('tab.imported', {
     url: '/imported',
     views: {
@@ -127,16 +127,16 @@ angular.module('placekoob.config', [])
       }
     }
   })
-	.state('tab.config-import', {
-    url: '/config/import',
-    views: {
-      'config': {
-        templateUrl: 'config/config-import.html',
-        controller: 'configCtrl',
-        controllerAs: 'config'
-      }
-    }
-  })
+	// .state('tab.config-import', {
+  //   url: '/config/import',
+  //   views: {
+  //     'config': {
+  //       templateUrl: 'config/config-import.html',
+  //       controller: 'configCtrl',
+  //       controllerAs: 'config'
+  //     }
+  //   }
+  // })
 	.state('register', {
 		url: '/register',
 		templateUrl: 'register/register.html',
@@ -160,6 +160,12 @@ angular.module('placekoob.config', [])
 		templateUrl: 'register/complete.html',
 		controller: 'registerCompleteCtrl',
 		controllerAs: 'register'
+	})
+	.state('register-intro', {
+		url: '/register/intro',
+		templateUrl: 'register/intro.html',
+		controller: 'registerIntroCtrl',
+		controllerAs: 'intro'
 	})
 	.state('analyzer', {
 		url: '/analyzer',

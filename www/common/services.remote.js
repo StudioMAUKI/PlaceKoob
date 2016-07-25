@@ -25,7 +25,8 @@ angular.module('placekoob.services')
         if (devmode) {
           return 'http://192.168.1.3:8000';
         } else {
-          return 'http://maukitest.cloudapp.net';
+          //return 'http://maukitest.cloudapp.net';
+          return 'http://neapk-test01.japaneast.cloudapp.azure.com';
         }
       } else {
         if (devmode) {
@@ -60,7 +61,7 @@ angular.module('placekoob.services')
     uploadData: uploadData
   };
 }])
-.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper){
+.factory('RemoteAPIService', ['$http', '$cordovaFileTransfer', '$q', 'RESTServer', 'StorageService', 'PostHelper', 'PKAuthStorageService', function($http, $cordovaFileTransfer, $q, RESTServer, StorageService, PostHelper, PKAuthStorageService){
   var getServerURL = RESTServer.getURL;
   var cachedUPAssigned = [];
   var cachedUPWaiting = [];
@@ -92,28 +93,36 @@ angular.module('placekoob.services')
 
   function registerUser() {
     var deferred = $q.defer();
+    var auth_user_token = '';
 
-    var auth_user_token = StorageService.get('auth_user_token');
-    if (auth_user_token) {
-      console.log('User Registration already successed: ' + auth_user_token);
-      deferred.resolve(auth_user_token);
-    } else {
-      // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
-      StorageService.remove('auth_vd_token');
-      //StorageService.remove('email'); //  원래 이메일도 날렸는데, 로그아웃 개념을 생각하면 안날려도 될듯
+    PKAuthStorageService.init()
+    .then(function() {
+      auth_user_token = PKAuthStorageService.get('auth_user_token');
+      if (auth_user_token) {
+        console.log('User Registration already successed: ' + auth_user_token);
+        deferred.resolve(auth_user_token);
+      } else {
+        // 이경우에는 auth_vd_token도 새로 발급받아야 하므로, 혹시 남아있을 auth_vd_token 찌꺼기를 지워줘야 한다.
+        PKAuthStorageService.remove('auth_vd_token');
 
-      $http({
-        method: 'POST',
-        url: getServerURL() + '/users/register/'
-      })
-      .then(function(result) {
-        console.log('User Registration successed: ' + result.data.auth_user_token);
-        StorageService.set('auth_user_token', result.data.auth_user_token);
-        deferred.resolve(result.data.auth_user_token);
-      }, function(err) {
-        deferred.reject(err);
-      });
-    }
+        $http({
+          method: 'POST',
+          url: getServerURL() + '/users/register/'
+        })
+        .then(function(result) {
+          console.log('User Registration successed: ' + result.data.auth_user_token);
+          // StorageService.set('auth_user_token', result.data.auth_user_token);
+          PKAuthStorageService.set('auth_user_token', result.data.auth_user_token);
+          deferred.resolve(result.data.auth_user_token);
+        }, function(err) {
+          deferred.reject(err);
+        });
+      }
+    }, function() {
+      console.error('인증 데이터 로딩 중 문제가 발생하여, 더이상 앱을 이용할 수 없음');
+      deferred.reject('Error in registerUser');
+    });
+
     return deferred.promise;
   }
 
@@ -136,19 +145,19 @@ angular.module('placekoob.services')
     console.log('Login Step: ' + step);
     step = step || 0;
     if (step <= 2){
-      StorageService.remove('auth_user_token');
+      PKAuthStorageService.remove('auth_user_token');
     }
 
     if (step <= 4) {
-      StorageService.remove('email');
-      StorageService.remove('auth_vd_token');
+      PKAuthStorageService.remove('email');
+      PKAuthStorageService.remove('auth_vd_token');
     }
   }
 
   function registerVD() {
     var deferred = $q.defer();
-    var auth_vd_token = StorageService.get('auth_vd_token');
-    var email = StorageService.get('email');
+    var auth_vd_token = PKAuthStorageService.get('auth_vd_token');
+    var email = PKAuthStorageService.get('email');
 
     if (auth_vd_token) {
       console.log('VD Registration already successed: ' + auth_vd_token);
@@ -161,7 +170,7 @@ angular.module('placekoob.services')
       })
       .then(function(result) {
         console.log('VD Registration successed: ' + result.data.auth_vd_token);
-        StorageService.set('auth_vd_token', result.data.auth_vd_token);
+        PKAuthStorageService.set('auth_vd_token', result.data.auth_vd_token);
         deferred.resolve(result.data.auth_vd_token);
       }, function(err) {
         deferred.reject(err);
@@ -179,7 +188,7 @@ angular.module('placekoob.services')
     })
     .then(function(result) {
       console.log('VD Login successed: ' + result.data.auth_vd_token);
-      StorageService.set('auth_vd_token', result.data.auth_vd_token);
+      PKAuthStorageService.set('auth_vd_token', result.data.auth_vd_token);
       deferred.resolve(result.data.auth_vd_token);
     }, function(err) {
       deferred.reject(err);
@@ -188,7 +197,7 @@ angular.module('placekoob.services')
   }
 
   function hasEmail() {
-    var email = StorageService.get('email');
+    var email = PKAuthStorageService.get('email');
     return (email !== null);
   }
 
@@ -927,6 +936,21 @@ angular.module('placekoob.services')
     return addrs;
   }
 
+  function getShortenAddress(addr) {
+    var a = addr.split(' ');
+    var city = '';
+    var startIndex = 0;
+    if (a[0].indexOf('경기') !== -1 || a[0].indexOf('강원') !== -1 || a[0].indexOf('충북') !== -1 || a[0].indexOf('충남') !== -1 || a[0].indexOf('전북') !== -1 || a[0].indexOf('전남') !== -1 || a[0].indexOf('경북') !== -1 || a[0].indexOf('경남') !== -1) {
+      city = a[1];
+      startIndex = 1;
+    } else {
+      city = a[0].replace('특별시', '').replace('광역시', '');
+      startIndex = 0;
+    }
+    // console.log(a[startIndex + 2], a[startIndex]);
+    return a[startIndex + 2] + '.' + city;
+  }
+
   function getPhoneNo(post) {
     // 전화번호는 공식 포스트의 전화번호를 우선한다.
     if (post.placePost && post.placePost.phone && post.placePost.phone.content !== '') {
@@ -999,8 +1023,9 @@ angular.module('placekoob.services')
     post.name = getPlaceName(post);
     post.thumbnailURL = getThumbnailURLByFirstImage(post);
     post.datetime = getTimeString(post.modified);
-    post.address = getAddress(post);
+    // post.address = getAddress(post);
     post.addrs = getAddresses(post);
+    post.address = post.addrs.length > 0 ? getShortenAddress(post.addrs[0]) : '주소 없음';
     post.desc = getDescFromUserNote(post);
     post.phoneNo = getPhoneNo(post);
     if (!post.userPost.tags) {
@@ -1089,7 +1114,7 @@ angular.module('placekoob.services')
     getReadablePhoneNo: getReadablePhoneNo
   }
 }])
-.factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', 'RESTServer', 'photoEngineService', 'remoteStorageService', 'RemoteAPIService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, RESTServer, photoEngineService, remoteStorageService, RemoteAPIService) {
+.factory('imageImporter', ['$q', '$ionicPlatform', '$http', '$cordovaFileTransfer', '$cordovaNetwork', 'RESTServer', 'photoEngineService', 'remoteStorageService', 'RemoteAPIService', function($q,  $ionicPlatform, $http, $cordovaFileTransfer, $cordovaNetwork, RESTServer, photoEngineService, remoteStorageService, RemoteAPIService) {
   var getServerURL = RESTServer.getURL;
   //  [URI, URI, ..]
   var uploadedImages = [];
@@ -1102,6 +1127,38 @@ angular.module('placekoob.services')
   };
   var timer = null;
   var progress = null;
+  var useCellNetwork = false;
+
+  function canUploadImage() {
+    var conType = $cordovaNetwork.getNetwork();
+    var isOnline = $cordovaNetwork.isOnline();
+
+    if (isOnline === false) {
+      console.warn('Cannot upload images cause of Offline');
+      return false;
+    } else {
+      if (useCellNetwork) {
+        console.info('Can upload image cause of useCellNetwork');
+        return true;
+      } else {
+        if (conType === 'wifi') {
+          console.info('Can upload image cause of useCellNetwork = false but wifi');
+          return true;
+        } else {
+          console.warn('Cannot upload image cause of useCellNetwork = false and wifi = false');
+          return false;
+        }
+      }
+    }
+    // Connection.TYPE_UNKNOWN = "unknown";
+    // Connection.TYPE_ETHERNET = "ethernet";
+    // Connection.TYPE_ETHERNET_SHORT = "eth";
+    // Connection.TYPE_WIFI = "wifi";
+    // Connection.TYPE_2G = "2g";
+    // Connection.TYPE_3G = "3g";
+    // Connection.TYPE_4G = "4g";
+    // Connection.TYPE_NONE = "none";
+  }
 
   function updateProgress(stateName) {
     status.name = stateName;
@@ -1118,7 +1175,8 @@ angular.module('placekoob.services')
     .then(function(result) {
       try {
         uploadedImages = JSON.parse(result.data.value) || [];
-        // console.dir(uploadedImages);
+        console.log('UploadedImages...');
+        console.dir(uploadedImages);
         deferred.resolve();
       } catch (e) {
         console.error(e.message);
@@ -1133,9 +1191,11 @@ angular.module('placekoob.services')
   function saveHistory(url) {
     uploadedImages.push(url);
     remoteStorageService.uploadData('uploaded_imgs', uploadedImages);
+    // console.dir(uploadedImages);
   }
 
   function findImage(key) {
+    console.log('findImage : ' + key + ', uploadedIamges.length: ' + uploadedImages.length);
     for (var i = 0; i < uploadedImages.length; i++) {
       if (uploadedImages[i] === key) {
         return true;
@@ -1144,24 +1204,33 @@ angular.module('placekoob.services')
     return false;
   }
 
+  //  Android와 iOS에서 반환하는 타임스탬프의 형식이 서로 달라 부득이하게 분기해서 처리함
+  //  원하는 최종 형식은 Android가 반환하는 형식이긴 함
+  //  호성이가 수정해 줄때까지는 이 로직을 유지할 예정
   function convertToTimeString(timestamp) {
-    //  '2015:04:22 11:54:19'
-    var dd = new Date(timestamp * 1000);  // 자바스크립트는 초단위가 아닌 밀리초단위로 입력 받는다
     var result = '';
-    var month = (dd.getUTCMonth() + 1) + ':';
-    var day = dd.getUTCDate() + ' ';
-    var hour = dd.getUTCHours() + ':';
-    var min = dd.getUTCMinutes() + ':';
-    var sec = dd.getUTCSeconds() + '';
 
-    result += dd.getUTCFullYear() + ':';
-    result += ((month.length === 2) ? '0' : '') + month;
-    result += ((day.length === 2) ? '0' : '') + day;
-    result += ((hour.length === 2) ? '0' : '') + hour;
-    result += ((min.length === 2) ? '0' : '') + min;
-    result += ((sec.length === 1) ? '0' : '') + sec;
+    if (ionic.Platform.isIOS()) {
+      var dd = new Date(timestamp * 1000);  // 자바스크립트는 초단위가 아닌 밀리초단위로 입력 받는다
+      var month = (dd.getUTCMonth() + 1) + ':';
+      var day = dd.getUTCDate() + ' ';
+      var hour = dd.getUTCHours() + ':';
+      var min = dd.getUTCMinutes() + ':';
+      var sec = dd.getUTCSeconds() + '';
 
-    return result;
+      result += dd.getUTCFullYear() + ':';
+      result += ((month.length === 2) ? '0' : '') + month;
+      result += ((day.length === 2) ? '0' : '') + day;
+      result += ((hour.length === 2) ? '0' : '') + hour;
+      result += ((min.length === 2) ? '0' : '') + min;
+      result += ((sec.length === 1) ? '0' : '') + sec;
+    } else if (ionic.Platform.isAndroid()) {
+      result = timestamp;
+    } else {
+      result = '';
+    }
+
+    return result;  //  2015:04:22 11:54:19와 같은 형식
   }
 
   function uploadImage() {
@@ -1172,17 +1241,32 @@ angular.module('placekoob.services')
       updateProgress('uploading');
     }
 
+    // console.log('uploadImage : findImage');
+    // console.log('status..');
+    // console.dir(status);
+    // console.log('imagesToUpload..');
+    // console.dir(imagesToUpload);
+    // console.log('imagesToUpload.url : ' + imagesToUpload[status.current].url);
     while(findImage(imagesToUpload[status.current].url)) {
       status.current++;
+      // console.log('In find Image :', status.name, status.current, status.total);
       if (status.current === imagesToUpload.length) {
+        console.warn('complete???');
         complete();
         return;
       }
     }
 
+    if (canUploadImage() === false) {
+      updateProgress('ready');
+      return;
+    }
+
+    console.log('uploadImage : getPhoto');
+    console.log('imagesToUpload[status.current].id = ' + imagesToUpload[status.current].id);
     photoEngineService.getPhoto(imagesToUpload[status.current].id)
     .then(function(fileURI) {
-      // console.log('image path : ' + fileURI);
+      console.log('image path : ' + fileURI);
       var options = {
         fileKey: 'file',
         httpMethod: 'POST'
@@ -1228,14 +1312,21 @@ angular.module('placekoob.services')
         });
       }, function(err) {
         console.error('In cordovaFileTransfer: ' + err);
+        status.current++;
+        updateProgress('ready');
       });
     }, function(err) {
-      console.error('In uploadImage : ' + err);
+      console.error('In getPhoto : ' + err);
+      status.current++;
+      updateProgress('ready');
     });
   }
 
-  function start(prograssCallback) {
+  function start(prograssCallback, useCell) {
+    var deferred = $q.defer();
     progress = prograssCallback || null;
+    useCellNetwork = useCell || false;
+
     status.total = 0;
     status.current = 0;
     uploadedImages = [];
@@ -1244,15 +1335,26 @@ angular.module('placekoob.services')
       console.log('imageImporter start');
       photoEngineService.getPhotoList()
       .then(function(list) {
+        console.log('In getPhotoList..');
+        console.dir(list);
         imagesToUpload = list;
         status.total = imagesToUpload.length;
-        // console.dir(imagesToUpload);
-        updateProgress('ready');
-        timer = setInterval(uploadImage, 100);
+        if (imagesToUpload.length === 0) {
+          complete();
+          deferred.reject();
+        } else {
+          // console.dir(imagesToUpload);
+          updateProgress('ready');
+          timer = setInterval(uploadImage, 100);
+          deferred.resolve();
+        }
       }, function(err) {
         console.error(err);
+        deferred.reject();
       });
     });
+
+    return deferred.promise;
   }
 
   function pause() {

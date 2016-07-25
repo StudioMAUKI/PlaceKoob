@@ -8,12 +8,12 @@
 			<div class="item item-divider">
 		    총 {{map.posts.length}}개의 주변 장소가 저장되어 있습니다.
 		  </div>
-      <ion-item collection-repeat="post in map.posts" class="item-thumbnail-left" ng-click="map.showPlaceDlg($index)">
+      <ion-item collection-repeat="post in map.posts" class="item-thumbnail-right" ng-click="map.showPlaceDlg($index)">
 				<img ng-src="{{post.thumbnailURL}}" alt="{{post.name}}">
-				<h2>{{post.name || '장소화 대기중'}}</h2>
+				<h2><i class="ion-ios-bookmarks" style="color:#4875e9;" ng-show="!post.visited"></i>&nbsp;{{post.name || '장소화 대기중'}}</h2>
 				<!-- <span class="place-item-addr">{{post.address}}</span><br> -->
         <div class="place-star-point"><i class="{{icon}}" ng-repeat="icon in map.SPS.get(post.userPost.rating.content) track by $index"></i></div>
-				현재 위치로부터 {{post.distance_from_origin}}<br>
+				&nbsp;{{post.address}}({{post.distance_from_origin}})<br>
 				<span class="place-item-tag" ng-repeat="tag in post.userPost.tags track by $index">{{tag.content}}</span>
 			</ion-item>
 

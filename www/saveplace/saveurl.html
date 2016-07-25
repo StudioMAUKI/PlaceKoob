@@ -1,7 +1,7 @@
 <ion-modal-view>
 	<ion-header-bar class="pk-primary" align-title="center">
 		<button class="button button-icon button-clear ion-close" ng-click="map.closeSaveDlg()"></button>
-	  <h1 class="title">웹문서를 저장합니다</h1>
+	  <h1 class="title">링크를 저장합니다</h1>
 	  <button class="button button-icon button-clear ion-checkmark" ng-click="map.confirmSaveURL()"></button>
 	</ion-header-bar>
 	<ion-content>
@@ -17,6 +17,14 @@
 			<!-- <div class="item" style="border-width: 0px;">
 		    <ion-checkbox ng-model="map.getFullContent" style="border-width: 0px;">해당 도메인의 모든 글 가져오기</ion-checkbox>
 		  </div> -->
+			<div style="padding: 10px;color: #555555;">
+				저장한 링크를 분석하여 장소화 합니다.<br>
+				장소와 관련된 어떠한 링크도 저장 가능 합니다.<br>
+				<br>
+				포스퀘어, 카카오플레이스, 망고플레이트 그리고<br>
+				지도(네이버, 구글, 다음) 링크를 저장할 경우<br>
+				저장 즉시 장소화가 됩니다.
+			</div>
 		</div>
 		<!-- <div class="card">
 		  <div class="item item-body">
