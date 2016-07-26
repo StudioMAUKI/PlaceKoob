@@ -12,7 +12,10 @@ angular.module('placekoob.controllers')
 
 	// config.auth_user_token = StorageService.get('auth_user_token');
 	// config.auth_vd_token = StorageService.get('auth_vd_token');
-	config.email = StorageService.get('email');
+	PKAuthStorageService.init()
+	.then(function() {
+		config.email = PKAuthStorageService.get('email');
+	});
 	config.lang = StorageService.get('lang');
 	config.country = StorageService.get('country');
 	config.version = '0.1.0';
