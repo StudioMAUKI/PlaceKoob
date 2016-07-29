@@ -262,7 +262,7 @@ angular.module('placekoob.services')
       setAllNeedToUpdate();
       deferred.resolve(result);
     }, function(err) {
-      console.error(err);
+      console.dir(err);
       deferred.reject(err);
     });
     return deferred.promise;
@@ -1496,7 +1496,7 @@ angular.module('placekoob.services')
           return '';
         }
       } else if (url.indexOf('http://m.blog.naver.com') !== -1) {
-        return url.replace('http://m.blog.naver.com', '/nblog');
+        return url.replace('http://m.blog.naver.com', '/nmblog');
       } else if (url.indexOf('http://www.mangoplate.com') !== -1) {
         return url.replace('https://www.mangoplate.com', '/mplate');
       } else if (url.indexOf('http://map.naver.com') !== -1) {
@@ -1546,7 +1546,7 @@ angular.module('placekoob.services')
           ogInfo.url = getOGContent(head, 'og:url') || url;
           ogInfo.desc = getOGContent(head, 'og:description');
 
-          // console.dir(ogInfo);
+          console.dir(ogInfo);
 
           deferred.resolve(ogInfo);
         }

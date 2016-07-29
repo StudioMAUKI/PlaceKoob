@@ -70,7 +70,7 @@ angular.module('placekoob.controllers')
       if (lonLat.radius) {
         var zoomFactor = lonLat.radius === 0 ? 0 : (Math.log(lonLat.radius / 800) / Math.LN2).toFixed(0) - 1;
         map.mapObj.setZoom(15 - zoomFactor);
-      }    
+      }
     }, 500);
   });
 
@@ -404,7 +404,6 @@ angular.module('placekoob.controllers')
         lat: pos.latitude,
         lng: pos.longitude
       });
-
     })
     .finally(function() {
       $ionicLoading.hide();

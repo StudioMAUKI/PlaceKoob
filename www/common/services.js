@@ -162,8 +162,9 @@ angular.module('placekoob.services', [])
 
           resolve(pos);
         }, {
-          timeout: 60000
-          // enableHighAccuracy: true
+          timeout: 5000,
+          enableHighAccuracy: true,
+          maximumAge: 60000
         });
       } else {
         reject('Browser doesn\'t support Geolocation');
@@ -185,7 +186,7 @@ angular.module('placekoob.services', [])
         console.dir(err);
         fail(err);
       }, {
-        timeout: 60000
+        timeout: 5000
         // enableHighAccuracy: true
       });
     } else {
