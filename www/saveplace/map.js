@@ -576,6 +576,7 @@ angular.module('placekoob.controllers')
 					addr1: { content: StorageService.get('addr1') || null },
 					addr2: { content: StorageService.get('addr2') || null },
 					addr3: { content: StorageService.get('addr3') || null },
+          name: { content: map.placeNameForSave || null}
 				})
 				.then(function(result) {
           console.dir(result);

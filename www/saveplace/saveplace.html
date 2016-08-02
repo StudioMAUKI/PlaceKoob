@@ -15,6 +15,13 @@
 			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="map.note"></textarea>
 		</label> -->
 		<div class="row">
+			<div class="col">
+				<label class="item item-input">
+			    <input type="text" placeholder="장소에 이름을 붙여주세요." ng-model="map.placeNameForSave">
+			  </label>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col place-tags-container">
 				<span class="place-item-tag-large" ng-repeat="tag in map.tags track by $index">{{tag}}&nbsp;</span>
 			</div>
