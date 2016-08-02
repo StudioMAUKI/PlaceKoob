@@ -394,6 +394,25 @@ angular.module('placekoob.controllers')
     });
   };
 
+  place.copyURL = function() {
+    if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
+      $cordovaClipboard.copy(place.post.ui_url)
+      .then(function(result) {
+        console.log('Copying URL was successed.', place.post.ui_url);
+        $ionicPopup.alert({
+          title: '성공',
+          template: '이 페이지의 URL이 클립보드에 복사되었습니다.'
+        });
+      }, function(err) {
+        console.error('Copying URL was failed.', error);
+        $ionicPopup.alert({
+          title: '실패',
+          template: '오류가 발생하여 클립보드 복사에 실패했습니다.'
+        });
+      });
+    }
+  };
+
   place.addPhoto = function() {
     $ionicActionSheet.show({
       buttons: [
