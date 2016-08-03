@@ -964,7 +964,7 @@ angular.module('placekoob.services')
 
   function isOrganized(post) {
     //  placePost가 NULL이 아니면 장소화 된 것으로 간주할 수있음
-    return (post.placePost !== null);
+    return (post.place_id !== null);
   }
 
   function getTimeString(timestamp) {
