@@ -17,21 +17,30 @@
 		    </span>
 			</ion-item>
 			<div class="item item-divider">
-		    가져오기
+		    사진 보관함에서 가져오기
 		  </div>
+			<div style="font-size: 12px;padding: 5px 5px 5px 15px;">
+				사진 보관함에 있는 사진을 업로드 하여 장소화 합니다. 업로드 된 사진과 장소 정보는 <strong>기본적으로 다른 사용자들에게 공개되지 않습니다</strong>. 장소화된 사진은 가져오기 메뉴에서 저장하거나 삭제할 수 있습니다. 업로드는 앱이 실행중일 때만 진행되며, 언제든지 중단하고, 다시 시작할 수 있습니다. 업로드 하기는 업로드 할 사진이 있는 경우에만 활성화 됩니다. 또한, 다음의 설정에 따라 WIFI에 연결된 경우에만 업로드 할 수도 있습니다. <strong>(주의! 업로드 중에 로그아웃이 되면 처음부터 다시 업로드를 합니다.)</strong>
+			</div>
 			<ion-item class="item item-button-right">
-				사진 보관함<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>&nbsp;
+				한꺼번에 올리기<span ng-show="config.imageImportStatus === 'start'">({{config.status.current}}&nbsp;/&nbsp;{{config.status.total}})</span>&nbsp;
 				<span ng-show="config.imageImportStatus === 'start'"><ion-spinner icon="dots"></ion-spinner></span>
 				<button class="button button-energized" style="font-size:12px;" ng-click="config.importImages()">
 		      {{config.imageImportButton}}
 		    </button>
 			</ion-item>
-			<div style="font-size: 12px;padding: 5px 5px 5px 15px;">
-				사진 보관함에 있는 사진을 업로드 하여 장소화 합니다. 업로드 된 사진과 장소 정보는 <strong>기본적으로 다른 사용자들에게 공개되지 않습니다</strong>. 장소화된 사진은 가져오기 메뉴에서 저장하거나 삭제할 수 있습니다. 업로드는 앱이 실행중일 때만 진행되며, 언제든지 중단하고, 다시 시작할 수 있습니다. 업로드 하기는 업로드 할 사진이 있는 경우에만 활성화 됩니다. 또한, 다음의 설정에 따라 WIFI에 연결된 경우에만 업로드 할 수도 있습니다. <strong>(주의! 업로드 중에 로그아웃이 되면 처음부터 다시 업로드를 합니다.)</strong>
-			</div>
+			<ion-item class="item item-button-right">
+				선택해서 올리기
+				<button class="button button-energized" style="font-size:12px;" ng-click="config.importImagesBySelection()">
+		      업로드
+		    </button>
+			</ion-item>
 			<ion-toggle ng-model="config.useCellNetwork" ng-change="config.saveCellNetworkSetting()" ng-disabled="config.imageImportStatus === 'start'">
         셀룰러 데이터를 이용하여 사진 업로드 하기
       </ion-toggle>
+			<div class="item item-divider">
+		    외부에서 가져오기
+		  </div>
 			<ion-item class="item item-button-right">
 				다른 사용자가 저장한 장소
 				<button class="button button-energized" style="font-size:12px;" ng-click="config.importUser()">

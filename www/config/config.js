@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', '$timeout', 'SocialService', 'StorageService', 'RemoteAPIService',  'imageImporter', 'PKAuthStorageService', function($scope, $http, $cordovaOauth, $ionicPopup, $state, $timeout, SocialService, StorageService, RemoteAPIService, imageImporter, PKAuthStorageService) {
+.controller('configCtrl', ['$scope', '$http', '$cordovaOauth', '$ionicPopup', '$state', '$timeout', '$ionicLoading', 'SocialService', 'StorageService', 'RemoteAPIService',  'imageImporter', 'PKAuthStorageService', 'PhotoService', 'photoEngineService', function($scope, $http, $cordovaOauth, $ionicPopup, $state, $timeout, $ionicLoading, SocialService, StorageService, RemoteAPIService, imageImporter, PKAuthStorageService, PhotoService, photoEngineService) {
 	var config = this;
 	config.foursquare = false;
 	config.google = false;
@@ -19,7 +19,7 @@ angular.module('placekoob.controllers')
 	config.lang = StorageService.get('lang');
 	config.country = StorageService.get('country');
 	config.version = '0.1.0';
-	config.imageImportButton = '업로드 하기';
+	config.imageImportButton = '업로드';
 	config.imageImportStatus = 'stop';
 	config.useCellNetwork = false;
 
@@ -105,11 +105,11 @@ angular.module('placekoob.controllers')
 
 	config.importImages = function() {
 		if (config.imageImportStatus === 'stop') {
-			config.imageImportButton = '업로드 중지';
+			config.imageImportButton = '중지';
 			config.imageImportStatus = 'start';
 			config.startImportImages();
 		} else if (config.imageImportStatus === 'start') {
-			config.imageImportButton = '업로드 하기';
+			config.imageImportButton = '업로드';
 			config.imageImportStatus = 'stop';
 			config.stopImportImages();
 		}
@@ -141,6 +141,61 @@ angular.module('placekoob.controllers')
 		console.log('stopImportImages()');
 		imageImporter.stop();
 		StorageService.set('importImage', 'stoped');
+	};
+
+	config.importImagesBySelection = function() {
+		PhotoService.getPhotoWithPhotoLibrary(10)
+		.then(function(imageURIs) {
+			// start
+			console.dir(imageURIs);
+			photoEngineService.getPhotoList()
+			.then(function(list){
+				console.dir(list);
+			});
+			// for (var i = 0; i < imageURIs.length; i++){
+			// 	$ionicLoading.show({
+			// 		template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
+			// 		duration: 60000
+			// 	});
+			// 	RemoteAPIService.uploadImage(imageURIs[i])
+			// 	.then(function(response) {
+			// 		console.log('Image UUID: ' + response.uuid);
+			// 		RemoteAPIService.sendUserPost({
+			// 			images: [{
+			// 				content: response.file
+			// 			}],
+			// 			uplace_uuid: place.uplace_uuid
+			// 		})
+			// 		.then(function(result) {
+			// 			// place.loadPlaceInfo();
+			// 			$ionicLoading.hide();
+			// 			if (place.post.userPost.images === undefined || place.post.userPost.images === null || place.post.userPost.images.length === 0) {
+			// 				place.post.userPost.images = [result.data.userPost.images[0]];
+			// 				place.imagesForSlide = [result.data.userPost.images[0].content];
+			// 				place.coverImage = result.data.userPost.images[0].summary;
+			// 			} else {
+			// 				place.post.userPost.images.splice(0, 0, result.data.userPost.images[0]);
+			// 				place.imagesForSlide.splice(0, 0, result.data.userPost.images[0].content);
+			// 			}
+			// 		}, function(err) {
+			// 			$ionicLoading.hide();
+			// 			$ionicPopup.alert({
+			// 				title: 'ERROR: Send user post',
+			// 				template: JSON.stringify(err)
+			// 			});
+			// 		});
+			// 	}, function(err) {
+			// 		$ionicLoading.hide();
+			// 		$ionicPopup.alert({
+			// 			title: 'ERROR: Upload Image',
+			// 			template: JSON.stringify(err)
+			// 		});
+			// 	});
+			// }
+			// end
+		}, function(err) {
+			console.error('PhotoService.getPhotoWithPhotoLibrary is failed', err);
+		});
 	};
 
 	config.importUser = function() {
