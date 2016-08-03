@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', 'starPointIconService', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, gmapService, MapService, RemoteAPIService, StorageService, PhotoService, starPointIconService) {
+.controller('mapCtrl', ['$scope', '$ionicPopup', '$state', '$stateParams', '$ionicScrollDelegate', '$ionicLoading', '$q', '$ionicModal', '$cordovaClipboard', '$ionicActionSheet', 'gmapService', 'MapService', 'RemoteAPIService', 'StorageService', 'PhotoService', 'starPointIconService', 'DOMHelper', function($scope, $ionicPopup, $state, $stateParams, $ionicScrollDelegate, $ionicLoading, $q, $ionicModal, $cordovaClipboard, $ionicActionSheet, gmapService, MapService, RemoteAPIService, StorageService, PhotoService, starPointIconService, DOMHelper) {
   var map = this;
   map.SPS = starPointIconService;
   map.prevIndex = 0;
@@ -480,12 +480,16 @@ angular.module('placekoob.controllers')
   // 이하 저장 부분
   //
   map.attatchedImage = '';
+  map.attatchedImages = [];
+  map.calculatedHeight = DOMHelper.getImageHeight('view-container', 3, 5);
 	map.URL = '';
 
   map.savePosition = function() {
+    map.attatchedImages = [];
 		PhotoService.getPhotoWithCamera()
 		.then(function(imageURI) {
 			map.attatchedImage = imageURI;
+      map.attatchedImages.push(map.attatchedImage);
 			$ionicModal.fromTemplateUrl('saveplace/saveplace.html', {
 				scope: $scope,
 				animation: 'slide-in-up'
@@ -535,6 +539,47 @@ angular.module('placekoob.controllers')
 		map.URL = '';
 	};
 
+  map.addAttatchedImage = function() {
+    $ionicActionSheet.show({
+      buttons: [
+        { text: '카메라로 사진 찍기' },
+        { text: '사진 앨범에서 선택' }
+      ],
+      titleText: '사진을 추가 합니다.',
+      cancelText: 'Cancel',
+      buttonClicked: function(index) {
+        console.log('[Event(ActionSheet:click)]Button['+ index + '] is clicked.');
+        if (index == 0) {
+          PhotoService.getPhotoWithCamera()
+          .then(function(imageURI) {
+            map.attatchedImages.push(imageURI);
+          }, function(err) {
+            console.error(err);
+          });
+        } else {
+          PhotoService.getPhotoWithPhotoLibrary(10)
+          .then(function(imageURIs) {
+            map.attatchedImages = map.attatchedImages.concat(imageURIs);
+          });
+        }
+        return true;
+      }
+    });
+  };
+
+  map.deleteAttatchedImage = function(index) {
+    $ionicPopup.confirm({
+			title: '사진 삭제',
+			template: '선택한 사진을 지우시겠습니까?'
+		})
+		.then(function(res){
+			if (res) {
+        console.log('Delete image : ' + index);
+        map.attatchedImages.splice(index, 1);
+      }
+    });
+  };
+
   map.confirmSave = function() {
 		//	브라우저의 경우 테스트를 위해 분기함
 		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
@@ -575,14 +620,14 @@ angular.module('placekoob.controllers')
 					map.scrollToSavedPlace(result.data.uplace_uuid);
 				}, function(err) {
 					$ionicLoading.hide();
-					map.showAlert('오류: 장소 저장', err)
+					map.showAlert('장소 저장 실패', err)
 					.then(function(){
 						map.closeSaveDlg();
 					});
 				});
 			}, function(err) {
 				$ionicLoading.hide();
-				map.showAlert('오류: 이미지 업로드', err);
+				map.showAlert('이미지 업로드 실패', err);
 			});
 		// }, function(err) {
 		// 	$ionicLoading.hide();

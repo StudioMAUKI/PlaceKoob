@@ -1276,6 +1276,7 @@ angular.module('placekoob.services')
         var response;
         try {
           response = JSON.parse(result.response);
+          // console.log('upload result(/rfs/)', result.response);
           // console.dir(response);
           // console.log('lon : ' + imagesToUpload[status.current].longitude);
           // console.log('lat : ' + imagesToUpload[status.current].latitude);

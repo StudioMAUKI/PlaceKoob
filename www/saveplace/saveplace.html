@@ -4,21 +4,7 @@
 	  <h1 class="title">현재 위치를 저장합니다</h1>
 	  <button class="button button-icon button-clear ion-checkmark" ng-click="map.confirmSave()"></button>
 	</ion-header-bar>
-	<ion-content scroll="false">
-		<div class="user-image">
-			<img ng-repeat="image in map.attatchedImages track by $index" ng-style="{height:map.calculatedHeight,'padding-left':5}" ng-src="{{image}}" on-hold="map.deleteAttatchedImage($index)">
-			<img ng-style="{height:map.calculatedHeight,'padding-left':5}" src="img/add_photo.svg" ng-click="map.addAttatchedImage()">
-		</div>
-
-		<div style="text-align:center;border:solid #AAAAAA 1px;margin:4px;padding:4px;">
-			<img style="height:240px;" ng-src="{{map.attatchedImage}}">
-		</div>
-		<!-- for BrowserTest-->
-		<input type="file" file-model="map.browserFile" ng-show="map.showFileForm()">
-		<!-- <label class="item item-input item-stacked-label">
-  		<span class="input-label">Note</span>
-			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="map.note"></textarea>
-		</label> -->
+	<ion-content scroll="true">
 		<div class="row">
 			<div class="col">
 				<label class="item item-input">
@@ -26,6 +12,25 @@
 			  </label>
 			</div>
 		</div>
+		<div class="user-image">
+			<div ng-style="{width:map.calculatedHeight+5,height:map.calculatedHeight,display:'inline-block',overflow:'hidden','padding-left':5,'margin-right':-4}">
+				<img ng-style="{height:map.calculatedHeight}" src="img/add_photo.svg" ng-click="map.addAttatchedImage()">
+			</div>
+			<div ng-repeat="image in map.attatchedImages track by $index" ng-style="{width:map.calculatedHeight+5,height:map.calculatedHeight,display:'inline-block',overflow:'hidden','padding-left':5}">
+				<img ng-style="{height:map.calculatedHeight}" ng-src="{{image}}" on-hold="map.deleteAttatchedImage($index)">
+			</div>
+		</div>
+
+		<!-- <div style="text-align:center;border:solid #AAAAAA 1px;margin:4px;padding:4px;">
+			<img style="height:240px;" ng-src="{{map.attatchedImage}}">
+		</div> -->
+		<!-- for BrowserTest-->
+		<input type="file" file-model="map.browserFile" ng-show="map.showFileForm()">
+		<!-- <label class="item item-input item-stacked-label">
+  		<span class="input-label">Note</span>
+			<textarea rows="10" placeholder="이 위치에 대해서 간단한 메모를 남기면 다음에 기억을 떠올리기 쉬워집니다. #을 사용하면 태그를 달 수 있어요!" ng-model="map.note"></textarea>
+		</label> -->
+
 		<div class="row">
 			<div class="col place-tags-container">
 				<span class="place-item-tag-large" ng-repeat="tag in map.tags track by $index">{{tag}}&nbsp;</span>

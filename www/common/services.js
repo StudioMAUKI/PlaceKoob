@@ -663,7 +663,7 @@ angular.module('placekoob.services', [])
 .factory('DOMHelper', [function() {
   function getImageHeight(elem, cols, padding) {
     cols = cols || 3;
-    padding = padding || 5;
+    padding = (padding === null) ? 5 : padding;
 
     if (!elem) {
       return 0;
