@@ -5,6 +5,11 @@
 	  <button class="button button-icon button-clear ion-checkmark" ng-click="map.confirmSave()"></button>
 	</ion-header-bar>
 	<ion-content scroll="false">
+		<div class="user-image">
+			<img ng-repeat="image in map.attatchedImages track by $index" ng-style="{height:map.calculatedHeight,'padding-left':5}" ng-src="{{image}}" on-hold="map.deleteAttatchedImage($index)">
+			<img ng-style="{height:map.calculatedHeight,'padding-left':5}" src="img/add_photo.svg" ng-click="map.addAttatchedImage()">
+		</div>
+
 		<div style="text-align:center;border:solid #AAAAAA 1px;margin:4px;padding:4px;">
 			<img style="height:240px;" ng-src="{{map.attatchedImage}}">
 		</div>

@@ -72,8 +72,8 @@
 			<!-- <a class="button" ng-click="place.setStarPoint()"><i class="ion-star"></i> 평가</a> -->
 		</div>
 		<div class="user-image">
-			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight || place.getImageHeight(),'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">
-			<img ng-style="{height:place.getImageHeight(),'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
+			<img ng-style="{height:place.calculatedHeight,'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
+			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight,'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">			
 		</div>
 
 		<!-- 노트 목록 -->

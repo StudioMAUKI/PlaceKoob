@@ -10177,7 +10177,6 @@ label.chat-input {
   max-width: 100%;
   background-color: #FFFFFF; }
   .region-list .region {
-    padding-left: 5px;
     display: inline-block;
     position: relative; }
     .region-list .region .region-title {

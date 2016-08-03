@@ -659,4 +659,28 @@ angular.module('placekoob.services', [])
       return starPointArray[index];
     }
   }
+}])
+.factory('DOMHelper', [function() {
+  function getImageHeight(elem, cols, padding) {
+    cols = cols || 3;
+    padding = padding || 5;
+
+    if (!elem) {
+      return 0;
+    }
+
+    var elems = document.getElementsByClassName(elem);
+		// console.log('elems[' + elem + '].length : ' + elems.length);
+    for (var i = 0; i < elems.length; i++) {
+			// console.log('elems[' + elem + '].clientWidth : ' + elems[i].clientWidth);
+      if (elems[i].clientWidth) {
+				return parseInt((elems[i].clientWidth - (cols + 1) * padding) / cols);
+      }
+    }
+    return 0;
+  }
+
+  return {
+    getImageHeight: getImageHeight
+  }
 }]);

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicHistory', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', function($scope, $stateParams, $state, $ionicHistory, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService) {
+.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicHistory', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', 'DOMHelper', function($scope, $stateParams, $state, $ionicHistory, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService, DOMHelper) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -16,7 +16,7 @@ angular.module('placekoob.controllers')
   place.starPoint = 5;
   place.starPointIcons = ['ion-ios-star', 'ion-ios-star', 'ion-ios-star-half', 'ion-ios-star-outline', 'ion-ios-star-outline'];
   place.visited = false;
-  place.calculatedHeight = 0;
+  place.calculatedHeight = DOMHelper.getImageHeight('user-image', 3, 5);
   place.buttonColor = ['stable', 'positive', 'calm', 'balanced', 'energized', 'assertive', 'royal', 'dark'];
 
   $scope.$on('$ionicView.afterEnter', function() {
@@ -569,17 +569,6 @@ angular.module('placekoob.controllers')
 
   place.searchPlace = function() {
     window.open('https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_blog&query=' + place.makeKeyword(), '_system');
-  };
-
-  place.getImageHeight = function() {
-    var images = document.getElementsByClassName('user-image');
-    for (var i = 0; i < images.length; i++) {
-      if (images[i].clientWidth) {
-        place.calculatedHeight = parseInt((images[i].clientWidth - 20) / 3);
-        return place.calculatedHeight;
-      }
-    }
-    return 0;
   };
 
   place.processTags = function($event) {

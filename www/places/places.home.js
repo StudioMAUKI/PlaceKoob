@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placesHomeCtrl', ['$scope', '$state', 'RemoteAPIService', function($scope, $state, RemoteAPIService) {
+.controller('placesHomeCtrl', ['$scope', '$state', 'RemoteAPIService', 'DOMHelper', function($scope, $state, RemoteAPIService, DOMHelper) {
 	console.log('placesHomeCtrl is called.');
 	var placesHome = this;
 	var remote = RemoteAPIService;
-	placesHome.calculatedHeight = 0;
+	placesHome.calculatedHeight = DOMHelper.getImageHeight('region-list', 3, 5);
 	placesHome.regions = [];
 	placesHome.totalCount = 0;
 
@@ -24,20 +24,6 @@ angular.module('placekoob.controllers')
 	placesHome.openFullList = function(){
 		$state.go('tab.places');
 	};
-
-	placesHome.getImageHeight = function() {
-		var images = document.getElementsByClassName('region-list');
-		console.log('images.length : ' + images.length);
-    for (var i = 0; i < images.length; i++) {
-			console.log('images[i].clientWidth : ' + images[i].clientWidth);
-      if (images[i].clientWidth) {
-				placesHome.calculatedHeight = parseInt((images[i].clientWidth - 20) / 3);
-				// placesHome.calculatedHeight = parseInt((images[i].clientWidth - 15) / 2);
-        return placesHome.calculatedHeight;
-      }
-    }
-    return 0;
-  };
 
 	placesHome.goToPlaces = function(index) {
 		console.log('Places index : ' + index);

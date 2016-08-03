@@ -456,16 +456,6 @@ angular.module('placekoob.controllers')
 		map.placeDlg.remove();
 	};
 
-	map.getImageHeight = function() {
-    var images = document.getElementsByClassName('user-image');
-    for (var i = 0; i < images.length; i++) {
-      if (images[i].clientWidth) {
-        return parseInt(images[i].clientWidth / 3);
-      }
-    }
-    return 0;
-  };
-
 	map.searchPlace = function() {
 		var query = '';
     var region = map.selectedPlace.placePost.addr2 || map.selectedPlace.placePost.addr1 || map.selectedPlace.placePost.addr3 || null;
