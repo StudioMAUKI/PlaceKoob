@@ -588,50 +588,95 @@ angular.module('placekoob.controllers')
 
 		$ionicLoading.show({
 			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
-			duration: 60000
+			duration: 30000
 		});
-		// map.getCurrentPosition()
-		// .then(function(curPos) {
+
+    var tasksOfUploadingImages = [];
+    for (var i = 0; i < map.attatchedImages.length; i++) {
+      tasksOfUploadingImages.push(RemoteAPIService.uploadImage(map.attatchedImages[i]));
+    }
+    $q.all(tasksOfUploadingImages)
+    .then(function(results) {
+      console.log('results of upload image:', results);
+      console.dir(results);
+
+      var uploadedImages = [];
+      for (var i = 0; i < results.length; i++) {
+        uploadedImages.push({content: results[i].file});
+      }
       var curPos = StorageService.get('curPos');
-			RemoteAPIService.uploadImage(map.attatchedImage)
-			.then(function(response) {
-        console.log('response file: ' + response.file);
-				RemoteAPIService.sendUserPost({
-					lonLat: {
-						lon: curPos.longitude,
-						lat: curPos.latitude
-					},
-					notes: [{
-						// content: map.note
-            content: map.convertTagsToNote()
-					}],
-					images: [{
-						content: response.file
-					}],
-					addr1: { content: StorageService.get('addr1') || null },
-					addr2: { content: StorageService.get('addr2') || null },
-					addr3: { content: StorageService.get('addr3') || null },
-          name: { content: map.placeNameForSave || null}
-				})
-				.then(function(result) {
-          console.dir(result);
-					$ionicLoading.hide();
-					map.closeSaveDlg();
-					map.scrollToSavedPlace(result.data.uplace_uuid);
-				}, function(err) {
-					$ionicLoading.hide();
-					map.showAlert('장소 저장 실패', err)
-					.then(function(){
-						map.closeSaveDlg();
-					});
-				});
+      RemoteAPIService.sendUserPost({
+				lonLat: {
+					lon: curPos.longitude,
+					lat: curPos.latitude
+				},
+				notes: [{
+					// content: map.note
+          content: map.convertTagsToNote()
+				}],
+				images: uploadedImages,
+				addr1: { content: StorageService.get('addr1') || null },
+				addr2: { content: StorageService.get('addr2') || null },
+				addr3: { content: StorageService.get('addr3') || null },
+        name: { content: map.placeNameForSave || null}
+			})
+			.then(function(result) {
+        console.dir(result);
+				$ionicLoading.hide();
+				map.closeSaveDlg();
+				map.scrollToSavedPlace(result.data.uplace_uuid);
 			}, function(err) {
 				$ionicLoading.hide();
-				map.showAlert('이미지 업로드 실패', err);
+				map.showAlert('장소 저장 실패', err)
+				.then(function(){
+					map.closeSaveDlg();
+				});
 			});
+    }, function(err) {
+      console.error(err);
+      $ionicLoading.hide();
+			map.showAlert('이미지 업로드 실패', err)
+      .then(function(){
+        map.closeSaveDlg();
+      });
+    });
+
+    // var curPos = StorageService.get('curPos');
+		// RemoteAPIService.uploadImage(map.attatchedImage)
+		// .then(function(response) {
+    //   console.log('response file: ' + response.file);
+		// 	RemoteAPIService.sendUserPost({
+		// 		lonLat: {
+		// 			lon: curPos.longitude,
+		// 			lat: curPos.latitude
+		// 		},
+		// 		notes: [{
+		// 			// content: map.note
+    //       content: map.convertTagsToNote()
+		// 		}],
+		// 		images: [{
+		// 			content: response.file
+		// 		}],
+		// 		addr1: { content: StorageService.get('addr1') || null },
+		// 		addr2: { content: StorageService.get('addr2') || null },
+		// 		addr3: { content: StorageService.get('addr3') || null },
+    //     name: { content: map.placeNameForSave || null}
+		// 	})
+		// 	.then(function(result) {
+    //     console.dir(result);
+		// 		$ionicLoading.hide();
+		// 		map.closeSaveDlg();
+		// 		map.scrollToSavedPlace(result.data.uplace_uuid);
+		// 	}, function(err) {
+		// 		$ionicLoading.hide();
+		// 		map.showAlert('장소 저장 실패', err)
+		// 		.then(function(){
+		// 			map.closeSaveDlg();
+		// 		});
+		// 	});
 		// }, function(err) {
 		// 	$ionicLoading.hide();
-		// 	map.showAlert('오류: 현재 위치 얻기 실패', '현재 위치를 얻어오는데 실패했습니다. 잠시후 다시 시도해 주세요.');
+		// 	map.showAlert('이미지 업로드 실패', err);
 		// });
 	};
 

@@ -487,7 +487,7 @@ angular.module('placekoob.services', [])
         deferred.reject(err);
 	    });
 		} else {	// test in web-browser
-      deferred.resolve(['img/sample/sample_02.jpg']);
+      deferred.resolve(['img/sample/sample_01.jpg']);
 		}
 
     return deferred.promise;
