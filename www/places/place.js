@@ -395,10 +395,27 @@ angular.module('placekoob.controllers')
   };
 
   place.copyURL = function() {
+    if (place.post.shorten_url === null) {
+      // shoten url을 얻어서 복사
+      RemoteAPIService.getShortenURL(place.post.uplace_uuid)
+      .then(function(url) {
+        place.copyURLToClipboard(url);
+      }, function(err) {
+        $ionicPopup.alert({
+          title: '실패',
+          template: '단축 URL을 얻어오지 못했습니다.'
+        });
+      })
+    } else {
+      place.copyURLToClipboard(place.post.shorten_url);
+    }
+  };
+
+  place.copyURLToClipboard = function(url) {
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-      $cordovaClipboard.copy(place.post.ui_url)
+      $cordovaClipboard.copy(url)
       .then(function(result) {
-        console.log('Copying URL was successed.', place.post.ui_url);
+        console.log('Copying URL was successed.', url);
         $ionicPopup.alert({
           title: '성공',
           template: '이 페이지의 URL이 클립보드에 복사되었습니다.'
@@ -411,7 +428,7 @@ angular.module('placekoob.controllers')
         });
       });
     }
-  };
+  }
 
   place.addPhoto = function() {
     $ionicActionSheet.show({
@@ -435,7 +452,7 @@ angular.module('placekoob.controllers')
         			console.log('Image UUID: ' + response.uuid);
       				RemoteAPIService.sendUserPost({
       					images: [{
-      						content: response.file
+      						content: response.url
       					}],
       					uplace_uuid: place.uplace_uuid
       				})
@@ -479,7 +496,7 @@ angular.module('placekoob.controllers')
           			console.log('Image UUID: ' + response.uuid);
         				RemoteAPIService.sendUserPost({
         					images: [{
-        						content: response.file
+        						content: response.url
         					}],
         					uplace_uuid: place.uplace_uuid
         				})

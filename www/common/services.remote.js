@@ -748,6 +748,28 @@ angular.module('placekoob.services')
     return deferred.promise;
   }
 
+  function getShortenURL(uplace_uuid) {
+    //  http://neapk-test01.japaneast.cloudapp.azure.com/uplaces/00000154DCF3D3CE00000000008AFAE5/shorten_url/
+
+    var deferred = $q.defer();
+
+    console.log('GET request to ' + getServerURL() + '/uplaces/' + uplace_uuid + '/shorten_url/');
+    uplace_uuid = uplace_uuid.replace('.uplace', '');
+    $http({
+      method: 'GET',
+      url: getServerURL() + '/uplaces/' + uplace_uuid + '/shorten_url/'
+    })
+    .then(function(response) {
+      // console.dir(response);
+      deferred.resolve(response.data.shorten_url);
+    }, function(err) {
+      console.error(err);
+      deferred.reject(err);
+    });
+
+    return deferred.promise;
+  }
+
   return {
     registerUser: registerUser,
     loginUser: loginUser,
@@ -770,7 +792,8 @@ angular.module('placekoob.services')
     importImage: importImage,
     getIplaces: getIplaces,
     takeIplace: takeIplace,
-    dropIplace: dropIplace
+    dropIplace: dropIplace,
+    getShortenURL: getShortenURL
   }
 }])
 .factory('PostHelper', ['RESTServer', 'StorageService', 'MapService', function(RESTServer, StorageService, MapService) {

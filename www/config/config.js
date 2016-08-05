@@ -18,7 +18,7 @@ angular.module('placekoob.controllers')
 	});
 	config.lang = StorageService.get('lang');
 	config.country = StorageService.get('country');
-	config.version = '0.1.0';
+	config.version = '0.1.6';
 	config.imageImportButton = '업로드';
 	config.imageImportStatus = 'stop';
 	config.useCellNetwork = false;

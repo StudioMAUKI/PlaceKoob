@@ -602,7 +602,7 @@ angular.module('placekoob.controllers')
 
       var uploadedImages = [];
       for (var i = 0; i < results.length; i++) {
-        uploadedImages.push({content: results[i].file});
+        uploadedImages.push({content: results[i].url});
       }
       var curPos = StorageService.get('curPos');
       RemoteAPIService.sendUserPost({
