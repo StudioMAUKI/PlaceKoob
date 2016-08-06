@@ -55,7 +55,7 @@ angular.module('placekoob.controllers')
   place.loadPlaceInfo = function() {
     RemoteAPIService.getPost(place.uplace_uuid)
     .then(function(post) {
-      // console.dir(post);
+      console.dir(post);
       place.post = post;
       if (place.post.userPost.images) {
         place.imagesForSlide = [];

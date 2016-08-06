@@ -73,7 +73,7 @@
 		</div>
 		<div class="user-image">
 			<img ng-style="{height:place.calculatedHeight,'padding-left':5}" src="img/add_photo.svg" ng-click="place.addPhoto()">
-			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight,'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">			
+			<img ng-repeat="image in place.post.userPost.images track by $index" ng-style="{height:place.calculatedHeight,'padding-left':5}" ng-src="{{image.summary}}" ng-click="place.showImagesWithFullScreen($index)" on-hold="place.deleteImage($index)">
 		</div>
 
 		<!-- 노트 목록 -->
@@ -122,9 +122,7 @@
 			<a class="item" href="#" style="text-align: center;" ng-show="place.post.name" ng-click="place.searchPlace()">
 				관련 블로그 더보기
 			</a>
-		</div>
-
-
+		</div>		
 		<div class="button-bar" style="margin-top:5px;">
 			<a class="button button-assertive button-outline" ng-click="place.deletePlace()">내 장소에서 삭제</a>
 		</div>

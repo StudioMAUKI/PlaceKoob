@@ -47,6 +47,33 @@
 		      가져오기
 		    </button>
 			</ion-item>
+			<div class="row">
+				<div class="col">
+					<a id="kakao-link-btn" href="javascript:;">
+						<img src="https://dev.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"/>
+					</a>
+					<script type='text/javascript'>
+					  //<![CDATA[
+					    // // 사용할 앱의 JavaScript 키를 설정해 주세요.
+					    Kakao.init('25de63a04336cd1035428ac0a820bb20');
+					    // // 카카오톡 링크 버튼을 생성합니다. 처음 한번만 호출하면 됩니다.
+					    Kakao.Link.createTalkLinkButton({
+					      container: '#kakao-link-btn',
+					      label: 'JS가든 현대백화점판교점',
+					      image: {
+					        src: 'http://neapk-test01.japaneast.cloudapp.azure.com/media/summary/img/066/13658E5C7B3034E0CCACDA3B9E46B066.img.summary.jpg',
+					        width: '300',
+					        height: '200'
+					      },
+					      webButton: {
+					        text: '플레이스쿱',
+					        url: 'http://neapk-test01.japaneast.cloudapp.azure.com/ui/diaries/gAAAAABXpCL0fByNPv5GhRFb9K9SuKTYVqviEUngWS70PM3KtkjJ-TaPm14bCitL5Q0Sz7vgz3M2GYgROgYeMi31ep7u5VotZf7j1CJD_7vXqG2m8FvU1YlLWdQFM7jO8rgKZK6EL-k5/' // 앱 설정의 웹 플랫폼에 등록한 도메인의 URL이어야 합니다.
+					      }
+					    });
+					  //]]>
+					</script>
+				</div>
+			</div>
 
 			<!-- <ion-item href="#/config/import" nav-direction="forward">
 				<i class="icon ion-ios-gear-outline"></i>&nbsp;
