@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('placekoob.controllers')
-.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicHistory', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', 'DOMHelper', function($scope, $stateParams, $state, $ionicHistory, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService, DOMHelper) {
+.controller('placeCtrl', ['$scope', '$stateParams', '$state', '$ionicHistory', '$ionicPopup', '$ionicModal', '$ionicSlideBoxDelegate', '$ionicActionSheet', '$ionicScrollDelegate', '$ionicLoading', '$q', '$cordovaClipboard', '$ionicListDelegate', 'RemoteAPIService', 'PostHelper', 'PhotoService', 'ogParserService', 'daumSearchService', 'DOMHelper', 'PKAuthStorageService', function($scope, $stateParams, $state, $ionicHistory, $ionicPopup, $ionicModal, $ionicSlideBoxDelegate, $ionicActionSheet, $ionicScrollDelegate, $ionicLoading, $q, $cordovaClipboard, $ionicListDelegate, RemoteAPIService, PostHelper, PhotoService, ogParserService, daumSearchService, DOMHelper, PKAuthStorageService) {
   var place = this
   place.uplace_uuid = $stateParams.uplace_uuid;
   place.postHelper = PostHelper;
@@ -412,8 +412,11 @@ angular.module('placekoob.controllers')
   };
 
   place.copyURLToClipboard = function(url) {
+    var emailID = PKAuthStorageService.get('email').split('@')[0];
+    var msgAndUrl = emailID + '님이 [' + place.post.name + ']의 사진과 장소를 공유했습니다. ' + url;
+    console.info(msgAndUrl);
     if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
-      $cordovaClipboard.copy(url)
+      $cordovaClipboard.copy(msgAndUrl)
       .then(function(result) {
         console.log('Copying URL was successed.', url);
         $ionicPopup.alert({
