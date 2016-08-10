@@ -583,7 +583,8 @@ angular.module('placekoob.controllers')
   map.confirmSave = function() {
 		//	브라우저의 경우 테스트를 위해 분기함
 		if (!ionic.Platform.isIOS() && !ionic.Platform.isAndroid()) {
-			map.attatchedImage = map.browserFile;
+      map.attatchedImages = [];
+			map.attatchedImages.push(map.browserFile);
 		}
 
 		$ionicLoading.show({
