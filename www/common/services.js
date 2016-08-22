@@ -310,9 +310,42 @@ angular.module('placekoob.services', [])
         .then(function (success) {
           $cordovaFile.readAsText(cordova.file.dataDirectory, storageFileName)
           .then(function (data) {
-            dicSaved = JSON.parse(data);
-            inited = true;
-            deferred.resolve();
+            console.log('data in storage.txt', data);
+            try {
+              if (data === null || data === '') {
+                console.warn('The data in storage is empty.');
+                inited = true;
+                deferred.resolve();
+              } else {
+                dicSaved = JSON.parse(data);
+                inited = true;
+                deferred.resolve();
+              }
+            } catch (e) {
+              console.error('The data in storage is broken.');
+              //  이 경우 파일의 내용이 깨져서 JSON parsing이 안되는 경우이다.
+              //  현재로썬 깔끔하게 지우고 다시 시작하는 것이 최선..
+              $cordovaFile.removeFile(cordova.file.dataDirectory, storageFileName)
+              .then(function() {
+                $cordovaFile.createFile(cordova.file.dataDirectory, storageFileName, true)
+                .then(function (success) {
+                  console.log('New StorageFile have been created.');
+                  inited = true;
+                  dicSaved = {};
+                  deferred.resolve();
+                }, function (err) {
+                  console.error('Cannot create the storage file.');
+                  console.dir(err);
+                  inited = false;
+                  dicSaved = {};
+                  deferred.reject(err);
+                });
+              }, function(err) {
+                inited = false;
+                deferred.reject(err);
+              });
+            }
+
           }, function (error) {
             cosole.error('Reading from the StorageFile was failed.');
             console.dir(error);
