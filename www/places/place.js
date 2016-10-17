@@ -444,7 +444,7 @@ angular.module('placekoob.controllers')
       buttonClicked: function(index) {
         console.log('[Event(ActionSheet:click)]Button['+ index + '] is clicked.');
         if (index == 0) {
-          PhotoService.getPhotoWithCamera()
+          PhotoService.getPhotoFromCamera()
       		.then(function(imageURI) {
             $ionicLoading.show({
         			template: '<ion-spinner icon="lines">저장 중..</ion-spinner>',
@@ -486,7 +486,7 @@ angular.module('placekoob.controllers')
         		});
       		});
         } else {
-          PhotoService.getPhotoWithPhotoLibrary(5)
+          PhotoService.getPhotosFromAlbum(5)
       		.then(function(imageURIs) {
             // console.dir(imageURIs);
             for (var i = 0; i < imageURIs.length; i++){

@@ -471,7 +471,7 @@ angular.module('placekoob.services', [])
 //   }
 // }])
 .factory('PhotoService', ['$cordovaCamera', '$cordovaImagePicker', '$q', function($cordovaCamera, $cordovaImagePicker, $q) {
-  function getPhotoWithCamera() {
+  function getPhotoFromCamera() {
     var deferred = $q.defer();
 
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
@@ -485,7 +485,7 @@ angular.module('placekoob.services', [])
 	      targetHeight: 1280,
 	      popoverOptions: CameraPopoverOptions,
 	      correctOrientation: true,
-	      saveToPhotoAlbum: false
+	      saveToPhotoAlbum: true
 	    };
 
 	    $cordovaCamera.getPicture(options)
@@ -503,7 +503,7 @@ angular.module('placekoob.services', [])
     return deferred.promise;
 	};
 
-	function getPhotoWithPhotoLibrary(reqCount) {
+	function getPhotosFromAlbum(reqCount) {
     var deferred = $q.defer();
 
 		if (ionic.Platform.isIOS() || ionic.Platform.isAndroid()) {
@@ -527,8 +527,8 @@ angular.module('placekoob.services', [])
 	};
 
   return {
-    getPhotoWithCamera: getPhotoWithCamera,
-    getPhotoWithPhotoLibrary: getPhotoWithPhotoLibrary
+    getPhotoFromCamera: getPhotoFromCamera,
+    getPhotosFromAlbum: getPhotosFromAlbum
   }
 }])
 .factory('photoEngineService', ['$q', '$cordovaFile', function($q, $cordovaFile) {

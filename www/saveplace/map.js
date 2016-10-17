@@ -486,7 +486,7 @@ angular.module('placekoob.controllers')
 
   map.savePosition = function() {
     map.attatchedImages = [];
-		PhotoService.getPhotoWithCamera()
+		PhotoService.getPhotoFromCamera()
 		.then(function(imageURI) {
 			map.attatchedImage = imageURI;
       map.attatchedImages.push(map.attatchedImage);
@@ -550,14 +550,14 @@ angular.module('placekoob.controllers')
       buttonClicked: function(index) {
         console.log('[Event(ActionSheet:click)]Button['+ index + '] is clicked.');
         if (index == 0) {
-          PhotoService.getPhotoWithCamera()
+          PhotoService.getPhotoFromCamera()
           .then(function(imageURI) {
             map.attatchedImages.push(imageURI);
           }, function(err) {
             console.error(err);
           });
         } else {
-          PhotoService.getPhotoWithPhotoLibrary(10)
+          PhotoService.getPhotosFromAlbum(10)
           .then(function(imageURIs) {
             map.attatchedImages = map.attatchedImages.concat(imageURIs);
           });

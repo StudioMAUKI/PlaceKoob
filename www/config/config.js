@@ -144,7 +144,7 @@ angular.module('placekoob.controllers')
 	};
 
 	config.importImagesBySelection = function() {
-		PhotoService.getPhotoWithPhotoLibrary(10)
+		PhotoService.getPhotosFromAlbum(10)
 		.then(function(imageURIs) {
 			// start
 			console.dir(imageURIs);
@@ -194,7 +194,7 @@ angular.module('placekoob.controllers')
 			// }
 			// end
 		}, function(err) {
-			console.error('PhotoService.getPhotoWithPhotoLibrary is failed', err);
+			console.error('PhotoService.getPhotosFromAlbum is failed', err);
 		});
 	};
 
