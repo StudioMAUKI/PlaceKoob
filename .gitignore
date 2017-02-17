@@ -7,3 +7,9 @@ plugins/
 test_result/
 PlaceKoob.sublime-project
 PlaceKoob.sublime-workspace
+.DS_Store
+resources/.DS_Store
+www/.DS_Store
+www/img/.DS_Store
+www/img/icon/.DS_Store
+www/lib/.DS_Store
